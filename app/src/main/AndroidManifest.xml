@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="at.aau.se2.chessify" >
 
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -25,11 +28,24 @@
             </intent-filter>
         </activity>
         <activity
+<<<<<<< HEAD
             android:name=".DiceActivity"
             android:exported="true" >
+=======
+            android:name=".Diec.DiceActivity"
+            android:exported="true">
+>>>>>>> cfc5cdcdfb7efaf3cdc9f1e2ba7a5cc03e00b0e8
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".AndroidGameUI.ChessActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
