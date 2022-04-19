@@ -14,19 +14,30 @@
         android:layout_centerHorizontal="true" />
 
     <TextView
-        android:id="@+id/blackTimer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginLeft="@dimen/timer_margin"
+        android:id="@+id/timer"
+        android:layout_width="78dp"
+        android:layout_height="66dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="115dp"
+        android:layout_marginLeft="-91dp"
+        android:layout_marginTop="114dp"
+        android:layout_marginEnd="117dp"
         android:layout_toRightOf="@+id/centerPoint"
         android:textSize="@dimen/timer_text_size"
         android:textStyle="bold" />
 
     <GridView
-        android:id="@+id/chessboard"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:id="@+id/chessBoard"
+        android:layout_width="375dp"
+        android:layout_height="375dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="17dp"
+        android:layout_marginEnd="18dp"
+        android:layout_marginBottom="114dp"
         android:background="#BD2828"
         android:horizontalSpacing="@dimen/grid_line_width"
         android:listSelector="@null"
@@ -34,32 +45,5 @@
         android:padding="@dimen/grid_padding"
         android:stretchMode="spacingWidthUniform"
         android:verticalSpacing="@dimen/grid_line_width" />
-
-    <GridView
-        android:id="@+id/whiteTakenPieces"
-        android:layout_width="181dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/chessboard"
-        android:layout_alignLeft="@+id/chessboard"
-        android:layout_alignParentLeft="true"
-        android:layout_marginLeft="185dp"
-        android:layout_toLeftOf="@+id/centerPoint"
-        android:numColumns="8"
-        android:padding="1dp"
-        android:stretchMode="spacingWidthUniform"
-        android:verticalSpacing="1dp" />
-
-    <GridView
-        android:id="@+id/blackTakenPieces"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignRight="@+id/chessboard"
-        android:layout_below="@+id/chessboard"
-        android:layout_toRightOf="@+id/centerPoint"
-        android:numColumns="8"
-        android:padding="1dp"
-        android:stretchMode="spacingWidthUniform"
-        android:verticalSpacing="1dp" />
 
 </RelativeLayout>
