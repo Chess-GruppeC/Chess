@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
-        android:src="@drawable/chesssettingsbackground"
+        android:src="@drawable/chesssettingsbackground_min"
         tools:layout_editor_absolutX="240dp"
         tools:layout_editor_absolutY="16dp" />
 

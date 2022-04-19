@@ -11,18 +11,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
-        android:src="@drawable/chessmainbackground" />
+        android:src="@drawable/chessmainbackground_min" />
 
     <TextView
         android:id="@+id/textview_welcome"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
         android:fontFamily="serif"
         android:text="CHESSIFY"
         android:textColor="#ffffff"
         android:textSize="48sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -30,44 +31,49 @@
         android:id="@+id/btn_play"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="#0D7697"
+        android:layout_marginEnd="116dp"
+        android:layout_marginBottom="100dp"
+        android:background="@drawable/custom_button1"
         android:fontFamily="serif"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
         android:text="Play"
         android:textAlignment="textStart"
         android:textColor="#FDFDFD"
         android:textSize="60sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.97" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <Button
         android:id="@+id/btn_exit"
-        android:layout_width="120dp"
-        android:layout_height="48dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
-        android:backgroundTint="#29354F"
+        android:background="@drawable/custom_button2"
         android:fontFamily="serif"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
         android:text="Exit"
-        android:textSize="20sp"
+        android:textAlignment="center"
+        android:textSize="15sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/btn_settings"
-        android:layout_width="120dp"
-        android:layout_height="48dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:backgroundTint="#283759"
+        android:background="@drawable/custom_button2"
         android:fontFamily="serif"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
         android:text="Settings"
         android:textAlignment="center"
-        android:textSize="20sp"
+        android:textSize="15sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
