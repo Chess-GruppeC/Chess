@@ -8,6 +8,8 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
+    <color name="defaultButtonColor">#29354F</color>
+    <color name="deactivatedButtonColor">#A8A8A8</color>
 
     <color name="dark_square">#825201</color>
     <color name="light_square">#b69b4c</color>

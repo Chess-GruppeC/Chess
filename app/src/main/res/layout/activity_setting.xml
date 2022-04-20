@@ -13,7 +13,9 @@
         android:scaleType="centerCrop"
         android:src="@drawable/chesssettingsbackground_min"
         tools:layout_editor_absolutX="240dp"
-        tools:layout_editor_absolutY="16dp" />
+        tools:layout_editor_absolutY="16dp"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp" />
 
     <TextView
         android:id="@+id/textViewSettings"
@@ -37,9 +39,9 @@
         android:layout_marginStart="30dp"
         android:layout_marginTop="40dp"
         android:background="@drawable/custom_button2"
+        android:fontFamily="serif"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
-        android:fontFamily="serif"
         android:text="Sound"
         android:textSize="28sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -97,6 +99,42 @@
         app:layout_constraintEnd_toStartOf="@+id/imageView2"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/imageView2" />
+
+    <LinearLayout
+        android:id="@+id/layout"
+        android:layout_width="375dp"
+        android:layout_height="70dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginBottom="222dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayout2"
+            android:layout_width="389dp"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/PlaintextSetName"
+                android:layout_width="match_parent"
+                android:layout_height="62dp"
+                android:hint="Player Name" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_save"
+        android:layout_width="100dp"
+        android:layout_height="54dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="160dp"
+        android:backgroundTint="#263551"
+        android:fontFamily="serif"
+        android:text="SAVE"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

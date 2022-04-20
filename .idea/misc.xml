@@ -12,6 +12,7 @@
         <entry key="app/src/main/res/drawable/arrow_white.xml" value="0.35" />
         <entry key="app/src/main/res/drawable/custom_button1.xml" value="0.282" />
         <entry key="app/src/main/res/drawable/custom_button2.xml" value="0.282" />
+        <entry key="app/src/main/res/drawable/custom_button_deactivated.xml" value="0.35" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.35" />
         <entry key="app/src/main/res/drawable/volume_off_black.xml" value="0.35" />
         <entry key="app/src/main/res/drawable/volume_off_white.xml" value="0.35" />
@@ -23,7 +24,7 @@
         <entry key="app/src/main/res/layout/activity_dice.xml" value="0.3183876811594203" />
         <entry key="app/src/main/res/layout/activity_lobby.xml" value="0.26666666666666666" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.2603127299875453" />
-        <entry key="app/src/main/res/layout/activity_setting.xml" value="0.3012761433919271" />
+        <entry key="app/src/main/res/layout/activity_setting.xml" value="0.3238179524739584" />
       </map>
     </option>
   </component>
