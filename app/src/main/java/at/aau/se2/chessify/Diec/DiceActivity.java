@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -14,8 +13,7 @@ import at.aau.se2.chessify.R;
 
 public class DiceActivity extends AppCompatActivity {
     private ImageView dice;
-    private int number; // calculator
-    private Button shake;
+    private int number;
     private ShakeSensor mShaker;
 
 
@@ -24,26 +22,24 @@ public class DiceActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dice);
         dice = findViewById(R.id.image_dice);
-        shake = findViewById(R.id.shake);
 
         dice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 runShakeSensor();
-                if (runShakeSensor()){
+
+                if (mShaker.activCount != 0){
                     getDiceNumber();
+                }else {
+                   // getDiceNumber();
                 }
+
 
                 //getDiceNumber();
             }
         });
 
-        shake.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                runShakeSensor();
-            }
-        });
+
 
 
     }
@@ -75,30 +71,35 @@ public class DiceActivity extends AppCompatActivity {
         }
     }
 
-    private boolean runShakeSensor(){
-        boolean activ = true;
+    private void runShakeSensor(){
 
         final Vibrator vibe = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
 
         mShaker = new ShakeSensor(this);
         mShaker.setOnShakeListener(new ShakeSensor.OnShakeListener(){
             public void onShake() {
+                mShaker.activCount = 1;
                 vibe.vibrate(500);
                 new AlertDialog.Builder(DiceActivity.this)
                         .setPositiveButton(android.R.string.ok, null)
                         .setMessage("SHAKE!")
                         .show();
+                if (mShaker.activCount != 0) {
+                    getDiceNumber();
+                }
 
             }
 
         });
+        if (mShaker.activCount != 0) {
+            getDiceNumber();
+        }
 
-        return false;
-    }
+        }
 
     private int getRandomNumber(int min, int max) {
-        int randomNum = (int) ((Math.random() * (max - min)) + min);
-        return randomNum;
+        number = (int) ((Math.random() * (max - min)) + min);
+        return number;
     }
     /*private void openGameView() {
         Intent intent = new Intent(this, ChessActivity.class);

@@ -20,11 +20,14 @@ public class ShakeSensor implements SensorListener {
     private OnShakeListener shakeListener;
     private Context context;
     private int shakeCount = 0;
+    public int activCount = 0;
+
     private long lastShake;
     private long lastForce;
 
     public interface OnShakeListener {
         public void onShake() throws InterruptedException;
+
     }
 
     public ShakeSensor(Context context) {
@@ -64,6 +67,7 @@ public class ShakeSensor implements SensorListener {
 
         if ((now - lastForce) > SHAKE_TIMEOUT) {
             shakeCount = 0;
+
         }
 
         if ((now - lastTime) > TIME_THRESHOLD) {
