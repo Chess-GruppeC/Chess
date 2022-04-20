@@ -3,6 +3,7 @@ package at.aau.se2.chessify;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -50,18 +51,50 @@ public class SettingActivity extends AppCompatActivity {
             }
         });
 
-        // Change appearance of Button depending on Sound off/on
+        // Changes appearance of Button depending on Sound off/on
         sound.setOnClickListener(view -> {
             if (Helper.getBackgroundSound(this)) {
                 sound.setBackground(getDrawable(R.drawable.custom_button_deactivated));
+                sound.setTextColor(Color.BLACK);
                 //Sound will follow
                 Toast.makeText(this, "Sound off", Toast.LENGTH_SHORT).show();
                 Helper.setBackgroundSound(this, false);
             } else {
                 sound.setBackground(getDrawable(R.drawable.custom_button2));
+                sound.setTextColor(Color.WHITE);
                 //Sound will follow
                 Toast.makeText(this, "Sound on", Toast.LENGTH_SHORT).show();
                 Helper.setBackgroundSound(this, true);
+            }
+        });
+
+        // Changes appearance of Button depending on Vibration off/on
+        vibrations.setOnClickListener(view -> {
+            if (Helper.getVibration(this)) {
+                vibrations.setBackground(getDrawable(R.drawable.custom_button_deactivated));
+                vibrations.setTextColor(Color.BLACK);
+                Toast.makeText(this, "Vibration off", Toast.LENGTH_SHORT).show();
+                Helper.setVibration(this, false);
+            } else {
+                vibrations.setBackground(getDrawable(R.drawable.custom_button2));
+                vibrations.setTextColor(Color.WHITE);
+                Toast.makeText(this, "Vibration on", Toast.LENGTH_SHORT).show();
+                Helper.setVibration(this, true);
+            }
+        });
+
+        // Changes appearance of Button depending on Darkmode off/on
+        darkmode.setOnClickListener(view -> {
+            if (Helper.getDarkmode(this)) {
+                darkmode.setBackground(getDrawable(R.drawable.custom_button_deactivated));
+                darkmode.setTextColor(Color.BLACK);
+                Toast.makeText(this, "Darkmode off", Toast.LENGTH_SHORT).show();
+                Helper.setDarkmode(this, false);
+            } else {
+                darkmode.setBackground(getDrawable(R.drawable.custom_button2));
+                darkmode.setTextColor(Color.WHITE);
+                Toast.makeText(this, "Darkmode on", Toast.LENGTH_SHORT).show();
+                Helper.setDarkmode(this, true);
             }
         });
 
