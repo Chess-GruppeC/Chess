@@ -63,7 +63,6 @@ public class SettingActivity extends AppCompatActivity {
                 Toast.makeText(this, "Sound on", Toast.LENGTH_SHORT).show();
                 Helper.setBackgroundSound(this, true);
             }
-
         });
 
         back.setOnClickListener(new View.OnClickListener() {
