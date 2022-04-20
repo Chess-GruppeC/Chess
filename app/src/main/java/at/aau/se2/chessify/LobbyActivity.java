@@ -9,10 +9,13 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import at.aau.se2.chessify.util.Helper;
+
 public class LobbyActivity extends AppCompatActivity {
 
     Button JoinGame;
     Button CreateGame;
+    ImageView SoundLobby;
     ImageView Back;
     TextView TextViewBack;
 
@@ -25,6 +28,7 @@ public class LobbyActivity extends AppCompatActivity {
         CreateGame = findViewById(R.id.btn_CreateGame);
         Back = findViewById(R.id.ArrowBacklobby);
         TextViewBack = findViewById(R.id.textView2);
+        SoundLobby = findViewById(R.id.btn_sound_lobby);
 
         Back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -37,6 +41,16 @@ public class LobbyActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 getToMainActivity();
+            }
+        });
+
+        SoundLobby.setOnClickListener(view -> {
+            if (Helper.getBackgroundSound(this)) {
+                SoundLobby.setImageResource(R.drawable.volume_off_white);
+                Helper.setBackgroundSound(this, false);
+            } else {
+                SoundLobby.setImageResource(R.drawable.volume_on_white);
+                Helper.setBackgroundSound(this, true);
             }
         });
 
