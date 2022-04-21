@@ -32,8 +32,7 @@ public class MainActivity extends AppCompatActivity {
         settings = findViewById(R.id.btn_settings);
         soundbutton = findViewById(R.id.btn_sound_main);
         displayPlayername = findViewById(R.id.TextViewPlayerName);
-
-
+        
         //Display PlayerName - Setup in Settings
         if (!Helper.getPlayerName(this).equals("Player"))
             displayPlayername.setText(Helper.getPlayerName(this));
