@@ -1,49 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    tools:context=".Diec.DiceActivity" >
+    android:id="@+id/main_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center_vertical"
+    android:background="@color/black"
+    android:orientation="vertical">
 
 
 
-    <TextView
-        android:id="@+id/centerPoint"
-        android:layout_width="0dip"
+    <FrameLayout
+        android:id="@+id/board_container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true" />
+        android:layout_gravity="center" />
 
-    <TextView
-        android:id="@+id/timer"
-        android:layout_width="78dp"
-        android:layout_height="66dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginStart="115dp"
-        android:layout_marginLeft="-91dp"
-        android:layout_marginTop="114dp"
-        android:layout_marginEnd="117dp"
-        android:layout_toRightOf="@+id/centerPoint"
-        android:textSize="@dimen/timer_text_size"
-        android:textStyle="bold" />
 
-    <GridView
-        android:id="@+id/chessBoard"
-        android:layout_width="375dp"
-        android:layout_height="375dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="17dp"
-        android:layout_marginEnd="18dp"
-        android:layout_marginBottom="114dp"
-        android:background="#BD2828"
-        android:horizontalSpacing="@dimen/grid_line_width"
-        android:listSelector="@null"
-        android:numColumns="8"
-        android:padding="@dimen/grid_padding"
-        android:stretchMode="spacingWidthUniform"
-        android:verticalSpacing="@dimen/grid_line_width" />
 
-</RelativeLayout>
+</LinearLayout>

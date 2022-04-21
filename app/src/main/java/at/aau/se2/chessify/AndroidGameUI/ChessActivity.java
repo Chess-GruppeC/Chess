@@ -1,48 +1,59 @@
 package at.aau.se2.chessify.AndroidGameUI;
 
+import android.content.res.Resources;
+import android.os.Bundle;
+import android.util.Log;
 
-import android.app.Activity;
-import android.widget.GridView;
+import androidx.appcompat.app.AppCompatActivity;
 
 import at.aau.se2.chessify.R;
 
-public class ChessActivity extends Activity {
-    private boolean isPlayer2 = true;
-    private static final Color player2color = Color.BLACK;
-//    private player2 player = Player2.getInstance(player2color);
-    private long startTime = 150000; // 1min (millisec)
+public class ChessActivity extends AppCompatActivity {
 
-    private Color activeTimer = Color.WHITE;
-    private GridView boardView;
-    private Square adapter;
-    private boolean isGameOver = false;
+    private static final String TAG = "ChessActivity";
 
-    private void initBoard() {
-        adapter = new Square(this);
-        boardView = (GridView) boardView.findViewById(R.id.chessBoard);
-        boardView.setStretchMode(GridView.STRETCH_COLUMN_WIDTH);
-        boardView.setAdapter(adapter);
-    }
-    /*void refreshAdapter(Board board) {
-        adapter = new Square(this, board);
-        boardView.setAdapter(adapter);
-    }*/
-    private void gameOver(){
-        //show GameOver
-    }
-    boolean isGameOver(){
-        return isGameOver;
+    public static int screenwidth;
+    public static int screenheight;
+    private static String mPlayerTurn;
+
+    private BoardView board;
+
+
+    public static String getPlayerTurn() {
+        return mPlayerTurn;
     }
 
-    boolean player2Move() {
-        return isPlayer2 && player2color == activeTimer;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_board);
+
+        initNewGame();
     }
 
-    private class GetPlayer2Move {
+    public void initNewGame() {
+        Log.d(TAG, "initNewGame: called.");
+        setScreenDimensions();
+        initBoard();
+    }
 
+    public void setScreenDimensions() {
+        screenwidth = Resources.getSystem().getDisplayMetrics().widthPixels;
+        screenheight = Resources.getSystem().getDisplayMetrics().heightPixels;
     }
-    boolean isPlayer2(){
-        return isPlayer2;
+
+    public void initBoard() {
+        board = new BoardView();
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.board_container, board)
+                .commit();
     }
+
+
+
+
+
 
 }

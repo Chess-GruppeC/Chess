@@ -1,20 +1,25 @@
 package at.aau.se2.chessify.Diec;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import at.aau.se2.chessify.R;
+import at.aau.se2.chessify.AndroidGameUI.ChessActivity;
 
 public class DiceActivity extends AppCompatActivity {
     private ImageView dice;
     private int number;
     private ShakeSensor mShaker;
+    private Button creatBoard;
+
 
 
     @Override
@@ -22,6 +27,7 @@ public class DiceActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dice);
         dice = findViewById(R.id.image_dice);
+        creatBoard = findViewById(R.id.createBoard);
 
         dice.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -30,12 +36,13 @@ public class DiceActivity extends AppCompatActivity {
 
                 if (mShaker.activCount != 0){
                     getDiceNumber();
-                }else {
-                   // getDiceNumber();
                 }
-
-
-                //getDiceNumber();
+            }
+        });
+        creatBoard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openGameView();
             }
         });
 
@@ -101,10 +108,10 @@ public class DiceActivity extends AppCompatActivity {
         number = (int) ((Math.random() * (max - min)) + min);
         return number;
     }
-    /*private void openGameView() {
+    private void openGameView() {
         Intent intent = new Intent(this, ChessActivity.class);
         startActivity(intent);
-    }*/
+    }
 
     @Override
     public void onPause()
