@@ -5,10 +5,13 @@
       <map>
         <entry key="..\:/Users/pasic/Documents/GitHub/Chess/app/src/main/res/layout/activity_board.xml" value="0.22" />
         <entry key="..\:/Users/pasic/Documents/GitHub/Chess/app/src/main/res/layout/activity_dice.xml" value="0.328804347826087" />
-        <entry key="..\:/Users/pasic/Documents/GitHub/Chess/app/src/main/res/layout/activity_game.xml" value="0.32155797101449274" />
         <entry key="..\:/Users/pasic/Documents/GitHub/Chess/app/src/main/res/layout/square.xml" value="0.1" />
         <entry key="..\:/Users/pasic/Documents/GitHub/Chess/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.1" />
         <entry key="..\:/Users/pasic/Documents/GitHub/Chess/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.1" />
+        <entry key="..\:/Users/wende/OneDrive/Dokumente/GitHub/Chess/app/src/main/res/layout/activity_board.xml" value="0.42083333333333334" />
+        <entry key="..\:/Users/wende/OneDrive/Dokumente/GitHub/Chess/app/src/main/res/layout/activity_dice.xml" value="0.42083333333333334" />
+        <entry key="..\:/Users/wende/OneDrive/Dokumente/GitHub/Chess/app/src/main/res/layout/activity_lobby.xml" value="0.5045289855072463" />
+        <entry key="..\:/Users/wende/OneDrive/Dokumente/GitHub/Chess/app/src/main/res/layout/activity_main.xml" value="0.5045289855072463" />
         <entry key="app/src/main/res/drawable/arrow_back.xml" value="0.271" />
         <entry key="app/src/main/res/drawable/arrow_white.xml" value="0.35" />
         <entry key="app/src/main/res/drawable/custom_button1.xml" value="0.282" />
