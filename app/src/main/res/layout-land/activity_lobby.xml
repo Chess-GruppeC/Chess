@@ -10,16 +10,17 @@
         android:id="@+id/imageView3"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="1dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/lobbybackground_min"
-        tools:layout_editor_absoluteX="-16dp"
-        tools:layout_editor_absoluteY="0dp" />
+        android:src="@drawable/wallpaper1_material_min"
+        app:layout_constraintTop_toTopOf="@id/btn_JoinGame"
+        tools:layout_editor_absoluteX="-16dp" />
 
     <Button
         android:id="@+id/btn_JoinGame"
         android:layout_width="230dp"
         android:layout_height="110dp"
-        android:layout_marginStart="60dp"
+        android:layout_marginEnd="75dp"
         android:background="@drawable/custom_button2"
         android:fontFamily="serif"
         android:paddingLeft="10dp"
@@ -27,14 +28,15 @@
         android:text="Join Game"
         android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/imageView3"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView3" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView3"
+        app:layout_constraintVertical_bias="0.55" />
 
     <Button
         android:id="@+id/btn_CreateGame"
         android:layout_width="230dp"
         android:layout_height="110dp"
-        android:layout_marginEnd="60dp"
+        android:layout_marginStart="75dp"
         android:background="@drawable/custom_button2"
         android:fontFamily="serif"
         android:paddingLeft="10dp"
@@ -42,15 +44,16 @@
         android:text="Create Game"
         android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/imageView3"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView3" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView3"
+        app:layout_constraintVertical_bias="0.55" />
 
     <ImageView
         android:id="@+id/ArrowBacklobby"
         android:layout_width="83dp"
         android:layout_height="75dp"
         android:layout_marginStart="25dp"
-        android:layout_marginBottom="25dp"
+        android:layout_marginBottom="15dp"
         android:src="@drawable/arrow_white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -60,7 +63,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="120dp"
-        android:layout_marginBottom="44dp"
+        android:layout_marginBottom="30dp"
         android:fontFamily="serif"
         android:text="back"
         android:textSize="38sp"
@@ -71,7 +74,7 @@
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="20dp"
         android:fontFamily="serif"
         android:text="Lobby"
         android:textSize="48sp"
@@ -79,5 +82,66 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/imageView3"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="75dp"
+        android:layout_marginTop="120dp"
+        android:text="Game ID:"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/btn_CreateGame" />
+
+    <TextView
+        android:id="@+id/textView_viewGameID"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="70dp"
+        android:layout_marginTop="120dp"
+        android:text="8583928"
+        android:textAlignment="viewStart"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@id/textView9"
+        app:layout_constraintTop_toTopOf="@id/btn_CreateGame" />
+
+    <ImageView
+        android:id="@+id/btn_sound_lobby"
+        android:layout_width="69dp"
+        android:layout_height="66dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginBottom="15dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/volume_on_white" />
+
+    <LinearLayout
+        android:id="@+id/layout"
+        android:layout_width="260dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="95dp"
+        android:layout_marginEnd="44dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/btn_JoinGame">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayout2"
+            android:layout_width="389dp"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/PlaintextEnterGameID"
+                android:layout_width="match_parent"
+                android:layout_height="62dp"
+                android:hint="Enter Game ID"
+                android:textAlignment="center"
+                android:textSize="20sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -84,6 +84,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void closeApp() {
         finishAndRemoveTask();
+        //finish();
+        //System.exit(0);
     }
 
     public void openSettings() {

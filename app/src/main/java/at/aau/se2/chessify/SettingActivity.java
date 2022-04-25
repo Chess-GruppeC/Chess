@@ -35,7 +35,7 @@ public class SettingActivity extends AppCompatActivity {
         vibrations = findViewById(R.id.btn_vibrations);
         darkmode = findViewById(R.id.btn_darkmode);
         back = findViewById(R.id.ArrowBack);
-        setName = findViewById(R.id.PlaintextSetName);
+        setName = findViewById(R.id.PlaintextEnterGameID);
         TextViewBack = findViewById(R.id.textView);
 
         // Set Player Name

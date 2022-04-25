@@ -91,7 +91,7 @@
         app:srcCompat="@drawable/volume_on_white" />
 
     <TextView
-        android:id="@+id/TTextViewPlayerName"
+        android:id="@+id/TextViewPlayerName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
