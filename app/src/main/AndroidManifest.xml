@@ -38,7 +38,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".AndroidGameUI.ChessActivity"
+            android:name=".AndroidGameUI.BoardView"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
