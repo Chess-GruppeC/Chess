@@ -11,8 +11,8 @@ import android.widget.ImageView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import at.aau.se2.chessify.AndroidGameUI.BoardView;
 import at.aau.se2.chessify.R;
-import at.aau.se2.chessify.AndroidGameUI.ChessActivity;
 
 public class DiceActivity extends AppCompatActivity {
     private ImageView dice;
@@ -109,7 +109,7 @@ public class DiceActivity extends AppCompatActivity {
         return number;
     }
     private void openGameView() {
-        Intent intent = new Intent(this, ChessActivity.class);
+        Intent intent = new Intent(this, BoardView.class);
         startActivity(intent);
     }
 
