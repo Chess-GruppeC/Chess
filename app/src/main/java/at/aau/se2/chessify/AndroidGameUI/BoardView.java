@@ -2,6 +2,7 @@ package at.aau.se2.chessify.AndroidGameUI;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,7 +18,12 @@ import at.aau.se2.chessify.AndroidGameUI.altLogic.pieces.Rook;
 import at.aau.se2.chessify.R;
 
 
+
+
 public class BoardView extends AppCompatActivity implements View.OnClickListener{
+
+    private int currentProgress = 0;
+    ProgressBar specialMoveBar;
 
     public TextView[][] BoardView = new TextView[8][8];
     public TextView[][] BoardViewBackground = new TextView[8][8];
@@ -351,6 +357,27 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     //TODO: choice
     //TODO: set color at allowed position
     //TODO: is King in danger
+
+    public void initSpecialmoveBar() {
+        specialMoveBar = findViewById(R.id.special_move_bar);
+    }
+
+    /* Konzept der Special Move Bar
+    public void fillSpecialMoveBar(){
+
+        if (piece.getPieceId().contains("bp"))
+            currentProgress = currentProgress + 2;
+        else if (piece.getPieceId().contains("bn") || piece.getPieceId().contains("bb"))
+            currentProgress = currentProgress + 5;
+        else if (piece.getPieceId().contains("br"))
+            currentProgress = currentProgress + 7;
+        else if (piece.getPieceId().contains("bq"))
+            currentProgress = currentProgress + 9;
+
+        specialMoveBar.setProgress(currentProgress);
+        specialMoveBar.setMax(30);
+    }
+*/
 
 
 
