@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import at.aau.se2.chessify.Diec.DiceActivity;
 import at.aau.se2.chessify.util.Helper;
 
 public class LobbyActivity extends AppCompatActivity {
@@ -40,14 +41,14 @@ public class LobbyActivity extends AppCompatActivity {
         CreateGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                startDiceActivity();
             }
         });
 
         JoinGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                startDiceActivity();
             }
         });
 
@@ -80,6 +81,11 @@ public class LobbyActivity extends AppCompatActivity {
 
     public void getToMainActivity() {
         Intent intentgetBack = new Intent(this, MainActivity.class);
+        startActivity(intentgetBack);
+    }
+
+    public void startDiceActivity() {
+        Intent intentgetBack = new Intent(this, DiceActivity.class);
         startActivity(intentgetBack);
     }
 }
