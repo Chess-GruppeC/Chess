@@ -7,17 +7,17 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import at.aau.se2.chessify.AndroidGameUI.altLogic.board.Location;
-import at.aau.se2.chessify.AndroidGameUI.altLogic.pieces.Bishop;
-import at.aau.se2.chessify.AndroidGameUI.altLogic.pieces.ChessPiece;
-import at.aau.se2.chessify.AndroidGameUI.altLogic.pieces.King;
-import at.aau.se2.chessify.AndroidGameUI.altLogic.pieces.Knight;
-import at.aau.se2.chessify.AndroidGameUI.altLogic.pieces.Pawn;
-import at.aau.se2.chessify.AndroidGameUI.altLogic.pieces.Queen;
-import at.aau.se2.chessify.AndroidGameUI.altLogic.pieces.Rook;
 import at.aau.se2.chessify.R;
-
-
+import at.aau.se2.chessify.chessLogic.board.ChessBoard;
+import at.aau.se2.chessify.chessLogic.board.Location;
+import at.aau.se2.chessify.chessLogic.pieces.Bishop;
+import at.aau.se2.chessify.chessLogic.pieces.ChessPiece;
+import at.aau.se2.chessify.chessLogic.pieces.King;
+import at.aau.se2.chessify.chessLogic.pieces.Knight;
+import at.aau.se2.chessify.chessLogic.pieces.Pawn;
+import at.aau.se2.chessify.chessLogic.pieces.PieceColour;
+import at.aau.se2.chessify.chessLogic.pieces.Queen;
+import at.aau.se2.chessify.chessLogic.pieces.Rook;
 
 
 public class BoardView extends AppCompatActivity implements View.OnClickListener{
@@ -31,7 +31,9 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     public Location[][] Board = new Location[8][8];
     public Location[][] Board2 = new Location[8][8];
 
-    King king = new King();
+    ChessBoard chessBoard = new ChessBoard();
+
+  /*  King king = new King();
     Queen queen = new Queen();
     Bishop bishop= new Bishop();
     Rook rook= new Rook();
@@ -76,7 +78,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     ChessPiece wPawn6;
     ChessPiece wPawn7;
     ChessPiece wPawn8;
-
+*/
 
 
     @Override
@@ -92,7 +94,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
 
     private void initializeBoard() {
         //init all Pieces
-        bKing = new King();
+       /* bKing = new King();
         wKing = new King();
 
         bQueen = new Queen();
@@ -136,7 +138,10 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                 Board[i][j] = new Location(i,j);
                 Board[i][j] = new Location(i,j);
             }
-        }
+        }*/
+
+
+
 
         BoardView[0][0] = (TextView) findViewById(R.id.R00);
         BoardViewBackground[0][0] = (TextView) findViewById(R.id.R000);
@@ -273,12 +278,55 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         BoardViewBackground[6][7] = (TextView) findViewById(R.id.R067);
         BoardView[7][7] = (TextView) findViewById(R.id.R77);
         BoardViewBackground[7][7] = (TextView) findViewById(R.id.R077);
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                ChessPiece chessPiece = chessBoard.getPieceAtLocation(new Location(i,j));
 
+                if (chessPiece != null){
+                    if (chessPiece.getClass() == Pawn.class && chessPiece.getColour() == PieceColour.BLACK){
+                        BoardView[i][j].setBackgroundResource(R.drawable.black_pawn);
+                    }if (chessPiece.getClass() == Pawn.class && chessPiece.getColour() == PieceColour.WHITE){
+                        BoardView[i][j].setBackgroundResource(R.drawable.white_pawn);
+                    }
+                    if (chessPiece.getClass() == Rook.class && chessPiece.getColour() == PieceColour.BLACK){
+                        BoardView[i][j].setBackgroundResource(R.drawable.black_rook);
+                    }if (chessPiece.getClass() == Rook.class && chessPiece.getColour() == PieceColour.WHITE){
+                        BoardView[i][j].setBackgroundResource(R.drawable.white_rook);
+                    }
+                    if (chessPiece.getClass() == Bishop.class && chessPiece.getColour() == PieceColour.BLACK){
+                        BoardView[i][j].setBackgroundResource(R.drawable.black_bishop);
+                    }if (chessPiece.getClass() == Bishop.class && chessPiece.getColour() == PieceColour.WHITE){
+                        BoardView[i][j].setBackgroundResource(R.drawable.white_bishop);
+                    }
+                    if (chessPiece.getClass() == Knight.class && chessPiece.getColour() == PieceColour.BLACK){
+                        BoardView[i][j].setBackgroundResource(R.drawable.black_knight);
+                    }if (chessPiece.getClass() == Knight.class && chessPiece.getColour() == PieceColour.WHITE){
+                        BoardView[i][j].setBackgroundResource(R.drawable.white_knight);
+                    }
+                    if (chessPiece.getClass() == King.class && chessPiece.getColour() == PieceColour.BLACK){
+                        BoardView[i][j].setBackgroundResource(R.drawable.black_king);
+                    }if (chessPiece.getClass() == King.class && chessPiece.getColour() == PieceColour.WHITE){
+                        BoardView[i][j].setBackgroundResource(R.drawable.white_king);
+                    }
+                    if (chessPiece.getClass() == Queen.class && chessPiece.getColour() == PieceColour.BLACK){
+                        BoardView[i][j].setBackgroundResource(R.drawable.black_queen);
+                    }if (chessPiece.getClass() == Queen.class && chessPiece.getColour() == PieceColour.WHITE){
+                        BoardView[i][j].setBackgroundResource(R.drawable.white_queen);
+                    }
+                }
+            }
+        }
 
-        setAltBoard();
+       // setAltBoard();
     }
     private void setAltBoard(){
 
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+
+            }
+        }
+        /*
         //setPawn
         for (int i = 0; i < 8; i++) {
             for (int j = 1; j < 2; j++) {
@@ -340,7 +388,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         //Queen
         BoardView[4][0].setBackgroundResource(R.drawable.black_queen);
         BoardView[3][7].setBackgroundResource(R.drawable.white_queen);
-
+*/
 
 
     }

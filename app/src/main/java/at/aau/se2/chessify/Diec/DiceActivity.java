@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -19,7 +20,6 @@ public class DiceActivity extends AppCompatActivity {
     private int number;
     private ShakeSensor mShaker;
     private Button creatBoard;
-
 
 
     @Override
