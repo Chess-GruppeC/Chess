@@ -14,25 +14,30 @@ import java.util.List;
 
 public class WebSocketClient {
 
-    private final String server;
-    private final Integer port;
-    private final String username;
-
     private StompClient mStompClient;
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     private BehaviorSubject<StompMessage> createGameSubject;
     private BehaviorSubject<StompMessage> joinGameSubject;
 
-    public static String WEBSOCKET_ENDPOINT = "/chess/websocket";
+    public static final String WEBSOCKET_ENDPOINT = "/chess/websocket";
+    public static final String SERVER = "se2-demo.aau.at";
+    public static final Integer PORT = 53207;
 
-    public WebSocketClient(String server, Integer port, String username) {
-        this.server = server;
-        this.port = port;
-        this.username = username;
+    private static WebSocketClient INSTANCE;
+    private static String username;
 
+    private WebSocketClient() {
         establishConnection();
         initSubscriptions();
+    }
+
+    public static WebSocketClient getInstance(String username) {
+        if(INSTANCE == null) {
+            WebSocketClient.username = username;
+            INSTANCE = new WebSocketClient();
+        }
+        return INSTANCE;
     }
 
     private void establishConnection() {
@@ -43,7 +48,7 @@ public class WebSocketClient {
     }
 
     public String getURI() {
-        return "ws://" + server + ":" + port + WEBSOCKET_ENDPOINT;
+        return "ws://" + SERVER + ":" + PORT + WEBSOCKET_ENDPOINT;
     }
 
     private void initSubscriptions() {
@@ -51,13 +56,13 @@ public class WebSocketClient {
                 .subscribe(response -> {
                     createGameSubject.onNext(response);
                     createGameSubject.onComplete();
-                }));
+                }, Throwable::printStackTrace));
 
         compositeDisposable.add(mStompClient.topic("/user/queue/join")
                 .subscribe(response -> {
                     joinGameSubject.onNext(response);
                     joinGameSubject.onComplete();
-                }));
+                }, Throwable::printStackTrace));
     }
 
     /**
@@ -118,5 +123,13 @@ public class WebSocketClient {
 
     public void dispose() {
         compositeDisposable.dispose();
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setClient(StompClient c) {
+        this.mStompClient = c;
     }
 }

@@ -2,6 +2,7 @@ package at.aau.se2.chessify;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -10,8 +11,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import at.aau.se2.chessify.Diec.DiceActivity;
+import at.aau.se2.chessify.network.WebSocketClient;
 import at.aau.se2.chessify.util.Helper;
 
 public class LobbyActivity extends AppCompatActivity {
@@ -23,6 +26,8 @@ public class LobbyActivity extends AppCompatActivity {
     TextView TextViewBack;
     TextView viewGameID;
     EditText inputGameID;
+
+    private WebSocketClient webSocketClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,17 +43,47 @@ public class LobbyActivity extends AppCompatActivity {
         inputGameID = findViewById(R.id.PlaintextEnterGameID);
         SoundLobby = findViewById(R.id.btn_sound_lobby);
 
+        webSocketClient = WebSocketClient.getInstance(Helper.getPlayerName(this));
+
         CreateGame.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("CheckResult")
             @Override
             public void onClick(View view) {
-                startDiceActivity();
+                if (!webSocketClient.isConnected())
+                    return;
+                webSocketClient.requestNewGame().subscribe(gameId -> {
+                    showToast("Received game ID " + gameId.getPayload());
+                    runOnUiThread(() -> viewGameID.setText(gameId.getPayload()));
+                    startDiceActivity();
+                }, Throwable::printStackTrace);
             }
         });
 
         JoinGame.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("CheckResult")
             @Override
             public void onClick(View view) {
-                startDiceActivity();
+                String input = inputGameID.getText().toString();
+                if (input.isEmpty()) {
+                    showToast("Please enter Game ID");
+                } else {
+                    if (!webSocketClient.isConnected())
+                        return;
+                    webSocketClient.joinGame(inputGameID.getText().toString()).subscribe(response -> {
+                        switch (response.getPayload()) {
+                            case "1":
+                                showToast("Successfully joined game");
+                                startDiceActivity();
+                                break;
+                            case "0":
+                                showToast("Game is already full");
+                                break;
+                            case "-1":
+                                showToast("Game does not exist");
+                                break;
+                        }
+                    }, Throwable::printStackTrace);
+                }
             }
         });
 
@@ -88,4 +123,10 @@ public class LobbyActivity extends AppCompatActivity {
         Intent intentgetBack = new Intent(this, DiceActivity.class);
         startActivity(intentgetBack);
     }
+
+    private void showToast(String text) {
+        runOnUiThread(() ->
+                Toast.makeText(getBaseContext(), text, Toast.LENGTH_SHORT).show());
+    }
+
 }
