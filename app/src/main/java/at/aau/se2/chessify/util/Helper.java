@@ -54,5 +54,12 @@ public class Helper {
         getSharedPreferences(context).edit().putString("Player", type).apply();
     }
 
+    public static void setGameId(Context context, String gameId) {
+        getSharedPreferences(context).edit().putString("GAME_ID", gameId).apply();
+    }
+
+    public static String getGameId(Context context) {
+        return getSharedPreferences(context).getString("GAME_ID", null);
+    }
 
 }

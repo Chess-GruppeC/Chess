@@ -48,6 +48,24 @@
         app:layout_constraintStart_toStartOf="@id/guideline3"
         app:layout_constraintTop_toTopOf="@id/textView3" />
 
+    <Button
+        android:id="@+id/btn_startGame"
+        android:layout_width="0dp"
+        android:layout_height="110dp"
+        android:visibility="invisible"
+        android:layout_marginTop="90dp"
+        android:background="@drawable/custom_button2"
+        android:fontFamily="serif"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:text="Start Game"
+        android:textSize="24sp"
+        app:layout_constraintDimensionRatio="2:1"
+        app:layout_constraintEnd_toEndOf="@id/guideline6"
+        app:layout_constraintStart_toStartOf="@id/guideline3"
+        app:layout_constraintTop_toTopOf="@id/textView3" />
+
+
     <ImageView
         android:id="@+id/ArrowBacklobby"
         android:layout_width="61dp"
@@ -82,30 +100,42 @@
         app:layout_constraintStart_toEndOf="@+id/imageView3"
         app:layout_constraintTop_toTopOf="@+id/guideline9" />
 
-    <TextView
-        android:id="@+id/textView9"
+    <ImageView
+        android:id="@+id/icon_copy"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="130dp"
+        android:visibility="invisible"
+        app:srcCompat="@drawable/ic_baseline_content_copy_24"
+        app:layout_constraintStart_toEndOf="@id/textView_viewGameID"
+        app:layout_constraintTop_toTopOf="@id/textView_viewGameID" />
+
+    <TextView
+        android:id="@+id/textView_GameIdLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:layout_marginTop="20dp"
         android:text="Game ID:"
         android:textAlignment="center"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="@id/guideline3"
-        app:layout_constraintTop_toTopOf="@id/btn_CreateGame" />
+        app:layout_constraintTop_toBottomOf="@id/btn_CreateGame" />
 
     <TextView
         android:id="@+id/textView_viewGameID"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="130dp"
-        android:layout_marginEnd="10dp"
-        android:text="8583928"
-        android:textAlignment="viewStart"
+        android:visibility="invisible"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginStart="10dp"
+        android:textAlignment="center"
         android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@id/guideline6"
-        app:layout_constraintTop_toTopOf="@id/btn_CreateGame" />
+        app:layout_constraintStart_toEndOf="@id/textView_GameIdLabel"
+        app:layout_constraintEnd_toStartOf="@id/icon_copy"
+        app:layout_constraintTop_toBottomOf="@id/btn_CreateGame" />
+
 
     <ImageView
         android:id="@+id/btn_sound_lobby"

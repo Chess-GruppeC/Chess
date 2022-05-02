@@ -116,7 +116,8 @@ public class DiceActivity extends AppCompatActivity {
     @Override
     public void onPause()
     {
-        mShaker.pause();
+        if(mShaker != null)
+            mShaker.pause();
         super.onPause();
     }
 

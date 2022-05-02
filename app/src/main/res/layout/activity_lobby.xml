@@ -47,6 +47,23 @@
         app:layout_constraintStart_toStartOf="@id/guideline2"
         app:layout_constraintTop_toTopOf="@id/textView4" />
 
+    <Button
+        android:id="@+id/btn_startGame"
+        android:layout_width="0dp"
+        android:layout_height="110dp"
+        android:visibility="invisible"
+        android:layout_marginTop="200dp"
+        android:background="@drawable/custom_button2"
+        android:fontFamily="serif"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:text="Start Game"
+        android:textSize="24sp"
+        app:layout_constraintDimensionRatio="2:1"
+        app:layout_constraintEnd_toEndOf="@id/guideline4"
+        app:layout_constraintStart_toStartOf="@id/guideline2"
+        app:layout_constraintTop_toTopOf="@id/textView4" />
+
     <ImageView
         android:id="@+id/ArrowBacklobby"
         android:layout_width="83dp"
@@ -94,10 +111,10 @@
         app:srcCompat="@drawable/volume_on_white" />
 
     <TextView
-        android:id="@+id/textView9"
+        android:id="@+id/textView_GameIdLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
+        android:visibility="invisible"
         android:layout_marginTop="130dp"
         android:text="Game ID:"
         android:textAlignment="center"
@@ -133,17 +150,26 @@
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 
+    <ImageView
+        android:id="@+id/icon_copy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        app:srcCompat="@drawable/ic_baseline_content_copy_24"
+        app:layout_constraintEnd_toEndOf="@id/guideline4"
+        app:layout_constraintTop_toTopOf="@id/textView_viewGameID" />
+
     <TextView
         android:id="@+id/textView_viewGameID"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="invisible"
         android:layout_marginTop="130dp"
         android:layout_marginEnd="5dp"
-        android:text="8584929"
         android:textAlignment="center"
         android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@id/guideline4"
+        app:layout_constraintEnd_toStartOf="@id/icon_copy"
         app:layout_constraintTop_toTopOf="@id/btn_CreateGame" />
 
     <androidx.constraintlayout.widget.Guideline

@@ -1,8 +1,11 @@
 package at.aau.se2.chessify;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import android.annotation.SuppressLint;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -26,6 +29,9 @@ public class LobbyActivity extends AppCompatActivity {
     TextView TextViewBack;
     TextView viewGameID;
     EditText inputGameID;
+    private Button btnStartGame;
+    private TextView viewGameIdLabel;
+    private ImageView iconCopy;
 
     private WebSocketClient webSocketClient;
 
@@ -42,6 +48,9 @@ public class LobbyActivity extends AppCompatActivity {
         viewGameID = findViewById(R.id.textView_viewGameID);
         inputGameID = findViewById(R.id.PlaintextEnterGameID);
         SoundLobby = findViewById(R.id.btn_sound_lobby);
+        btnStartGame = findViewById(R.id.btn_startGame);
+        viewGameIdLabel = findViewById(R.id.textView_GameIdLabel);
+        iconCopy = findViewById(R.id.icon_copy);
 
         webSocketClient = WebSocketClient.getInstance(Helper.getPlayerName(this));
 
@@ -52,12 +61,22 @@ public class LobbyActivity extends AppCompatActivity {
                 if (!webSocketClient.isConnected())
                     return;
                 webSocketClient.requestNewGame().subscribe(gameId -> {
-                    showToast("Received game ID " + gameId.getPayload());
-                    runOnUiThread(() -> viewGameID.setText(gameId.getPayload()));
-                    startDiceActivity();
+                    String id = gameId.getPayload();
+                    runOnUiThread(() -> {
+                        setStartGameLobby();
+                        saveGameId(id);
+                        viewGameID.setText(id);
+                    });
                 }, Throwable::printStackTrace);
             }
         });
+
+        btnStartGame.setOnClickListener(view -> {
+            startDiceActivity();
+        });
+
+        viewGameID.setOnClickListener(getCopyToClipboardListener());
+        iconCopy.setOnClickListener(getCopyToClipboardListener());
 
         JoinGame.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("CheckResult")
@@ -73,6 +92,7 @@ public class LobbyActivity extends AppCompatActivity {
                         switch (response.getPayload()) {
                             case "1":
                                 showToast("Successfully joined game");
+                                saveGameId(input);
                                 startDiceActivity();
                                 break;
                             case "0":
@@ -120,13 +140,43 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     public void startDiceActivity() {
-        Intent intentgetBack = new Intent(this, DiceActivity.class);
-        startActivity(intentgetBack);
+        Intent intentDiceActivity = new Intent(this, DiceActivity.class);
+        startActivity(intentDiceActivity);
     }
 
     private void showToast(String text) {
         runOnUiThread(() ->
                 Toast.makeText(getBaseContext(), text, Toast.LENGTH_SHORT).show());
+    }
+
+    private View.OnClickListener getCopyToClipboardListener() {
+        return view -> {
+            ClipboardManager clipboard = ContextCompat.getSystemService(getBaseContext(), ClipboardManager.class);
+            if(clipboard != null) {
+                clipboard.setPrimaryClip(ClipData.newPlainText("", Helper.getGameId(getBaseContext())));
+                showToast("Copied Game ID to Clipboard");
+            }
+        };
+    }
+
+    private void saveGameId(String gameId) {
+        Helper.setGameId(getBaseContext(), gameId);
+    }
+
+    private void setVisible(View view) {
+        view.setVisibility(View.VISIBLE);
+    }
+
+    private void setInvisible(View view) {
+        view.setVisibility(View.INVISIBLE);
+    }
+
+    private void setStartGameLobby() {
+        setInvisible(CreateGame);
+        setVisible(viewGameID);
+        setVisible(viewGameIdLabel);
+        setVisible(btnStartGame);
+        setVisible(iconCopy);
     }
 
 }

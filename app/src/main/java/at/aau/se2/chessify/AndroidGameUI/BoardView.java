@@ -18,6 +18,7 @@ import at.aau.se2.chessify.chessLogic.pieces.Pawn;
 import at.aau.se2.chessify.chessLogic.pieces.PieceColour;
 import at.aau.se2.chessify.chessLogic.pieces.Queen;
 import at.aau.se2.chessify.chessLogic.pieces.Rook;
+import at.aau.se2.chessify.util.Helper;
 
 
 public class BoardView extends AppCompatActivity implements View.OnClickListener{
@@ -40,6 +41,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
 
         initializeBoard();
 
+        ((TextView)findViewById(R.id.tV_game_id)).setText("#".concat(Helper.getGameId(this)));
 
     }
 

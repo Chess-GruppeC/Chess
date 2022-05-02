@@ -3,9 +3,45 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/activity_board"
-
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/wallpaper1_material_min"/>
+
+    <TextView
+        android:id="@+id/tV_game_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="15dp"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/tV_player2_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:textSize="20sp"
+        android:text="Player2"
+        app:layout_constraintBottom_toTopOf="@id/gridLayout"
+        app:layout_constraintEnd_toEndOf="@id/gridLayout"/>
+
+    <TextView
+        android:id="@+id/tV_player1_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:textSize="20sp"
+        android:text="Player1"
+        app:layout_constraintBottom_toTopOf="@id/gridLayout"
+        app:layout_constraintStart_toStartOf="@id/gridLayout"/>
 
     <ImageView
         android:layout_width="wrap_content"
