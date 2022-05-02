@@ -118,4 +118,22 @@ public class SettingActivity extends AppCompatActivity {
         startActivity(intentgetBack);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+    }
+
 }

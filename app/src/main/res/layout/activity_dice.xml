@@ -35,4 +35,57 @@
         app:layout_constraintTop_toBottomOf="@+id/image_dice"
         app:layout_constraintVertical_bias="0.58" />
 
+    <TextView
+        android:id="@+id/player2"
+        android:layout_width="70dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="24dp"
+        android:text="@string/player_2"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.505"
+        app:layout_constraintStart_toEndOf="@+id/player1"
+        app:layout_constraintTop_toBottomOf="@+id/image_dice"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/player1"
+        android:layout_width="70dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="24dp"
+        android:text="Player 1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.214"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/image_dice"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/player2_color"
+        android:layout_width="70dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="124dp"
+        android:layout_marginTop="17dp"
+        android:text="TEAM"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/player1_color"
+        app:layout_constraintTop_toBottomOf="@+id/player2"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/player1_color"
+        android:layout_width="70dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="16dp"
+        android:text="TEAM"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.214"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/player1"
+        app:layout_constraintVertical_bias="0.004" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,5 +1,7 @@
 package at.aau.se2.chessify.chessLogic.board;
 
+import java.util.ArrayList;
+
 public class Location {
 
     int row;
@@ -24,6 +26,24 @@ public class Location {
 
     public void setColumn(int column) {
         this.column = column;
+    }
+
+    public boolean checkIfLocationIsPartOfList(ArrayList<Location> locations){
+        for(Location loc : locations){
+            if (loc.compareLocation(this)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean compareLocation(Location location){
+        if(this.row==location.getRow()){
+            if(this.column==location.getColumn()){
+                return true;
+            }
+        }
+        return false;
     }
 
 }
