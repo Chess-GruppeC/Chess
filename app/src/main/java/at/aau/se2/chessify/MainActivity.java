@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -19,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
     Button settings;
     ImageView soundbutton;
     private TextView displayPlayername;
+    MediaPlayer mediaPlayer;
 
 
     @Override
@@ -38,10 +40,9 @@ public class MainActivity extends AppCompatActivity {
             displayPlayername.setText(Helper.getPlayerName(this));
 
 
-        /*
-        Sound will follow later...
-        Sound();
-         */
+        mediaPlayer = MediaPlayer.create(this, R.raw.backgroundmusic);
+        mediaPlayer.setLooping(true);
+        mediaPlayer.start();
 
         play.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -68,9 +69,11 @@ public class MainActivity extends AppCompatActivity {
             if (Helper.getBackgroundSound(this)) {
                 soundbutton.setImageResource(R.drawable.volume_off_white);
                 Helper.setBackgroundSound(this, false);
+                mediaPlayer.pause();
             } else {
                 soundbutton.setImageResource(R.drawable.volume_on_white);
                 Helper.setBackgroundSound(this, true);
+                mediaPlayer.start();
             }
         });
 
@@ -93,29 +96,29 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intentopenSettings);
     }
 
-    // Später Soundfunktion
-    /*public void Sound(){
-        if (Helper.getBackgroundSound(this)){
-            soundbutton.setImageResource(R.drawable.volume_on_white);
-        }else{
-            soundbutton.setImageResource(R.drawable.volume_off_white);
-        }
-    }
-    */
 
     @Override
     public void onResume() {
         super.onResume();
+        if (Helper.getBackgroundSound(this)) {
+            soundbutton.setImageResource(R.drawable.volume_on_white);
+            mediaPlayer.start();
+        } else {
+            soundbutton.setImageResource(R.drawable.volume_off_white);
+        }
+
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        mediaPlayer.pause();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mediaPlayer.pause();
     }
 
 }
