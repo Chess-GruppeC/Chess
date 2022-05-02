@@ -58,16 +58,22 @@ public class LobbyActivity extends AppCompatActivity {
             @SuppressLint("CheckResult")
             @Override
             public void onClick(View view) {
-                if (!webSocketClient.isConnected())
+                if (!webSocketClient.isConnected()) {
+                    showNetworkError();
                     return;
-                webSocketClient.requestNewGame().subscribe(gameId -> {
-                    String id = gameId.getPayload();
-                    runOnUiThread(() -> {
-                        setStartGameLobby();
-                        saveGameId(id);
-                        viewGameID.setText(id);
-                    });
-                }, Throwable::printStackTrace);
+                }
+                webSocketClient.requestNewGame()
+                        .subscribe(gameId -> {
+                            String id = gameId.getPayload();
+                            runOnUiThread(() -> {
+                                setStartGameLobby();
+                                saveGameId(id);
+                                viewGameID.setText(id);
+                            });
+                        }, throwable -> {
+                            throwable.printStackTrace();
+                            showNetworkError();
+                        });
             }
         });
 
@@ -86,8 +92,10 @@ public class LobbyActivity extends AppCompatActivity {
                 if (input.isEmpty()) {
                     showToast("Please enter Game ID");
                 } else {
-                    if (!webSocketClient.isConnected())
+                    if (!webSocketClient.isConnected()) {
+                        showNetworkError();
                         return;
+                    }
                     webSocketClient.joinGame(inputGameID.getText().toString()).subscribe(response -> {
                         switch (response.getPayload()) {
                             case "1":
@@ -102,7 +110,10 @@ public class LobbyActivity extends AppCompatActivity {
                                 showToast("Game does not exist");
                                 break;
                         }
-                    }, Throwable::printStackTrace);
+                    }, throwable -> {
+                        throwable.printStackTrace();
+                        showNetworkError();
+                    });
                 }
             }
         });
@@ -152,7 +163,7 @@ public class LobbyActivity extends AppCompatActivity {
     private View.OnClickListener getCopyToClipboardListener() {
         return view -> {
             ClipboardManager clipboard = ContextCompat.getSystemService(getBaseContext(), ClipboardManager.class);
-            if(clipboard != null) {
+            if (clipboard != null) {
                 clipboard.setPrimaryClip(ClipData.newPlainText("", Helper.getGameId(getBaseContext())));
                 showToast("Copied Game ID to Clipboard");
             }
@@ -177,6 +188,10 @@ public class LobbyActivity extends AppCompatActivity {
         setVisible(viewGameIdLabel);
         setVisible(btnStartGame);
         setVisible(iconCopy);
+    }
+
+    private void showNetworkError() {
+        showToast("Network error");
     }
 
 }

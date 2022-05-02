@@ -17,8 +17,8 @@ public class WebSocketClient {
     private StompClient mStompClient;
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
-    private BehaviorSubject<StompMessage> createGameSubject;
-    private BehaviorSubject<StompMessage> joinGameSubject;
+    private BehaviorSubject<StompMessage> createGameSubject = BehaviorSubject.create();
+    private BehaviorSubject<StompMessage> joinGameSubject = BehaviorSubject.create();
 
     public static final String WEBSOCKET_ENDPOINT = "/chess/websocket";
     public static final String SERVER = "se2-demo.aau.at";
@@ -33,7 +33,7 @@ public class WebSocketClient {
     }
 
     public static WebSocketClient getInstance(String username) {
-        if(INSTANCE == null) {
+        if (INSTANCE == null) {
             WebSocketClient.username = username;
             INSTANCE = new WebSocketClient();
         }
@@ -56,63 +56,47 @@ public class WebSocketClient {
                 .subscribe(response -> {
                     createGameSubject.onNext(response);
                     createGameSubject.onComplete();
-                }, Throwable::printStackTrace));
+                }, throwable -> {
+                    createGameSubject.onError(throwable);
+                    createGameSubject.onComplete();
+                }));
 
         compositeDisposable.add(mStompClient.topic("/user/queue/join")
                 .subscribe(response -> {
                     joinGameSubject.onNext(response);
                     joinGameSubject.onComplete();
-                }, Throwable::printStackTrace));
+                }, throwable -> {
+                    joinGameSubject.onError(throwable);
+                    joinGameSubject.onComplete();
+                }));
     }
 
-    /**
-     * Usage:
-     * client.requestNewGame().subscribe(serverResponse -> {
-     *     serverResponse.getPayload(); // Here you receive the game ID asynchronously
-     * }, error -> {
-     *     // exception handling
-     * });
-     * @return The observable to subscribe to
-     */
     public Observable<StompMessage> requestNewGame() {
         createGameSubject = BehaviorSubject.create();
-        mStompClient.send("/topic/create").subscribe();
+        mStompClient.send("/topic/create")
+                .doOnError(throwable -> {
+                    createGameSubject.onError(throwable);
+                    createGameSubject.onComplete();
+                }).onErrorComplete()
+                .subscribe();
         return createGameSubject;
     }
 
-    /**
-     * Usage:
-     * client.joinGame(gameId).subscribe(serverResponse -> {
-     *     serverResponse.getPayload(); // Here you receive a status code from the server
-     * }, error -> {
-     *      // exception handling
-     * });
-     * The server response can be one of the following: -1 (game not found), 0 (game full), 1 (successfully joined)
-     * @return The observable to subscribe to
-     */
     public Observable<StompMessage> joinGame(String gameId) {
         joinGameSubject = BehaviorSubject.create();
-        mStompClient.send("/topic/join", gameId).subscribe();
+        mStompClient.send("/topic/join", gameId)
+                .doOnError(throwable -> {
+                    joinGameSubject.onError(throwable);
+                    joinGameSubject.onComplete();
+                }).onErrorComplete()
+                .subscribe();
         return joinGameSubject;
     }
 
-    /**
-     * Usage:
-     * client.receiveGameUpdates(gameId).subscribe(data -> {
-     *     data.getPayload(); // Here you receive all the game data
-     * }, error -> {
-     *     // exception handling
-     * });
-     * @return The flowable to subscribe to
-     */
     public Flowable<StompMessage> receiveGameUpdates(String gameId) {
         return mStompClient.topic("/topic/update/" + gameId);
     }
 
-    /**
-     * Usage:
-     * client.sendGameUpdate(gameId, data).subscribe();
-     */
     public void sendGameUpdate(String gameId, String data) {
         mStompClient.send("/topic/game/" + gameId, data).subscribe();
     }
