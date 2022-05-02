@@ -18,4 +18,5 @@
     <color name="from_square">#7fff7f</color>
     <color name="to_square">#00ff00</color>
     <color name="highlight_moves">#66CDAA</color>
+    <color name="select">#03A9F4</color>
 </resources>
