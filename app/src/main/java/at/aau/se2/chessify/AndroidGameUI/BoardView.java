@@ -516,7 +516,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                     break;
             }
 
-            /*if (!selectedPiece) {
+            if (!selectedPiece) {
                 chessBoard.getPieceAtLocation(onClickedPosition);
                 BoardViewBackground[onClickedPosition.getRow()][onClickedPosition.getColumn()].setBackgroundResource(R.color.select);
                 selectedPiece = true;
@@ -524,7 +524,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                 chessBoard.setLocationTo(chessBoard.getPieceAtLocation(onClickedPosition), onClickedPosition);
                 BoardView[onClickedPosition.getRow()][onClickedPosition.getColumn()].setBackgroundResource(R.drawable.white_queen);
                 selectedPiece = false;
-            }*/
+            }
 
     }
 

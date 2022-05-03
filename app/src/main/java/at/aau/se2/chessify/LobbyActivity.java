@@ -16,7 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import at.aau.se2.chessify.Diec.DiceActivity;
+import at.aau.se2.chessify.Dice.DiceActivity;
 import at.aau.se2.chessify.network.WebSocketClient;
 import at.aau.se2.chessify.util.Helper;
 

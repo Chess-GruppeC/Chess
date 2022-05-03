@@ -1,4 +1,4 @@
-package at.aau.se2.chessify.Diec;
+package at.aau.se2.chessify.Dice;
 
 import android.content.Context;
 import android.hardware.SensorListener;
