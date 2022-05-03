@@ -7,4 +7,16 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="special_blue">#6A93B0</color>
+    <color name="special_green">#49B675</color>
+
+    <color name="defaultButtonColor">#29354F</color>
+    <color name="deactivatedButtonColor">#A8A8A8</color>
+
+    <color name="dark_square">#29354F</color>
+    <color name="light_square">#A8A8A8</color>
+    <color name="from_square">#7fff7f</color>
+    <color name="to_square">#00ff00</color>
+    <color name="highlight_moves">#66CDAA</color>
+    <color name="select">#03A9F4</color>
 </resources>

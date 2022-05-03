@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="grid_line_width" />
+    <dimen name="grid_padding" />
+    <dimen name="timer_margin" />
+    <dimen name="timer_text_size" />
+</resources>
