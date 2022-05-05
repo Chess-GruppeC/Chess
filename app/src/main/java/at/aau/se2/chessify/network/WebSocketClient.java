@@ -19,6 +19,7 @@ public class WebSocketClient {
 
     private BehaviorSubject<StompMessage> createGameSubject = BehaviorSubject.create();
     private BehaviorSubject<StompMessage> joinGameSubject = BehaviorSubject.create();
+    private BehaviorSubject<StompMessage> getOpponentSubject = BehaviorSubject.create();
 
     public static final String WEBSOCKET_ENDPOINT = "/chess/websocket";
     public static final String SERVER = "se2-demo.aau.at";
@@ -69,6 +70,15 @@ public class WebSocketClient {
                     joinGameSubject.onError(throwable);
                     joinGameSubject.onComplete();
                 }));
+
+        compositeDisposable.add(mStompClient.topic("/user/queue/game/opponent")
+                .subscribe(response -> {
+                    getOpponentSubject.onNext(response);
+                    getOpponentSubject.onComplete();
+                }, throwable -> {
+                    getOpponentSubject.onError(throwable);
+                    getOpponentSubject.onComplete();
+                }));
     }
 
     public Observable<StompMessage> requestNewGame() {
@@ -99,6 +109,18 @@ public class WebSocketClient {
 
     public void sendGameUpdate(String gameId, String data) {
         mStompClient.send("/topic/game/" + gameId, data).subscribe();
+    }
+
+    // Gegenerabfrage über Game ID
+    public Observable<StompMessage> getOpponent(String gameId) {
+        getOpponentSubject = BehaviorSubject.create();
+        mStompClient.send("/topic/game/opponent", gameId)
+                .doOnError(throwable -> {
+                    getOpponentSubject.onError(throwable);
+                    getOpponentSubject.onComplete();
+                }).onErrorComplete()
+                .subscribe();
+        return getOpponentSubject;
     }
 
     public boolean isConnected() {
