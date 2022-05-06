@@ -116,6 +116,7 @@ public class DiceActivity extends AppCompatActivity {
         Intent intent = new Intent(this, BoardView.class);
         startActivity(intent);
     }
+    
 
     private void compareWhoStart(){
         player.setCurrentPlayer(player.getWhitePlayer());
