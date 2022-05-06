@@ -51,18 +51,26 @@ public class SettingActivity extends AppCompatActivity {
             }
         });
 
+        if (Helper.getBackgroundSound(this)) {
+            sound.setBackground(getDrawable(R.drawable.custom_button2));
+            sound.setTextColor(Color.WHITE);
+        } else {
+            sound.setBackground(getDrawable(R.drawable.custom_button_deactivated));
+            sound.setTextColor(Color.BLACK);
+        }
+
         // Changes appearance of Button depending on Sound off/on
         sound.setOnClickListener(view -> {
             if (Helper.getBackgroundSound(this)) {
                 sound.setBackground(getDrawable(R.drawable.custom_button_deactivated));
                 sound.setTextColor(Color.BLACK);
-                //Sound will follow
                 Toast.makeText(this, "Sound off", Toast.LENGTH_SHORT).show();
                 Helper.setBackgroundSound(this, false);
+                Helper.stopMusicBackground(this);
             } else {
+                Helper.playMusicBackground(this);
                 sound.setBackground(getDrawable(R.drawable.custom_button2));
                 sound.setTextColor(Color.WHITE);
-                //Sound will follow
                 Toast.makeText(this, "Sound on", Toast.LENGTH_SHORT).show();
                 Helper.setBackgroundSound(this, true);
             }
@@ -114,26 +122,10 @@ public class SettingActivity extends AppCompatActivity {
     }
 
     public void getBack() {
-        Intent intentgetBack = new Intent(this, MainActivity.class);
-        startActivity(intentgetBack);
+        //Intent intentgetBack = new Intent(this, MainActivity.class);
+        //startActivity(intentgetBack);
+        onBackPressed();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-    }
 
 }

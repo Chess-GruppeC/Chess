@@ -1,16 +1,16 @@
 package at.aau.se2.chessify;
 
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import at.aau.se2.chessify.util.Helper;
 
@@ -20,7 +20,6 @@ public class MainActivity extends AppCompatActivity {
     Button settings;
     ImageView soundbutton;
     private TextView displayPlayername;
-    MediaPlayer mediaPlayer;
 
 
     @Override
@@ -28,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
+        Helper.setBackgroundSound(this, true);
+        Helper.playMusicBackground(this);
 
         play = findViewById(R.id.btn_play);
         exit = findViewById(R.id.btn_exit);
@@ -40,10 +41,6 @@ public class MainActivity extends AppCompatActivity {
             displayPlayername.setText(Helper.getPlayerName(this));
 
 
-        mediaPlayer = MediaPlayer.create(this, R.raw.backgroundmusic);
-        mediaPlayer.setLooping(true);
-        mediaPlayer.start();
-
         play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -55,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 closeApp();
+                Helper.stopMusicBackground(MainActivity.this);
             }
         });
 
@@ -65,15 +63,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // --> toogle sound
+        if (Helper.getBackgroundSound(this)) {
+            soundbutton.setImageResource(R.drawable.volume_on_white);
+        } else {
+            soundbutton.setImageResource(R.drawable.volume_off_white);
+        }
         soundbutton.setOnClickListener(view -> {
             if (Helper.getBackgroundSound(this)) {
                 soundbutton.setImageResource(R.drawable.volume_off_white);
                 Helper.setBackgroundSound(this, false);
-                mediaPlayer.pause();
+                Helper.stopMusicBackground(this);
             } else {
+                Helper.playMusicBackground(this);
                 soundbutton.setImageResource(R.drawable.volume_on_white);
                 Helper.setBackgroundSound(this, true);
-                mediaPlayer.start();
             }
         });
 
@@ -81,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void play() {
-        Intent intent = new Intent(this, LobbyActivity.class);               //Nicht aktiv, Spielstart klären
+        Intent intent = new Intent(this, LobbyActivity.class);
         startActivity(intent);
     }
 
@@ -102,23 +106,21 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         if (Helper.getBackgroundSound(this)) {
             soundbutton.setImageResource(R.drawable.volume_on_white);
-            mediaPlayer.start();
         } else {
             soundbutton.setImageResource(R.drawable.volume_off_white);
         }
-
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        mediaPlayer.pause();
+
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mediaPlayer.pause();
+
     }
 
 }

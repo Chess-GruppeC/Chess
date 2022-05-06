@@ -71,6 +71,7 @@ public class WebSocketClient {
                     joinGameSubject.onComplete();
                 }));
 
+        // --> get Opponents name
         compositeDisposable.add(mStompClient.topic("/user/queue/game/opponent")
                 .subscribe(response -> {
                     getOpponentSubject.onNext(response);

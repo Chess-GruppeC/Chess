@@ -132,11 +132,19 @@ public class LobbyActivity extends AppCompatActivity {
             }
         });
 
+        if (Helper.getBackgroundSound(this)) {
+            SoundLobby.setImageResource(R.drawable.volume_on_white);
+        } else {
+            SoundLobby.setImageResource(R.drawable.volume_off_white);
+        }
+
         SoundLobby.setOnClickListener(view -> {
             if (Helper.getBackgroundSound(this)) {
                 SoundLobby.setImageResource(R.drawable.volume_off_white);
                 Helper.setBackgroundSound(this, false);
+                Helper.stopMusicBackground(this);
             } else {
+                Helper.playMusicBackground(this);
                 SoundLobby.setImageResource(R.drawable.volume_on_white);
                 Helper.setBackgroundSound(this, true);
             }
@@ -146,13 +154,15 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     public void getToMainActivity() {
-        Intent intentgetBack = new Intent(this, MainActivity.class);
-        startActivity(intentgetBack);
+        //Intent intentgetBack = new Intent(this, MainActivity.class);
+        //startActivity(intentgetBack);
+        onBackPressed();
     }
 
     public void startDiceActivity() {
         Intent intentDiceActivity = new Intent(this, DiceActivity.class);
         startActivity(intentDiceActivity);
+
     }
 
     private void showToast(String text) {
