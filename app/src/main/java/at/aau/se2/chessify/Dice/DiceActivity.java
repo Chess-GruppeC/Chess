@@ -134,7 +134,6 @@ public class DiceActivity extends AppCompatActivity {
         player.setCurrentPlayer(player.getWhitePlayer());
         if (player.getDiceNumber1() < player.getDiceNumber2()){
             player1Color.setId(R.id.player1_color);
-            player
             player1Color.setText("BLACK " + player.getDiceNumber1());
             player2Color.setId(R.id.player2_color);
             player2Color.setText("WHITE " + player.getDiceNumber2());
