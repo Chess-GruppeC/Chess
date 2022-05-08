@@ -542,6 +542,14 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                     BoardViewBackground[loc.getRow()][loc.getColumn()].setBackgroundResource(R.color.highlight_moves);
                 }
                 isPieceSelected=false;
+            }else{
+                for(Location loc : legalMoveList){
+                    if(loc.compareLocation(onClickedPosition)){
+                        //System.out.println("PERFORM MOVE");
+                        //TODO: perform the move and update the boardView
+                        resetColour();
+                    }
+                }
             }
 
     }
