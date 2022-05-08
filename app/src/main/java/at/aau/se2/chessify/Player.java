@@ -7,6 +7,8 @@ public class Player {
     private Player whitePlayer;
     private Player blackPlayer;
     private int diceNumber1;
+    private int diceNumber2;
+    private Player currentPlayer;
 
     public int getDiceNumber1() {
         return diceNumber1;
@@ -24,9 +26,7 @@ public class Player {
         this.diceNumber2 = diceNumber2;
     }
 
-    private int diceNumber2;
 
-    private Player currentPlayer;
 
    /* public Player(PieceColour team, Player whitePlayer, Player blackPlayer, Player currentPlayer) {
         this.team = team;
@@ -70,7 +70,6 @@ public class Player {
     public void setCurrentPlayer(Player currentPlayer) {
         this.currentPlayer = currentPlayer;
     }
-
 
     public void changeCurrentPlayer() {
         if (currentPlayer == whitePlayer) {
