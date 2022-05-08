@@ -32,8 +32,10 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     public TextView[][] BoardViewBackground = new TextView[8][8];
 
     public Location onClickedPosition = new Location(0,0);
-    public boolean selectedPiece = false;
+    public ChessPiece selectedPiece;
+    public boolean isPieceSelected = false;
     ChessBoard chessBoard = new ChessBoard();
+    ArrayList<Location> legalMoveList = new ArrayList<>();
     ChessBoard savedChessBoard = new ChessBoard();
     ArrayList<Location[][]> LastMove = new ArrayList<Location[][]>();
     public int countMoves;
@@ -516,19 +518,33 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                     break;
             }
 
-            if (!selectedPiece) {
+            selectedPiece=chessBoard.getPieceAtLocation(onClickedPosition);
+            if(selectedPiece!=null){
+                isPieceSelected=true;
+            }
+
+            /*
+            if (!isPieceSelected) {
                 chessBoard.getPieceAtLocation(onClickedPosition);
                 BoardViewBackground[onClickedPosition.getRow()][onClickedPosition.getColumn()].setBackgroundResource(R.color.select);
-                selectedPiece = true;
+                isPieceSelected = true;
             }else {
                 chessBoard.setLocationTo(chessBoard.getPieceAtLocation(onClickedPosition), onClickedPosition);
                 BoardView[onClickedPosition.getRow()][onClickedPosition.getColumn()].setBackgroundResource(R.drawable.white_queen);
-                selectedPiece = false;
+                isPieceSelected = false;
+            }
+             */
+            if(isPieceSelected){
+
+                BoardViewBackground[onClickedPosition.getRow()][onClickedPosition.getColumn()].setBackgroundResource(R.color.select);
+                legalMoveList = selectedPiece.getLegalMoves(chessBoard);
+                for(Location loc : legalMoveList){
+                    BoardViewBackground[loc.getRow()][loc.getColumn()].setBackgroundResource(R.color.highlight_moves);
+                }
+                isPieceSelected=false;
             }
 
     }
-
-
 
     //method:
     //TODO: safe board
