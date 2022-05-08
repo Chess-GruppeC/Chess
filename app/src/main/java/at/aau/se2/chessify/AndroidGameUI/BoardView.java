@@ -535,7 +535,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
             }
              */
             if(isPieceSelected){
-
+                resetColour();
                 BoardViewBackground[onClickedPosition.getRow()][onClickedPosition.getColumn()].setBackgroundResource(R.color.select);
                 legalMoveList = selectedPiece.getLegalMoves(chessBoard);
                 for(Location loc : legalMoveList){
@@ -574,6 +574,17 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     }
 */
 
+    public void resetColour(){
+        for(int i=0; i<8; i++){
+            for(int j=0; j<8; j++){
+                if((i+j)%2==0){
+                    BoardViewBackground[i][j].setBackgroundResource(R.color.dark_square);
+                }else{
+                    BoardViewBackground[i][j].setBackgroundResource(R.color.light_square);
+                }
+            }
+        }
+    }
 
 
 }
