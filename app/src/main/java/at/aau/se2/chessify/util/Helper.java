@@ -1,8 +1,13 @@
 package at.aau.se2.chessify.util;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.preference.PreferenceManager;
+
+import at.aau.se2.chessify.R;
 
 public class Helper {
 
@@ -54,12 +59,37 @@ public class Helper {
         getSharedPreferences(context).edit().putString("Player", type).apply();
     }
 
+    // --> Player ID
     public static void setGameId(Context context, String gameId) {
         getSharedPreferences(context).edit().putString("GAME_ID", gameId).apply();
     }
 
     public static String getGameId(Context context) {
         return getSharedPreferences(context).getString("GAME_ID", null);
+    }
+
+    static MediaPlayer mediaPlayer;
+
+    public static void playMusicBackground(Activity context) {
+        try {
+            mediaPlayer = MediaPlayer.create(context, R.raw.backgroundmusic);
+            mediaPlayer.start();
+            mediaPlayer.setLooping(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void stopMusicBackground(Activity context) {
+        try {
+            if (mediaPlayer != null) {
+                mediaPlayer.stop();
+                mediaPlayer.release();
+                mediaPlayer = null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

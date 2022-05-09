@@ -1,10 +1,12 @@
 package at.aau.se2.chessify.Dice;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -12,9 +14,14 @@ import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.json.JSONObject;
+
 import at.aau.se2.chessify.AndroidGameUI.BoardView;
+import at.aau.se2.chessify.LobbyActivity;
 import at.aau.se2.chessify.Player;
 import at.aau.se2.chessify.R;
+import at.aau.se2.chessify.network.WebSocketClient;
+import at.aau.se2.chessify.util.Helper;
 
 public class DiceActivity extends AppCompatActivity {
     private ImageView dice;
@@ -23,15 +30,33 @@ public class DiceActivity extends AppCompatActivity {
     private int number;
     private ShakeSensor mShaker;
     private Button creatBoard;
+    Button abort;
     private Player player;
+    private int diceNumber;
+
+    private WebSocketClient webSocketClient;
 
 
+
+    @SuppressLint("CheckResult")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_dice);
         dice = findViewById(R.id.image_dice);
         creatBoard = findViewById(R.id.createBoard);
+        abort = findViewById(R.id.btn_abort);
+
+        webSocketClient = WebSocketClient.getInstance(Helper.getPlayerName(this));
+
+        webSocketClient.receiveStartingPlayer(Helper.getGameId(this)).subscribe(stompMessage -> {
+            JSONObject jsonObject = new JSONObject(stompMessage.getPayload());
+            if (jsonObject.has("name")){
+                String startingPlayer = jsonObject.getString("name");
+
+            }
+        });
 
         dice.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -40,6 +65,7 @@ public class DiceActivity extends AppCompatActivity {
 
                 if (mShaker.activCount != 0){
                     getDiceNumber();
+                    sendDiceValue();
                 }
             }
         });
@@ -50,13 +76,18 @@ public class DiceActivity extends AppCompatActivity {
             }
         });
 
-
-
-
+        abort.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                backToLobby();
+                // Close Server - build new connection
+            }
+        });
     }
 
     private void getDiceNumber(){
-        int diceNumber = getRandomNumber(1, 6);
+        diceNumber = getRandomNumber(1, 6);
+
 
         switch (diceNumber){
             case 1:
@@ -78,8 +109,8 @@ public class DiceActivity extends AppCompatActivity {
                 dice.setImageResource(R.drawable.dice6);
                 break;
         }
-        player.setDiceNumber1(diceNumber);
-        compareWhoStart();
+        //player.setDiceNumber1(diceNumber);
+        //compareWhoStart();
     }
 
     private void runShakeSensor(){
@@ -97,15 +128,10 @@ public class DiceActivity extends AppCompatActivity {
                         .show();
                 if (mShaker.activCount != 0) {
                     getDiceNumber();
+                    onPause();
                 }
-
             }
-
         });
-        if (mShaker.activCount != 0) {
-            getDiceNumber();
-        }
-
     }
 
     private int getRandomNumber(int min, int max) {
@@ -131,6 +157,19 @@ public class DiceActivity extends AppCompatActivity {
             player1Color.setId(R.id.player1_color);
             player1Color.setText("WHITE " + player.getDiceNumber1());
         }
+    }
+
+    public void backToLobby(){
+        Intent intent = new Intent(this, LobbyActivity.class);
+        startActivity(intent);
+        // onBackPressed();
+    }
+
+    private void sendDiceValue(){
+        webSocketClient.sendDiceValue(Helper.getGameId(this),diceNumber + "");
+    }
+    private void getDiceValue(){
+
     }
 
     @Override

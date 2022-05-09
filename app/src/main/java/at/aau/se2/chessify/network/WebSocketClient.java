@@ -1,5 +1,8 @@
 package at.aau.se2.chessify.network;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
@@ -9,9 +12,6 @@ import ua.naiksoftware.stomp.StompClient;
 import ua.naiksoftware.stomp.dto.StompHeader;
 import ua.naiksoftware.stomp.dto.StompMessage;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class WebSocketClient {
 
     private StompClient mStompClient;
@@ -19,6 +19,7 @@ public class WebSocketClient {
 
     private BehaviorSubject<StompMessage> createGameSubject = BehaviorSubject.create();
     private BehaviorSubject<StompMessage> joinGameSubject = BehaviorSubject.create();
+    private BehaviorSubject<StompMessage> getOpponentSubject = BehaviorSubject.create();
 
     public static final String WEBSOCKET_ENDPOINT = "/chess/websocket";
     public static final String SERVER = "se2-demo.aau.at";
@@ -69,6 +70,17 @@ public class WebSocketClient {
                     joinGameSubject.onError(throwable);
                     joinGameSubject.onComplete();
                 }));
+
+        // --> get Opponents name
+        compositeDisposable.add(mStompClient.topic("/user/queue/game/opponent")
+                .subscribe(response -> {
+                    getOpponentSubject.onNext(response);
+                    getOpponentSubject.onComplete();
+                }, throwable -> {
+                    getOpponentSubject.onError(throwable);
+                    getOpponentSubject.onComplete();
+                }));
+
     }
 
     public Observable<StompMessage> requestNewGame() {
@@ -96,9 +108,27 @@ public class WebSocketClient {
     public Flowable<StompMessage> receiveGameUpdates(String gameId) {
         return mStompClient.topic("/topic/update/" + gameId);
     }
+    public Flowable<StompMessage> receiveStartingPlayer(String gameId) {
+        return mStompClient.topic("/topic/getStartingPlayer/" + gameId);
+    }
 
     public void sendGameUpdate(String gameId, String data) {
         mStompClient.send("/topic/game/" + gameId, data).subscribe();
+    }
+    public void sendDiceValue(String gameId, String diceValue) {
+        mStompClient.send("/game/rollDice/" + gameId, diceValue).subscribe();
+    }
+
+    // Gegenerabfrage über Game ID
+    public Observable<StompMessage> getOpponent(String gameId) {
+        getOpponentSubject = BehaviorSubject.create();
+        mStompClient.send("/topic/game/opponent", gameId)
+                .doOnError(throwable -> {
+                    getOpponentSubject.onError(throwable);
+                    getOpponentSubject.onComplete();
+                }).onErrorComplete()
+                .subscribe();
+        return getOpponentSubject;
     }
 
     public boolean isConnected() {
