@@ -1,5 +1,6 @@
 package at.aau.se2.chessify.AndroidGameUI;
 
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -28,6 +29,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
 
     // private int currentProgress = 0;
     // ProgressBar specialMoveBar;
+    private MediaPlayer mp;
 
     public TextView[][] BoardView = new TextView[8][8];
     public TextView[][] BoardViewBackground = new TextView[8][8];
@@ -47,7 +49,9 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_board);
-
+        mp = MediaPlayer.create(this, R.raw.ticking);
+        mp.setLooping(true);
+        mp.start();
 
         initializeBoard();
 
@@ -602,6 +606,21 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     public void onResume() {
         super.onResume();
         Helper.stopMusicBackground(this);
+        mp.start();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Helper.stopMusicBackground(this);
+        mp.stop();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Helper.stopMusicBackground(this);
+        mp.stop();
     }
 
 
