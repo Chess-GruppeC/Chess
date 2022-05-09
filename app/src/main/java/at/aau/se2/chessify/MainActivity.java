@@ -36,10 +36,6 @@ public class MainActivity extends AppCompatActivity {
         soundbutton = findViewById(R.id.btn_sound_main);
         displayPlayername = findViewById(R.id.TextViewPlayerName);
 
-        //Display PlayerName - Setup in Settings
-        if (!Helper.getPlayerName(this).equals("Player"))
-            displayPlayername.setText(Helper.getPlayerName(this));
-
 
         play.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,11 +100,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
+
+        // --> update Soundsymbol
         if (Helper.getBackgroundSound(this)) {
             soundbutton.setImageResource(R.drawable.volume_on_white);
         } else {
             soundbutton.setImageResource(R.drawable.volume_off_white);
         }
+
+        // --> update Playername
+        if (!Helper.getPlayerName(this).equals("Player"))
+            displayPlayername.setText(Helper.getPlayerName(this));
     }
 
     @Override
