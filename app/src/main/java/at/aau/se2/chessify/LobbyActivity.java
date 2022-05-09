@@ -132,12 +132,6 @@ public class LobbyActivity extends AppCompatActivity {
             }
         });
 
-        if (Helper.getBackgroundSound(this)) {
-            SoundLobby.setImageResource(R.drawable.volume_on_white);
-        } else {
-            SoundLobby.setImageResource(R.drawable.volume_off_white);
-        }
-
         SoundLobby.setOnClickListener(view -> {
             if (Helper.getBackgroundSound(this)) {
                 SoundLobby.setImageResource(R.drawable.volume_off_white);
@@ -202,6 +196,30 @@ public class LobbyActivity extends AppCompatActivity {
 
     private void showNetworkError() {
         showToast("Network error");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // --> update Soundsymbol
+        if (Helper.getBackgroundSound(this)) {
+            SoundLobby.setImageResource(R.drawable.volume_on_white);
+        } else {
+            SoundLobby.setImageResource(R.drawable.volume_off_white);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
     }
 
 }

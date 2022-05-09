@@ -51,15 +51,8 @@ public class SettingActivity extends AppCompatActivity {
             }
         });
 
-        if (Helper.getBackgroundSound(this)) {
-            sound.setBackground(getDrawable(R.drawable.custom_button2));
-            sound.setTextColor(Color.WHITE);
-        } else {
-            sound.setBackground(getDrawable(R.drawable.custom_button_deactivated));
-            sound.setTextColor(Color.BLACK);
-        }
 
-        // Changes appearance of Button depending on Sound off/on
+        // --> toogle Sound
         sound.setOnClickListener(view -> {
             if (Helper.getBackgroundSound(this)) {
                 sound.setBackground(getDrawable(R.drawable.custom_button_deactivated));
@@ -76,7 +69,7 @@ public class SettingActivity extends AppCompatActivity {
             }
         });
 
-        // Changes appearance of Button depending on Vibration off/on
+        // --> toogle vibrations
         vibrations.setOnClickListener(view -> {
             if (Helper.getVibration(this)) {
                 vibrations.setBackground(getDrawable(R.drawable.custom_button_deactivated));
@@ -91,7 +84,7 @@ public class SettingActivity extends AppCompatActivity {
             }
         });
 
-        // Changes appearance of Button depending on Darkmode off/on
+        // --> toogle color scheme
         darkmode.setOnClickListener(view -> {
             if (Helper.getDarkmode(this)) {
                 darkmode.setBackground(getDrawable(R.drawable.custom_button_deactivated));
@@ -125,6 +118,33 @@ public class SettingActivity extends AppCompatActivity {
         //Intent intentgetBack = new Intent(this, MainActivity.class);
         //startActivity(intentgetBack);
         onBackPressed();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // --> update Soundbutton
+        if (Helper.getBackgroundSound(this)) {
+            sound.setBackground(getDrawable(R.drawable.custom_button2));
+            sound.setTextColor(Color.WHITE);
+        } else {
+            sound.setBackground(getDrawable(R.drawable.custom_button_deactivated));
+            sound.setTextColor(Color.BLACK);
+        }
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
     }
 
 

@@ -59,12 +59,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // --> toogle sound
-        if (Helper.getBackgroundSound(this)) {
-            soundbutton.setImageResource(R.drawable.volume_on_white);
-        } else {
-            soundbutton.setImageResource(R.drawable.volume_off_white);
-        }
         soundbutton.setOnClickListener(view -> {
             if (Helper.getBackgroundSound(this)) {
                 soundbutton.setImageResource(R.drawable.volume_off_white);
@@ -78,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
-
 
     public void play() {
         Intent intent = new Intent(this, LobbyActivity.class);
