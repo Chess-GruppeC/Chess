@@ -26,6 +26,7 @@
         android:paddingRight="10dp"
         android:text="Join Game"
         android:textSize="24sp"
+        android:enabled="false"
         app:layout_constraintDimensionRatio="2:1"
         app:layout_constraintEnd_toEndOf="@id/guideline4"
         app:layout_constraintStart_toStartOf="@id/guideline2"
@@ -35,7 +36,7 @@
         android:id="@+id/btn_CreateGame"
         android:layout_width="0dp"
         android:layout_height="110dp"
-        android:layout_marginTop="200dp"
+        android:layout_marginTop="150dp"
         android:background="@drawable/custom_button2"
         android:fontFamily="serif"
         android:paddingLeft="10dp"
@@ -51,14 +52,14 @@
         android:id="@+id/btn_startGame"
         android:layout_width="0dp"
         android:layout_height="110dp"
-        android:visibility="invisible"
-        android:layout_marginTop="200dp"
+        android:layout_marginTop="150dp"
         android:background="@drawable/custom_button2"
         android:fontFamily="serif"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:text="Start Game"
         android:textSize="24sp"
+        android:visibility="invisible"
         app:layout_constraintDimensionRatio="2:1"
         app:layout_constraintEnd_toEndOf="@id/guideline4"
         app:layout_constraintStart_toStartOf="@id/guideline2"
@@ -91,7 +92,7 @@
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="45dp"
+        android:layout_marginTop="40dp"
         android:fontFamily="serif"
         android:text="Lobby"
         android:textSize="40sp"
@@ -114,11 +115,11 @@
         android:id="@+id/textView_GameIdLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="invisible"
         android:layout_marginTop="130dp"
         android:text="Game ID:"
         android:textAlignment="center"
         android:textSize="20sp"
+        android:visibility="invisible"
         app:layout_constraintStart_toStartOf="@id/guideline2"
         app:layout_constraintTop_toTopOf="@id/btn_CreateGame" />
 
@@ -155,20 +156,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="invisible"
-        app:srcCompat="@drawable/ic_baseline_content_copy_24"
         app:layout_constraintEnd_toEndOf="@id/guideline4"
-        app:layout_constraintTop_toTopOf="@id/textView_viewGameID" />
+        app:layout_constraintTop_toTopOf="@id/textView_viewGameID"
+        app:srcCompat="@drawable/ic_baseline_content_copy_24" />
 
     <TextView
         android:id="@+id/textView_viewGameID"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="invisible"
         android:layout_marginTop="130dp"
         android:layout_marginEnd="5dp"
         android:textAlignment="center"
         android:textSize="20sp"
         android:textStyle="bold"
+        android:visibility="invisible"
         app:layout_constraintEnd_toStartOf="@id/icon_copy"
         app:layout_constraintTop_toTopOf="@id/btn_CreateGame" />
 
@@ -191,6 +192,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.05" />
+        app:layout_constraintGuide_begin="45dp" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
