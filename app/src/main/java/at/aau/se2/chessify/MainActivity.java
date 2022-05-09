@@ -115,7 +115,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
+        Helper.setBackgroundSound(this, false);
+        Helper.stopMusicBackground(this);
     }
 
 }
