@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import org.json.JSONObject;
 
 import at.aau.se2.chessify.AndroidGameUI.BoardView;
+import at.aau.se2.chessify.LobbyActivity;
 import at.aau.se2.chessify.Player;
 import at.aau.se2.chessify.R;
 import at.aau.se2.chessify.network.WebSocketClient;
@@ -28,6 +30,7 @@ public class DiceActivity extends AppCompatActivity {
     private int number;
     private ShakeSensor mShaker;
     private Button creatBoard;
+    Button abort;
     private Player player;
     private int diceNumber;
 
@@ -39,9 +42,11 @@ public class DiceActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_dice);
         dice = findViewById(R.id.image_dice);
         creatBoard = findViewById(R.id.createBoard);
+        abort = findViewById(R.id.btn_abort);
 
         webSocketClient = WebSocketClient.getInstance(Helper.getPlayerName(this));
 
@@ -68,6 +73,14 @@ public class DiceActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 openGameView();
+            }
+        });
+
+        abort.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                backToLobby();
+                // Close Server - build new connection
             }
         });
     }
@@ -144,6 +157,12 @@ public class DiceActivity extends AppCompatActivity {
             player1Color.setId(R.id.player1_color);
             player1Color.setText("WHITE " + player.getDiceNumber1());
         }
+    }
+
+    public void backToLobby(){
+        Intent intent = new Intent(this, LobbyActivity.class);
+        startActivity(intent);
+        // onBackPressed();
     }
 
     private void sendDiceValue(){
