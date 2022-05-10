@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import at.aau.se2.chessify.network.WebSocketClient;
 import at.aau.se2.chessify.util.Helper;
 
 public class SettingActivity extends AppCompatActivity {
@@ -46,7 +47,9 @@ public class SettingActivity extends AppCompatActivity {
             if (TextUtils.isEmpty(setName.getText())) {
                 Toast.makeText(this, "please Enter Name", Toast.LENGTH_SHORT).show();
             } else {
-                Helper.setPlayerName(this, setName.getText().toString());
+                String newPlayerName = setName.getText().toString();
+                Helper.setPlayerName(this, newPlayerName);
+                WebSocketClient.reconnectWithNewPlayerName(newPlayerName);
                 Toast.makeText(this, "Player name updated successfully", Toast.LENGTH_SHORT).show();
             }
         });

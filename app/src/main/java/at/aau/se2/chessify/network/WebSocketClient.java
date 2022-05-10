@@ -14,8 +14,8 @@ import ua.naiksoftware.stomp.dto.StompMessage;
 
 public class WebSocketClient {
 
-    private StompClient mStompClient;
-    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private static StompClient mStompClient;
+    private static final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     private BehaviorSubject<StompMessage> createGameSubject = BehaviorSubject.create();
     private BehaviorSubject<StompMessage> joinGameSubject = BehaviorSubject.create();
@@ -26,16 +26,16 @@ public class WebSocketClient {
     public static final Integer PORT = 53207;
 
     private static WebSocketClient INSTANCE;
-    private static String username;
+    private static String playerName;
 
     private WebSocketClient() {
         establishConnection();
         initSubscriptions();
     }
 
-    public static WebSocketClient getInstance(String username) {
+    public static WebSocketClient getInstance(String playerName) {
         if (INSTANCE == null) {
-            WebSocketClient.username = username;
+            WebSocketClient.playerName = playerName;
             INSTANCE = new WebSocketClient();
         }
         return INSTANCE;
@@ -43,7 +43,7 @@ public class WebSocketClient {
 
     private void establishConnection() {
         List<StompHeader> headers = new ArrayList<>();
-        headers.add(new StompHeader("username", username));
+        headers.add(new StompHeader("username", playerName));
         mStompClient = Stomp.over(Stomp.ConnectionProvider.JWS, getURI());
         mStompClient.connect(headers);
     }
@@ -139,11 +139,18 @@ public class WebSocketClient {
         compositeDisposable.dispose();
     }
 
-    public String getUsername() {
-        return username;
+    public String getPlayerName() {
+        return playerName;
     }
 
-    public void setClient(StompClient c) {
-        this.mStompClient = c;
+    public static void reconnectWithNewPlayerName(String newPlayerName) {
+        if (mStompClient != null) {
+            compositeDisposable.clear();
+            mStompClient.disconnect();
+            mStompClient = null;
+            INSTANCE = null;
+            getInstance(newPlayerName);
+        }
     }
+
 }
