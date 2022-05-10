@@ -1,6 +1,9 @@
 plugins {
     id 'com.android.application'
+    id 'jacoco'
+
 }
+
 
 android {
     compileSdkVersion 32
