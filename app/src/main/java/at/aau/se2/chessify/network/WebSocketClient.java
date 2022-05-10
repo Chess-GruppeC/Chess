@@ -116,7 +116,7 @@ public class WebSocketClient {
         mStompClient.send("/topic/game/" + gameId, data).subscribe();
     }
     public void sendDiceValue(String gameId, String diceValue) {
-        mStompClient.send("/game/rollDice/" + gameId, diceValue).subscribe();
+        mStompClient.send("/topic/game/rollDice/" + gameId, diceValue).subscribe();
     }
 
     // Gegenerabfrage über Game ID

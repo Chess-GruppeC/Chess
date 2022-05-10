@@ -1,8 +1,15 @@
 package at.aau.se2.chessify.chessLogic.board;
 
-import at.aau.se2.chessify.chessLogic.pieces.*;
-
 import java.util.ArrayList;
+
+import at.aau.se2.chessify.chessLogic.pieces.Bishop;
+import at.aau.se2.chessify.chessLogic.pieces.ChessPiece;
+import at.aau.se2.chessify.chessLogic.pieces.King;
+import at.aau.se2.chessify.chessLogic.pieces.Knight;
+import at.aau.se2.chessify.chessLogic.pieces.Pawn;
+import at.aau.se2.chessify.chessLogic.pieces.PieceColour;
+import at.aau.se2.chessify.chessLogic.pieces.Queen;
+import at.aau.se2.chessify.chessLogic.pieces.Rook;
 
 public class ChessBoard {
     ChessPiece[][] gameBoard;

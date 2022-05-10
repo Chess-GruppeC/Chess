@@ -14,13 +14,14 @@ import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import org.json.JSONObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import at.aau.se2.chessify.AndroidGameUI.BoardView;
 import at.aau.se2.chessify.LobbyActivity;
 import at.aau.se2.chessify.Player;
 import at.aau.se2.chessify.R;
 import at.aau.se2.chessify.network.WebSocketClient;
+import at.aau.se2.chessify.network.dto.DiceResultDTO;
 import at.aau.se2.chessify.util.Helper;
 
 public class DiceActivity extends AppCompatActivity {
@@ -35,6 +36,7 @@ public class DiceActivity extends AppCompatActivity {
     private int diceNumber;
 
     private WebSocketClient webSocketClient;
+    private DiceResultDTO diceResultDTO;
 
 
 
@@ -50,12 +52,15 @@ public class DiceActivity extends AppCompatActivity {
 
         webSocketClient = WebSocketClient.getInstance(Helper.getPlayerName(this));
 
-        webSocketClient.receiveStartingPlayer(Helper.getGameId(this)).subscribe(stompMessage -> {
-            JSONObject jsonObject = new JSONObject(stompMessage.getPayload());
-            if (jsonObject.has("name")){
-                String startingPlayer = jsonObject.getString("name");
 
+        webSocketClient.receiveStartingPlayer(Helper.getGameId(this)).subscribe(stompMessage -> {
+            diceResultDTO = new ObjectMapper().readValue(stompMessage.getPayload(),DiceResultDTO.class);
+            if (diceResultDTO.getWinner() == null){
+                // wiederholen
+            }else{
+                // show winner
             }
+
         });
 
         dice.setOnClickListener(new View.OnClickListener() {
