@@ -1,9 +1,8 @@
 plugins {
     id 'com.android.application'
     id 'jacoco'
-
 }
-
+apply from: "$project.rootDir/jacoco.gradle"
 
 android {
     compileSdkVersion 32
@@ -24,6 +23,7 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
