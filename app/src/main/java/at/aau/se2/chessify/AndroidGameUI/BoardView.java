@@ -4,7 +4,6 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -198,6 +197,13 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         BoardView[7][7] = (TextView) findViewById(R.id.R77);
         BoardViewBackground[7][7] = (TextView) findViewById(R.id.R077);
 
+        initializePieces();
+
+
+        // setAltBoard();
+    }
+
+    private void initializePieces(){
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 ChessPiece chessPiece = chessBoard.getPieceAtLocation(new Location(i, j));
@@ -243,7 +249,6 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
             }
         }
 
-        // setAltBoard();
     }
 
     private void setAltBoard() {
