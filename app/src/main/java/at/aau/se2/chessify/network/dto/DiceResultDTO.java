@@ -9,15 +9,6 @@ public class DiceResultDTO {
 
     public DiceResultDTO() {}
 
-    public DiceResultDTO(List<PlayerDTO> players) {
-        this.players = players;
-    }
-
-    public DiceResultDTO(List<PlayerDTO> players, PlayerDTO winner) {
-        this.players = players;
-        this.winner = winner;
-    }
-
     public List<PlayerDTO> getPlayers() {
         return players;
     }

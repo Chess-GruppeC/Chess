@@ -120,7 +120,6 @@ public class LobbyActivity extends AppCompatActivity {
                             viewGameID.setText(id);
                         });
                     }, throwable -> {
-                        throwable.printStackTrace();
                         showNetworkError();
                     });
         };
@@ -169,7 +168,6 @@ public class LobbyActivity extends AppCompatActivity {
                                     break;
                             }
                         }, throwable -> {
-                            throwable.printStackTrace();
                             showNetworkError();
                         });
                     }, 50);

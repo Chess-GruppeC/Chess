@@ -7,15 +7,6 @@ public class PlayerDTO {
 
     public PlayerDTO() {}
 
-    public PlayerDTO(String name) {
-        this.name = name;
-    }
-
-    public PlayerDTO(String name, Integer diceValue) {
-        this.name = name;
-        this.diceValue = diceValue;
-    }
-
     public String getName() {
         return name;
     }

@@ -7,6 +7,7 @@ import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.Subject;
 import ua.naiksoftware.stomp.Stomp;
 import ua.naiksoftware.stomp.StompClient;
 import ua.naiksoftware.stomp.dto.StompHeader;
@@ -28,15 +29,15 @@ public class WebSocketClient {
     private static WebSocketClient INSTANCE;
     private static String playerName;
 
-    private WebSocketClient() {
+    private WebSocketClient(String playerName) {
+        WebSocketClient.playerName = playerName;
         establishConnection();
         initSubscriptions();
     }
 
     public static WebSocketClient getInstance(String playerName) {
         if (INSTANCE == null) {
-            WebSocketClient.playerName = playerName;
-            INSTANCE = new WebSocketClient();
+            INSTANCE = new WebSocketClient(playerName);
         }
         return INSTANCE;
     }
@@ -54,42 +55,35 @@ public class WebSocketClient {
 
     private void initSubscriptions() {
         compositeDisposable.add(mStompClient.topic("/user/queue/create")
-                .subscribe(response -> {
-                    createGameSubject.onNext(response);
-                    createGameSubject.onComplete();
-                }, throwable -> {
-                    createGameSubject.onError(throwable);
-                    createGameSubject.onComplete();
-                }));
+                .subscribe(response -> forwardResponseTo(response, createGameSubject),
+                        throwable -> forwardErrorTo(throwable, createGameSubject)));
 
         compositeDisposable.add(mStompClient.topic("/user/queue/join")
-                .subscribe(response -> {
-                    joinGameSubject.onNext(response);
-                    joinGameSubject.onComplete();
-                }, throwable -> {
-                    joinGameSubject.onError(throwable);
-                    joinGameSubject.onComplete();
-                }));
+                .subscribe(response -> forwardResponseTo(response, joinGameSubject),
+                        throwable -> forwardErrorTo(throwable, joinGameSubject)));
 
         // --> get Opponents name
         compositeDisposable.add(mStompClient.topic("/user/queue/game/opponent")
-                .subscribe(response -> {
-                    getOpponentSubject.onNext(response);
-                    getOpponentSubject.onComplete();
-                }, throwable -> {
-                    getOpponentSubject.onError(throwable);
-                    getOpponentSubject.onComplete();
-                }));
+                .subscribe(response -> forwardResponseTo(response, getOpponentSubject),
+                        throwable -> forwardErrorTo(throwable, getOpponentSubject)));
 
+    }
+
+    public <T> void forwardResponseTo(T message, Subject<T> destinationSubject) {
+        destinationSubject.onNext(message);
+        destinationSubject.onComplete();
+    }
+
+    public <T> void forwardErrorTo(Throwable throwable, Subject<T> destinationSubject) {
+        destinationSubject.onError(throwable);
+        destinationSubject.onComplete();
     }
 
     public Observable<StompMessage> requestNewGame() {
         createGameSubject = BehaviorSubject.create();
         mStompClient.send("/topic/create")
-                .doOnError(throwable -> {
-                    createGameSubject.onError(throwable);
-                    createGameSubject.onComplete();
-                }).onErrorComplete()
+                .doOnError(throwable -> forwardErrorTo(throwable, createGameSubject))
+                .onErrorComplete()
                 .subscribe();
         return createGameSubject;
     }
@@ -97,10 +91,8 @@ public class WebSocketClient {
     public Observable<StompMessage> joinGame(String gameId) {
         joinGameSubject = BehaviorSubject.create();
         mStompClient.send("/topic/join", gameId)
-                .doOnError(throwable -> {
-                    joinGameSubject.onError(throwable);
-                    joinGameSubject.onComplete();
-                }).onErrorComplete()
+                .doOnError(throwable -> forwardErrorTo(throwable, joinGameSubject))
+                .onErrorComplete()
                 .subscribe();
         return joinGameSubject;
     }
@@ -108,6 +100,7 @@ public class WebSocketClient {
     public Flowable<StompMessage> receiveGameUpdates(String gameId) {
         return mStompClient.topic("/topic/update/" + gameId);
     }
+
     public Flowable<StompMessage> receiveStartingPlayer(String gameId) {
         return mStompClient.topic("/topic/getStartingPlayer/" + gameId);
     }
@@ -115,6 +108,7 @@ public class WebSocketClient {
     public void sendGameUpdate(String gameId, String data) {
         mStompClient.send("/topic/game/" + gameId, data).subscribe();
     }
+
     public void sendDiceValue(String gameId, String diceValue) {
         mStompClient.send("/topic/game/rollDice/" + gameId, diceValue).subscribe();
     }
@@ -123,10 +117,8 @@ public class WebSocketClient {
     public Observable<StompMessage> getOpponent(String gameId) {
         getOpponentSubject = BehaviorSubject.create();
         mStompClient.send("/topic/game/opponent", gameId)
-                .doOnError(throwable -> {
-                    getOpponentSubject.onError(throwable);
-                    getOpponentSubject.onComplete();
-                }).onErrorComplete()
+                .doOnError(throwable -> forwardErrorTo(throwable, getOpponentSubject))
+                .onErrorComplete()
                 .subscribe();
         return getOpponentSubject;
     }
@@ -137,6 +129,7 @@ public class WebSocketClient {
 
     public void dispose() {
         compositeDisposable.dispose();
+        mStompClient.disconnect();
     }
 
     public String getPlayerName() {
@@ -153,4 +146,15 @@ public class WebSocketClient {
         }
     }
 
+    public BehaviorSubject<StompMessage> getCreateGameSubject() {
+        return createGameSubject;
+    }
+
+    public BehaviorSubject<StompMessage> getJoinGameSubject() {
+        return joinGameSubject;
+    }
+
+    public BehaviorSubject<StompMessage> getGetOpponentSubject() {
+        return getOpponentSubject;
+    }
 }
