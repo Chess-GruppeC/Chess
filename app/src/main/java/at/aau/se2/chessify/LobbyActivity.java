@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -41,7 +42,7 @@ public class LobbyActivity extends AppCompatActivity {
     private WebSocketClient webSocketClient;
 
     private boolean triedToJoinAGame = false;
-    private final Handler enterIdHandler = new Handler();
+    private final Handler enterIdHandler = new Handler(Looper.getMainLooper());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,9 +120,7 @@ public class LobbyActivity extends AppCompatActivity {
                             saveGameId(id);
                             viewGameID.setText(id);
                         });
-                    }, throwable -> {
-                        showNetworkError();
-                    });
+                    }, throwable -> showNetworkError());
         };
     }
 
@@ -129,13 +128,12 @@ public class LobbyActivity extends AppCompatActivity {
         return new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // method ignored
             }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (enterIdHandler != null) {
-                    enterIdHandler.removeCallbacksAndMessages(null);
-                }
+                enterIdHandler.removeCallbacksAndMessages(null);
                 if (triedToJoinAGame && (charSequence.length() == 0 || charSequence.length() == 4 || charSequence.length() == 6)) {
                     disableJoinGame();
                 }
@@ -166,10 +164,11 @@ public class LobbyActivity extends AppCompatActivity {
                                     showToast("Game does not exist");
                                     disableJoinGame();
                                     break;
+                                default:
+                                    showToast("Server error");
+                                    break;
                             }
-                        }, throwable -> {
-                            showNetworkError();
-                        });
+                        }, throwable -> showNetworkError());
                     }, 50);
 
                 }
