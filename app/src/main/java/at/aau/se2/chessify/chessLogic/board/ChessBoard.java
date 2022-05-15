@@ -34,13 +34,16 @@ public class ChessBoard {
     }
 
     public void performMoveOnBoard(Move move) throws IllegalArgumentException{
-        if(!isWithinBounds(move.getFrom()) && isWithinBounds(move.getTo())){
+        if(!(isWithinBounds(move.getFrom()) && isWithinBounds(move.getTo()))){
             throw new IllegalArgumentException("Please select a field within bounds");
         }
-        ArrayList<Location> allLegalMoves = getPieceAtLocation(move.getFrom()).getLegalMoves(this);
+        ChessPiece movingPiece = getPieceAtLocation(move.getFrom());
+        ArrayList<Location> allLegalMoves = movingPiece.getLegalMoves(this);
         for(Location location : allLegalMoves){
-            if(move.getTo()==location){
+            if(move.getTo().compareLocation(location)){
                 setLocationTo(getPieceAtLocation(move.getFrom()), move.getTo());
+                //add value
+                movingPiece.setMoved(true);
                 return;
             }
         }
