@@ -137,9 +137,9 @@ public class SettingActivity extends AppCompatActivity {
 
         // --> update Soundbutton
         if (Helper.getBackgroundSound(this)) {
-
+            sound.setText("Sound on");
         } else {
-
+            sound.setText("Sound off");
         }
 
         // --> Update Color Scheme
