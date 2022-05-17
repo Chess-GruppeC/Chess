@@ -3,6 +3,7 @@ package at.aau.se2.chessify;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -12,6 +13,8 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.w3c.dom.Text;
+
 import at.aau.se2.chessify.util.Helper;
 
 public class MainActivity extends AppCompatActivity {
@@ -20,6 +23,8 @@ public class MainActivity extends AppCompatActivity {
     Button settings;
     ImageView soundbutton;
     private TextView displayPlayername;
+    ImageView Wallpaper;
+    TextView Heading;
 
 
     @Override
@@ -35,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
         settings = findViewById(R.id.btn_settings);
         soundbutton = findViewById(R.id.btn_sound_main);
         displayPlayername = findViewById(R.id.TextViewPlayerName);
+        Wallpaper = (ImageView) findViewById(R.id.imageView2);
+        Heading = findViewById(R.id.textview_welcome);
 
 
         play.setOnClickListener(new View.OnClickListener() {
@@ -99,6 +106,19 @@ public class MainActivity extends AppCompatActivity {
             soundbutton.setImageResource(R.drawable.volume_on_white);
         } else {
             soundbutton.setImageResource(R.drawable.volume_off_white);
+        }
+
+        // --> Update Color Scheme
+        if (Helper.getDarkmode(this)) {
+            Wallpaper.setImageResource(R.drawable.chessmainbackground_min);
+            play.setBackground(getDrawable(R.drawable.custom_button1));
+            settings.setBackground(getDrawable(R.drawable.custom_button1));
+            exit.setBackground(getDrawable(R.drawable.custom_button1));
+        } else {
+            Wallpaper.setImageResource(R.drawable.chessmainbackground_min_dark);
+            play.setBackground(getDrawable(R.drawable.custom_button2));
+            settings.setBackground(getDrawable(R.drawable.custom_button2));
+            exit.setBackground(getDrawable(R.drawable.custom_button2));
         }
 
         // --> update Playername

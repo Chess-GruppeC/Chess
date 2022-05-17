@@ -3,6 +3,8 @@ package at.aau.se2.chessify.Dice;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.media.Image;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.view.View;
@@ -34,6 +36,7 @@ public class DiceActivity extends AppCompatActivity {
     Button abort;
     private Player player;
     private int diceNumber;
+    ImageView Wallpaper;
 
     private WebSocketClient webSocketClient;
     private DiceResultDTO diceResultDTO;
@@ -49,6 +52,7 @@ public class DiceActivity extends AppCompatActivity {
         dice = findViewById(R.id.image_dice);
         creatBoard = findViewById(R.id.createBoard);
         abort = findViewById(R.id.btn_abort);
+        Wallpaper= findViewById(R.id.imageView3);
 
         webSocketClient = WebSocketClient.getInstance(Helper.getPlayerName(this));
 
@@ -175,6 +179,23 @@ public class DiceActivity extends AppCompatActivity {
     }
     private void getDiceValue(){
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // --> Update Color Scheme
+        if (Helper.getDarkmode(this)){
+            Wallpaper.setImageResource(R.drawable.wallpaper1_material_min);
+            creatBoard.setBackground(getDrawable(R.drawable.custom_button1));
+            abort.setBackground(getDrawable(R.drawable.custom_button1));
+
+        }else{
+            Wallpaper.setImageResource(R.drawable.wallpaper1_material_min_dark);
+            creatBoard.setBackground(getDrawable(R.drawable.custom_button2));
+            abort.setBackground(getDrawable(R.drawable.custom_button2));
+        }
     }
 
     @Override

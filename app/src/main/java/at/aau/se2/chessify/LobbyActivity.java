@@ -38,6 +38,7 @@ public class LobbyActivity extends AppCompatActivity {
     private Button btnStartGame;
     private TextView viewGameIdLabel;
     private ImageView iconCopy;
+    ImageView Wallpaper;
 
     private WebSocketClient webSocketClient;
 
@@ -60,6 +61,7 @@ public class LobbyActivity extends AppCompatActivity {
         btnStartGame = findViewById(R.id.btn_startGame);
         viewGameIdLabel = findViewById(R.id.textView_GameIdLabel);
         iconCopy = findViewById(R.id.icon_copy);
+        Wallpaper = (ImageView) findViewById(R.id.imageView3);
 
         webSocketClient = WebSocketClient.getInstance(Helper.getPlayerName(this));
 
@@ -253,6 +255,19 @@ public class LobbyActivity extends AppCompatActivity {
             SoundLobby.setImageResource(R.drawable.volume_on_white);
         } else {
             SoundLobby.setImageResource(R.drawable.volume_off_white);
+        }
+
+        // --> Update Color Scheme
+        if (Helper.getDarkmode(this)){
+            Wallpaper.setImageResource(R.drawable.wallpaper1_material_min);
+            CreateGame.setBackground(getDrawable(R.drawable.custom_button1));
+            btnStartGame.setBackground(getDrawable(R.drawable.custom_button1));
+            JoinGame.setBackground(getDrawable(R.drawable.custom_button1));
+        }else{
+            Wallpaper.setImageResource(R.drawable.wallpaper1_material_min_dark);
+            CreateGame.setBackground(getDrawable(R.drawable.custom_button2));
+            btnStartGame.setBackground(getDrawable(R.drawable.custom_button2));
+            JoinGame.setBackground(getDrawable(R.drawable.custom_button2));
         }
     }
 
