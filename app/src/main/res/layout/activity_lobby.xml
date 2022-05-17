@@ -21,12 +21,12 @@
         android:layout_height="110dp"
         android:layout_marginTop="230dp"
         android:background="@drawable/custom_button1"
+        android:enabled="false"
         android:fontFamily="serif"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:text="Join Game"
         android:textSize="24sp"
-        android:enabled="false"
         app:layout_constraintDimensionRatio="2:1"
         app:layout_constraintEnd_toEndOf="@id/guideline4"
         app:layout_constraintStart_toStartOf="@id/guideline2"
@@ -70,20 +70,21 @@
         android:layout_width="83dp"
         android:layout_height="75dp"
         android:layout_marginStart="25dp"
-        android:layout_marginBottom="25dp"
         android:src="@drawable/arrow_white"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="2:1"
+        app:layout_constraintBottom_toBottomOf="@id/guideline10"
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="40dp"
+        android:layout_marginBottom="15dp"
         android:fontFamily="serif"
         android:text="back"
         android:textSize="38sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="2:1"
+        app:layout_constraintBottom_toBottomOf="@id/guideline10"
         app:layout_constraintEnd_toStartOf="@+id/imageView3"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/imageView3" />
@@ -106,8 +107,8 @@
         android:layout_width="61dp"
         android:layout_height="68dp"
         android:layout_marginEnd="30dp"
-        android:layout_marginBottom="25dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="2:1"
+        app:layout_constraintBottom_toBottomOf="@id/guideline10"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/volume_on_white" />
 
@@ -192,7 +193,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="45dp" />
+        app:layout_constraintGuide_begin="67dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.95" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
