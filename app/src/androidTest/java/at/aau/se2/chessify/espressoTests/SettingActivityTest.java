@@ -51,4 +51,14 @@ public class SettingActivityTest {
         onView(ViewMatchers.withId(R.id.btn_sound)).perform(click());
     }
 
+    @Test
+    public void CheckIntentVibration() {
+        onView(ViewMatchers.withId(R.id.btn_vibrations)).perform(click());
+    }
+
+    @Test
+    public void CheckDarkmode() {
+        onView(ViewMatchers.withId(R.id.btn_darkmode)).perform(click());
+    }
+
 }
