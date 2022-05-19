@@ -566,11 +566,11 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         } else {
             for (Location loc : legalMoveList) {
                 if (loc.compareLocation(onClickedPosition)) {
-                    //System.out.println("PERFORM MOVE");
-                    //TODO: perform the move and update the boardView
+
                     Move move=new Move(chessBoard.getLocationOf(selectedPiece),loc);
-                    chessBoard.performMoveOnBoard(move);
+                    int destroyedPieceValue=chessBoard.performMoveOnBoard(move);
                     initializePieces();
+                    //TODO: update the SM-Bar accordingly!
                     break;
                 }
             }

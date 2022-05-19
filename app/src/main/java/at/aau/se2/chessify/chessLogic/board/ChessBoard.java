@@ -33,7 +33,8 @@ public class ChessBoard {
         this.gameBoard = gameBoard;
     }
 
-    public void performMoveOnBoard(Move move) throws IllegalArgumentException{
+    public int performMoveOnBoard(Move move) throws IllegalArgumentException{
+        int takenPieceValue=0;
         if(!(isWithinBounds(move.getFrom()) && isWithinBounds(move.getTo()))){
             throw new IllegalArgumentException("Please select a field within bounds");
         }
@@ -41,10 +42,12 @@ public class ChessBoard {
         ArrayList<Location> allLegalMoves = movingPiece.getLegalMoves(this);
         for(Location location : allLegalMoves){
             if(move.getTo().compareLocation(location)){
+                if(getPieceAtLocation(move.getTo())!=null){
+                    takenPieceValue=getPieceAtLocation(move.getTo()).getPieceValue();
+                }
                 setLocationTo(getPieceAtLocation(move.getFrom()), move.getTo());
-                //add value
                 movingPiece.setMoved(true);
-                return;
+                return takenPieceValue;
             }
         }
         throw new IllegalArgumentException("Please perform a legal move");
