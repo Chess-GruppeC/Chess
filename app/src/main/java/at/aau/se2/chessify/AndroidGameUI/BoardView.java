@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import at.aau.se2.chessify.R;
 import at.aau.se2.chessify.chessLogic.board.ChessBoard;
 import at.aau.se2.chessify.chessLogic.board.Location;
+import at.aau.se2.chessify.chessLogic.board.Move;
 import at.aau.se2.chessify.chessLogic.pieces.Bishop;
 import at.aau.se2.chessify.chessLogic.pieces.ChessPiece;
 import at.aau.se2.chessify.chessLogic.pieces.King;
@@ -245,6 +246,8 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                     if (chessPiece.getClass() == Queen.class && chessPiece.getColour() == PieceColour.WHITE) {
                         BoardView[i][j].setBackgroundResource(R.drawable.white_queen);
                     }
+                }else{
+                    BoardView[i][j].setBackgroundResource(android.R.color.transparent);
                 }
             }
         }
@@ -530,7 +533,13 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                 break;
         }
 
-        selectedPiece = chessBoard.getPieceAtLocation(onClickedPosition);
+        if(chessBoard.getPieceAtLocation(onClickedPosition)!=null) {
+            if(legalMoveList.size()==0||!onClickedPosition.checkIfLocationIsPartOfList(legalMoveList)) {
+                selectedPiece = chessBoard.getPieceAtLocation(onClickedPosition);
+                isPieceSelected = true;
+            }
+        }
+        /*
         if (selectedPiece != null) {
             isPieceSelected = true;
         }
@@ -557,11 +566,16 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         } else {
             for (Location loc : legalMoveList) {
                 if (loc.compareLocation(onClickedPosition)) {
-                    //System.out.println("PERFORM MOVE");
-                    //TODO: perform the move and update the boardView
-                    resetColour();
+
+                    Move move=new Move(chessBoard.getLocationOf(selectedPiece),loc);
+                    int destroyedPieceValue=chessBoard.performMoveOnBoard(move);
+                    initializePieces();
+                    //TODO: update the SM-Bar accordingly!
+                    break;
                 }
             }
+            legalMoveList=new ArrayList<>();
+            resetColour();
         }
 
     }
