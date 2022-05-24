@@ -45,13 +45,13 @@
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="360dp"
         android:layout_height="22dp"
-        android:layout_marginBottom="228dp"
+        android:layout_marginTop="400dp"
         android:max="10"
         android:progress="0"
         android:progressDrawable="@drawable/custom_specialmove_background"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/gridLayout" />
 
     <ImageView
         android:id="@+id/imageView2"
@@ -1063,8 +1063,8 @@
 
     <Button
         android:id="@+id/btn_execute_SMB"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="105dp"
+        android:layout_height="48dp"
         android:layout_marginTop="50dp"
         android:background="@drawable/custom_button_smb"
         android:text="Execute"

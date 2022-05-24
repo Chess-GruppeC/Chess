@@ -111,6 +111,7 @@ public class Helper {
         try {
             mediaPlayer_Game = MediaPlayer.create(context, R.raw.ticking);
             mediaPlayer_Game.start();
+            mediaPlayer_Game.setVolume(10, 10);
             mediaPlayer_Game.setLooping(true);
         } catch (Exception e) {
             e.printStackTrace();
