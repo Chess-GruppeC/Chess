@@ -45,13 +45,14 @@
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="360dp"
         android:layout_height="22dp"
-        android:layout_marginBottom="228dp"
+        android:layout_marginTop="400dp"
         android:max="10"
         android:progress="0"
         android:progressDrawable="@drawable/custom_specialmove_background"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/gridLayout" />
 
     <ImageView
         android:id="@+id/imageView2"
