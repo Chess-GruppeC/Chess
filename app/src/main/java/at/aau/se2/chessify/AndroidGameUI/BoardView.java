@@ -1,9 +1,12 @@
 package at.aau.se2.chessify.AndroidGameUI;
 
-import android.media.MediaPlayer;
+
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,9 +30,13 @@ import at.aau.se2.chessify.util.Helper;
 
 public class BoardView extends AppCompatActivity implements View.OnClickListener {
 
-    // private int currentProgress = 0;
-    // ProgressBar specialMoveBar;
-    private MediaPlayer mp;
+    private int currentProgress = 0;
+    private int Buffer;
+    ProgressBar specialMoveBar;
+    TextView SMBCount;
+    ImageView Soundbutton;
+    Button ExecuteSMB;
+
 
     public TextView[][] BoardView = new TextView[8][8];
     public TextView[][] BoardViewBackground = new TextView[8][8];
@@ -49,13 +56,54 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_board);
-        mp = MediaPlayer.create(this, R.raw.ticking);
-        mp.setLooping(true);
-        mp.start();
+        SMBCount = findViewById(R.id.textViewSMBCount);
+        Soundbutton = findViewById(R.id.btn_sound_BoardView);
+        ExecuteSMB = findViewById(R.id.btn_execute_SMB);
+        ExecuteSMB.setVisibility(View.INVISIBLE);
+        Helper.setBackgroundSound(this,false);
+        Helper.stopMusicBackground(this);
+        Helper.playGameSound(this);
+        Helper.setGameSound(this,true);
+
 
         initializeBoard();
 
+        SpecialMoveBar();
+        SMBCount.setText(currentProgress + " | " + specialMoveBar.getMax());
+
         ((TextView) findViewById(R.id.tV_game_id)).setText("#".concat(Helper.getGameId(this)));
+
+        Soundbutton.setOnClickListener(view -> {
+            if (Helper.getGameSound(this)) {
+                Soundbutton.setImageResource(R.drawable.volume_off_white);
+                Helper.setGameSound(this, false);
+                Helper.stopGameSound(this);
+
+            } else {
+                Helper.playGameSound(this);
+                Soundbutton.setImageResource(R.drawable.volume_on_white);
+                Helper.setGameSound(this, true);
+                Soundbutton.setSoundEffectsEnabled(true);
+
+            }
+        });
+
+        ExecuteSMB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // ToDO perform SpecialMove --> Atomic Move
+
+                // --> Executes SMB Bar - sets progress to remaining buffer
+                currentProgress = 0;
+                specialMoveBar.setProgress(currentProgress);
+                ExecuteSMB.setVisibility(View.INVISIBLE);
+                SMBCount.setText(Buffer + " | " + specialMoveBar.getMax());
+                currentProgress = Buffer;
+                specialMoveBar.setProgress(currentProgress);
+                Buffer = 0;
+            }
+        });
 
     }
 
@@ -204,7 +252,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         // setAltBoard();
     }
 
-    private void initializePieces(){
+    private void initializePieces() {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 ChessPiece chessPiece = chessBoard.getPieceAtLocation(new Location(i, j));
@@ -246,7 +294,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                     if (chessPiece.getClass() == Queen.class && chessPiece.getColour() == PieceColour.WHITE) {
                         BoardView[i][j].setBackgroundResource(R.drawable.white_queen);
                     }
-                }else{
+                } else {
                     BoardView[i][j].setBackgroundResource(android.R.color.transparent);
                 }
             }
@@ -533,8 +581,8 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                 break;
         }
 
-        if(chessBoard.getPieceAtLocation(onClickedPosition)!=null) {
-            if(legalMoveList.size()==0||!onClickedPosition.checkIfLocationIsPartOfList(legalMoveList)) {
+        if (chessBoard.getPieceAtLocation(onClickedPosition) != null) {
+            if (legalMoveList.size() == 0 || !onClickedPosition.checkIfLocationIsPartOfList(legalMoveList)) {
                 selectedPiece = chessBoard.getPieceAtLocation(onClickedPosition);
                 isPieceSelected = true;
             }
@@ -567,14 +615,17 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
             for (Location loc : legalMoveList) {
                 if (loc.compareLocation(onClickedPosition)) {
 
-                    Move move=new Move(chessBoard.getLocationOf(selectedPiece),loc);
-                    int destroyedPieceValue=chessBoard.performMoveOnBoard(move);
+                    Move move = new Move(chessBoard.getLocationOf(selectedPiece), loc);
+                    int destroyedPieceValue = chessBoard.performMoveOnBoard(move);
                     initializePieces();
-                    //TODO: update the SM-Bar accordingly!
+
+                    // --> update SpecialMoveBar Progress
+                    currentProgress = currentProgress + destroyedPieceValue;
                     break;
                 }
             }
-            legalMoveList=new ArrayList<>();
+            SpecialMoveBar();
+            legalMoveList = new ArrayList<>();
             resetColour();
         }
 
@@ -587,27 +638,18 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     //TODO: set color at allowed position
     //TODO: is King in danger
 
-    /* Konzept der Special Move Bar
-    public void initSpecialmoveBar() {
+    // --> SpecialMoveBar
+    public void SpecialMoveBar() {
         specialMoveBar = findViewById(R.id.special_move_bar);
-    }
-
-
-    public void fillSpecialMoveBar(){
-
-        if (piece.getPieceId().contains("bp"))
-            currentProgress = currentProgress + 2;
-        else if (piece.getPieceId().contains("bn") || piece.getPieceId().contains("bb"))
-            currentProgress = currentProgress + 5;
-        else if (piece.getPieceId().contains("br"))
-            currentProgress = currentProgress + 7;
-        else if (piece.getPieceId().contains("bq"))
-            currentProgress = currentProgress + 9;
-
         specialMoveBar.setProgress(currentProgress);
-        specialMoveBar.setMax(30);
+        specialMoveBar.setMax(5);
+        SMBCount.setText(currentProgress + " | " + specialMoveBar.getMax());
+
+        if (currentProgress >= specialMoveBar.getMax()) {
+            Buffer = currentProgress - specialMoveBar.getMax();
+            ExecuteSMB.setVisibility(View.VISIBLE);
+        }
     }
-*/
 
     public void resetColour() {
         for (int i = 0; i < 8; i++) {
@@ -624,22 +666,25 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     @Override
     public void onResume() {
         super.onResume();
-        Helper.stopMusicBackground(this);
-        mp.start();
+        // --> update Soundsymbol
+        if (Helper.getGameSound(this)) {
+            Soundbutton.setImageResource(R.drawable.volume_on_white);
+        } else {
+            Soundbutton.setImageResource(R.drawable.volume_off_white);
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        Helper.stopMusicBackground(this);
-        mp.stop();
+
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Helper.stopMusicBackground(this);
-        mp.stop();
+        Helper.setGameSound(this, false);
+        Helper.stopGameSound(this);
     }
 
 
