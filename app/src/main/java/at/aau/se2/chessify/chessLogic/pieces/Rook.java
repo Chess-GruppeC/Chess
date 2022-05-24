@@ -7,6 +7,8 @@ import java.util.ArrayList;
 
 public class Rook extends ChessPiece{
 
+    public Rook() {}
+
     public Rook(PieceColour colour) {
         this.pieceValue=5;
         this.colour=colour;

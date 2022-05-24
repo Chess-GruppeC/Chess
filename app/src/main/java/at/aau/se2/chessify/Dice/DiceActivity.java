@@ -7,11 +7,13 @@ import android.graphics.Color;
 import android.media.Image;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,6 +26,7 @@ import at.aau.se2.chessify.Player;
 import at.aau.se2.chessify.R;
 import at.aau.se2.chessify.network.WebSocketClient;
 import at.aau.se2.chessify.network.dto.DiceResultDTO;
+import at.aau.se2.chessify.network.dto.PlayerDTO;
 import at.aau.se2.chessify.util.Helper;
 
 public class DiceActivity extends AppCompatActivity {
@@ -56,13 +59,24 @@ public class DiceActivity extends AppCompatActivity {
 
         webSocketClient = WebSocketClient.getInstance(Helper.getPlayerName(this));
 
+        //creatBoard.setEnabled(false);
 
         webSocketClient.receiveStartingPlayer(Helper.getGameId(this)).subscribe(stompMessage -> {
             diceResultDTO = new ObjectMapper().readValue(stompMessage.getPayload(),DiceResultDTO.class);
-            if (diceResultDTO.getWinner() == null){
+            PlayerDTO winner = diceResultDTO.getWinner();
+            if (winner == null){
                 // wiederholen
+                runOnUiThread(() -> {
+                    Toast.makeText(getBaseContext(), "Please roll again", Toast.LENGTH_SHORT).show();
+                });
             }else{
                 // show winner
+                runOnUiThread(() -> creatBoard.setEnabled(true));
+                if(winner.getDiceValue().equals(diceNumber)) {
+                    runOnUiThread(() -> Toast.makeText(getBaseContext(), "You are the winner!", Toast.LENGTH_SHORT).show());
+                } else {
+                    runOnUiThread(() -> Toast.makeText(getBaseContext(), "You are the loser :(", Toast.LENGTH_SHORT).show());
+                }
             }
 
         });
@@ -74,7 +88,6 @@ public class DiceActivity extends AppCompatActivity {
 
                 if (mShaker.activCount != 0){
                     getDiceNumber();
-                    sendDiceValue();
                 }
             }
         });
@@ -97,6 +110,7 @@ public class DiceActivity extends AppCompatActivity {
     private void getDiceNumber(){
         diceNumber = getRandomNumber(1, 6);
 
+        sendDiceValue();
 
         switch (diceNumber){
             case 1:
@@ -175,6 +189,7 @@ public class DiceActivity extends AppCompatActivity {
     }
 
     private void sendDiceValue(){
+        Log.d("DICE_NUMBER", "Sending value to game " + Helper.getGameId(this));
         webSocketClient.sendDiceValue(Helper.getGameId(this),diceNumber + "");
     }
     private void getDiceValue(){

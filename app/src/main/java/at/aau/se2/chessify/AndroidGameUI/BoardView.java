@@ -1,12 +1,18 @@
 package at.aau.se2.chessify.AndroidGameUI;
 
+import android.annotation.SuppressLint;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 
@@ -22,7 +28,9 @@ import at.aau.se2.chessify.chessLogic.pieces.Pawn;
 import at.aau.se2.chessify.chessLogic.pieces.PieceColour;
 import at.aau.se2.chessify.chessLogic.pieces.Queen;
 import at.aau.se2.chessify.chessLogic.pieces.Rook;
+import at.aau.se2.chessify.network.WebSocketClient;
 import at.aau.se2.chessify.util.Helper;
+import io.reactivex.disposables.Disposable;
 
 
 public class BoardView extends AppCompatActivity implements View.OnClickListener {
@@ -43,6 +51,10 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     ArrayList<Location[][]> LastMove = new ArrayList<Location[][]>();
     public int countMoves;
 
+    private WebSocketClient client;
+
+    private Disposable gameUpdateDisposable;
+    private ObjectMapper jsonMapper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +67,17 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
 
         initializeBoard();
 
-        ((TextView) findViewById(R.id.tV_game_id)).setText("#".concat(Helper.getGameId(this)));
+        jsonMapper = new ObjectMapper();
+        client = WebSocketClient.getInstance(Helper.getPlayerName(this));
+
+        String gameId = Helper.getGameId(this);
+        ((TextView) findViewById(R.id.tV_game_id)).setText("#".concat(gameId));
+
+        gameUpdateDisposable = client.receiveGameUpdates(Helper.getGameId(this)).subscribe(
+                update-> {
+                    chessBoard = jsonMapper.readValue(update.getPayload(), ChessBoard.class);
+                    runOnUiThread(this::initializePieces);
+                });
 
     }
 
@@ -568,8 +590,16 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                 if (loc.compareLocation(onClickedPosition)) {
 
                     Move move=new Move(chessBoard.getLocationOf(selectedPiece),loc);
-                    int destroyedPieceValue=chessBoard.performMoveOnBoard(move);
-                    initializePieces();
+//                    int destroyedPieceValue=chessBoard.performMoveOnBoard(move);
+//                    initializePieces();
+                    try {
+                        ChessBoard copyOfChessBoard = chessBoard.copy();
+                        int destroyedPieceValue = copyOfChessBoard.performMoveOnBoard(move);
+                        String boardJsonString = jsonMapper.writeValueAsString(copyOfChessBoard);
+                        client.sendGameUpdate(Helper.getGameId(this), boardJsonString);
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
                     //TODO: update the SM-Bar accordingly!
                     break;
                 }
@@ -638,6 +668,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     @Override
     public void onDestroy() {
         super.onDestroy();
+        gameUpdateDisposable.dispose();
         Helper.stopMusicBackground(this);
         mp.stop();
     }

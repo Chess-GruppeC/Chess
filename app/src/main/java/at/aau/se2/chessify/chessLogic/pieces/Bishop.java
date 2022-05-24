@@ -7,6 +7,8 @@ import java.util.ArrayList;
 
 public class Bishop extends ChessPiece {
 
+    public Bishop() {}
+
     public Bishop(PieceColour colour) {
         this.pieceValue=3;
         this.colour=colour;

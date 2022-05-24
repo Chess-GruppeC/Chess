@@ -7,6 +7,8 @@ import java.util.ArrayList;
 
 public class Queen extends Bishop{
 
+    public Queen() {}
+
     public Queen(PieceColour colour) {
         super(colour);
         this.pieceValue=9;

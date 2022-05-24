@@ -29,8 +29,8 @@ public class WebSocketClient {
     private static WebSocketClient INSTANCE;
     private static String playerName;
 
-    private WebSocketClient(String playerName) {
-        WebSocketClient.playerName = playerName;
+    private WebSocketClient(String name) {
+        playerName = name;
         establishConnection();
         initSubscriptions();
     }
