@@ -29,6 +29,15 @@ public class Helper {
         getSharedPreferences(context).edit().putBoolean("Background Sound", sound).apply();
     }
 
+    // --> Sound SBM Bar
+    public static boolean getSMB_BarSound(Context context) {
+        return getSharedPreferences(context).getBoolean("Background Sound", true);
+    }
+
+    public static void setSMB_BarSound(Context context, boolean sound) {
+        getSharedPreferences(context).edit().putBoolean("Background Sound", sound).apply();
+    }
+
     // --> Sound Game
     public static boolean getGameSound(Context context) {
         return getSharedPreferences(context).getBoolean("Background Sound", true);
@@ -79,6 +88,30 @@ public class Helper {
 
     static MediaPlayer mediaPlayer_Menu;
     static MediaPlayer mediaPlayer_Game;
+    static MediaPlayer SMB_Bar;
+
+    // --> Sound SMB Bar
+    public static void playSMB_BarSound(Activity context) {
+        try {
+            SMB_Bar = MediaPlayer.create(context, R.raw.smb_activate);
+            SMB_Bar.start();
+            //SMB_Bar.setLooping(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void stopSMB_BarSound(Activity context) {
+        try {
+            if (SMB_Bar != null) {
+                SMB_Bar.stop();
+                SMB_Bar.release();
+                SMB_Bar = null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     // --> Sound Menu
     public static void playMusicBackground(Activity context) {
@@ -103,15 +136,11 @@ public class Helper {
         }
     }
 
-
-
-
     // --> Sound Game
     public static void playGameSound(Activity context) {
         try {
             mediaPlayer_Game = MediaPlayer.create(context, R.raw.ticking);
             mediaPlayer_Game.start();
-            mediaPlayer_Game.setVolume(10, 10);
             mediaPlayer_Game.setLooping(true);
         } catch (Exception e) {
             e.printStackTrace();

@@ -317,7 +317,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     @Override
     public void onClick(View view) {
         MediaPlayer PieceCaptured = MediaPlayer.create(this, R.raw.piece_captured);
-        MediaPlayer PieceMoved = MediaPlayer.create(this, R.raw.piece_move);
+        MediaPlayer PieceMoved = MediaPlayer.create(this, R.raw.piece_move_two);
         //add clicked position
         // if selected ....
         switch (view.getId()) {
@@ -649,6 +649,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
 
     // --> SpecialMoveBar
     public void SpecialMoveBar() {
+        MediaPlayer SMB = MediaPlayer.create(this, R.raw.smb_activate);
         specialMoveBar = findViewById(R.id.special_move_bar);
         specialMoveBar.setProgress(currentProgress);
         specialMoveBar.setMax(5);
@@ -656,6 +657,8 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
 
         if (currentProgress >= specialMoveBar.getMax()) {
             Buffer = currentProgress - specialMoveBar.getMax();
+            Helper.playSMB_BarSound(this);
+            SMB.start();
             ExecuteSMB.setVisibility(View.VISIBLE);
         }
     }
