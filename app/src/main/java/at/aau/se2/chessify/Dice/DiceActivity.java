@@ -57,7 +57,7 @@ public class DiceActivity extends AppCompatActivity {
         abort = findViewById(R.id.btn_abort);
         Wallpaper= findViewById(R.id.imageView3);
 
-        webSocketClient = WebSocketClient.getInstance(Helper.getPlayerName(this));
+        webSocketClient = WebSocketClient.getInstance(Helper.getUniquePlayerName(this));
 
         //creatBoard.setEnabled(false);
 

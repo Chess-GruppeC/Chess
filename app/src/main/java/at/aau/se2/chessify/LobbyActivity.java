@@ -63,7 +63,7 @@ public class LobbyActivity extends AppCompatActivity {
         iconCopy = findViewById(R.id.icon_copy);
         Wallpaper = (ImageView) findViewById(R.id.imageView3);
 
-        webSocketClient = WebSocketClient.getInstance(Helper.getPlayerName(this));
+        webSocketClient = WebSocketClient.getInstance(Helper.getUniquePlayerName(this));
 
         btnStartGame.setOnClickListener(view -> startDiceActivity());
         CreateGame.setOnClickListener(getCreateGameClickListener());

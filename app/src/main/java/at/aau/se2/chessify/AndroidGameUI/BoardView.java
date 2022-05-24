@@ -3,11 +3,9 @@ package at.aau.se2.chessify.AndroidGameUI;
 import android.annotation.SuppressLint;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -31,6 +29,7 @@ import at.aau.se2.chessify.chessLogic.pieces.Rook;
 import at.aau.se2.chessify.network.WebSocketClient;
 import at.aau.se2.chessify.util.Helper;
 import io.reactivex.disposables.Disposable;
+import ua.naiksoftware.stomp.dto.StompMessage;
 
 
 public class BoardView extends AppCompatActivity implements View.OnClickListener {
@@ -56,25 +55,33 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     private Disposable gameUpdateDisposable;
     private ObjectMapper jsonMapper;
 
+    private TextView textView_gameId;
+
+    private String gameId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_board);
+
+        textView_gameId = findViewById(R.id.tV_game_id);
+
         mp = MediaPlayer.create(this, R.raw.ticking);
         mp.setLooping(true);
         mp.start();
 
         initializeBoard();
+        initializePieces();
 
         jsonMapper = new ObjectMapper();
-        client = WebSocketClient.getInstance(Helper.getPlayerName(this));
+        client = WebSocketClient.getInstance(Helper.getUniquePlayerName(this));
 
-        String gameId = Helper.getGameId(this);
-        ((TextView) findViewById(R.id.tV_game_id)).setText("#".concat(gameId));
+        gameId = Helper.getGameId(this);
+        textView_gameId.setText("#".concat(gameId));
 
-        gameUpdateDisposable = client.receiveGameUpdates(Helper.getGameId(this)).subscribe(
-                update-> {
+        gameUpdateDisposable = client.receiveGameUpdates(gameId).subscribe(
+                update -> {
                     chessBoard = jsonMapper.readValue(update.getPayload(), ChessBoard.class);
                     runOnUiThread(this::initializePieces);
                 });
@@ -219,9 +226,6 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         BoardViewBackground[6][7] = (TextView) findViewById(R.id.R067);
         BoardView[7][7] = (TextView) findViewById(R.id.R77);
         BoardViewBackground[7][7] = (TextView) findViewById(R.id.R077);
-
-        initializePieces();
-
 
         // setAltBoard();
     }
@@ -596,7 +600,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                         ChessBoard copyOfChessBoard = chessBoard.copy();
                         int destroyedPieceValue = copyOfChessBoard.performMoveOnBoard(move);
                         String boardJsonString = jsonMapper.writeValueAsString(copyOfChessBoard);
-                        client.sendGameUpdate(Helper.getGameId(this), boardJsonString);
+                        client.sendGameUpdate(gameId, boardJsonString);
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
                     }
