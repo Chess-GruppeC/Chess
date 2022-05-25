@@ -1,13 +1,9 @@
 package at.aau.se2.chessify.Dice;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.media.Image;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -28,6 +24,7 @@ import at.aau.se2.chessify.network.WebSocketClient;
 import at.aau.se2.chessify.network.dto.DiceResultDTO;
 import at.aau.se2.chessify.network.dto.PlayerDTO;
 import at.aau.se2.chessify.util.Helper;
+import io.reactivex.disposables.Disposable;
 
 public class DiceActivity extends AppCompatActivity {
     private ImageView dice;
@@ -44,9 +41,10 @@ public class DiceActivity extends AppCompatActivity {
     private WebSocketClient webSocketClient;
     private DiceResultDTO diceResultDTO;
 
+    private Disposable getDiceResultDisposable;
 
+    private ObjectMapper jsonMapper;
 
-    @SuppressLint("CheckResult")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,11 +56,12 @@ public class DiceActivity extends AppCompatActivity {
         Wallpaper= findViewById(R.id.imageView3);
 
         webSocketClient = WebSocketClient.getInstance(Helper.getUniquePlayerName(this));
-
+        jsonMapper = new ObjectMapper();
         //creatBoard.setEnabled(false);
 
-        webSocketClient.receiveStartingPlayer(Helper.getGameId(this)).subscribe(stompMessage -> {
-            diceResultDTO = new ObjectMapper().readValue(stompMessage.getPayload(),DiceResultDTO.class);
+        getDiceResultDisposable = webSocketClient.receiveStartingPlayer(Helper.getGameId(this))
+                .subscribe(stompMessage -> {
+            diceResultDTO = jsonMapper.readValue(stompMessage.getPayload(),DiceResultDTO.class);
             PlayerDTO winner = diceResultDTO.getWinner();
             if (winner == null){
                 // wiederholen
@@ -189,7 +188,6 @@ public class DiceActivity extends AppCompatActivity {
     }
 
     private void sendDiceValue(){
-        Log.d("DICE_NUMBER", "Sending value to game " + Helper.getGameId(this));
         webSocketClient.sendDiceValue(Helper.getGameId(this),diceNumber + "");
     }
     private void getDiceValue(){
@@ -221,4 +219,9 @@ public class DiceActivity extends AppCompatActivity {
         super.onPause();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        getDiceResultDisposable.dispose();
+    }
 }

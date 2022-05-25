@@ -113,6 +113,10 @@ public class WebSocketClient {
         mStompClient.send("/topic/game/rollDice/" + gameId, diceValue).subscribe();
     }
 
+    public Flowable<StompMessage> getGameState(String gameId) {
+        return mStompClient.topic("/topic/state/" + gameId);
+    }
+
     // Gegenerabfrage über Game ID
     public Observable<StompMessage> getOpponent(String gameId) {
         getOpponentSubject = BehaviorSubject.create();

@@ -1,11 +1,11 @@
 package at.aau.se2.chessify.AndroidGameUI;
 
-import android.annotation.SuppressLint;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -29,7 +29,6 @@ import at.aau.se2.chessify.chessLogic.pieces.Rook;
 import at.aau.se2.chessify.network.WebSocketClient;
 import at.aau.se2.chessify.util.Helper;
 import io.reactivex.disposables.Disposable;
-import ua.naiksoftware.stomp.dto.StompMessage;
 
 
 public class BoardView extends AppCompatActivity implements View.OnClickListener {
@@ -52,7 +51,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
 
     private WebSocketClient client;
 
-    private Disposable gameUpdateDisposable;
+    private Disposable gameUpdateDisposable, getGameStateDisposable;
     private ObjectMapper jsonMapper;
 
     private TextView textView_gameId;
@@ -72,7 +71,6 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         mp.start();
 
         initializeBoard();
-        initializePieces();
 
         jsonMapper = new ObjectMapper();
         client = WebSocketClient.getInstance(Helper.getUniquePlayerName(this));
@@ -80,12 +78,16 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         gameId = Helper.getGameId(this);
         textView_gameId.setText("#".concat(gameId));
 
-        gameUpdateDisposable = client.receiveGameUpdates(gameId).subscribe(
-                update -> {
-                    chessBoard = jsonMapper.readValue(update.getPayload(), ChessBoard.class);
-                    runOnUiThread(this::initializePieces);
-                });
+        getGameStateDisposable = client.getGameState(gameId)
+                .subscribe(lastState -> parseChessBoardAndRefresh(lastState.getPayload()),
+                        throwable -> runOnUiThread(() -> Toast.makeText(getBaseContext(), "An error occurred", Toast.LENGTH_SHORT).show()));
 
+        gameUpdateDisposable = client.receiveGameUpdates(gameId)
+                .subscribe(update -> {
+                    parseChessBoardAndRefresh(update.getPayload());
+                    if(!getGameStateDisposable.isDisposed())
+                        getGameStateDisposable.dispose();
+                    }, throwable -> runOnUiThread(() -> Toast.makeText(getBaseContext(), "An error occurred", Toast.LENGTH_SHORT).show()));
     }
 
 
@@ -227,6 +229,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         BoardView[7][7] = (TextView) findViewById(R.id.R77);
         BoardViewBackground[7][7] = (TextView) findViewById(R.id.R077);
 
+        initializePieces();
         // setAltBoard();
     }
 
@@ -655,6 +658,11 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         }
     }
 
+    private void parseChessBoardAndRefresh(String json) throws JsonProcessingException {
+        chessBoard = jsonMapper.readValue(json, ChessBoard.class);
+        runOnUiThread(this::initializePieces);
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -673,6 +681,8 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     public void onDestroy() {
         super.onDestroy();
         gameUpdateDisposable.dispose();
+        if(!getGameStateDisposable.isDisposed())
+            getGameStateDisposable.dispose();
         Helper.stopMusicBackground(this);
         mp.stop();
     }
