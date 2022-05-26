@@ -27,6 +27,8 @@ import at.aau.se2.chessify.chessLogic.pieces.PieceColour;
 import at.aau.se2.chessify.chessLogic.pieces.Queen;
 import at.aau.se2.chessify.chessLogic.pieces.Rook;
 import at.aau.se2.chessify.network.WebSocketClient;
+import at.aau.se2.chessify.network.dto.GameDataDTO;
+import at.aau.se2.chessify.network.dto.PlayerDTO;
 import at.aau.se2.chessify.util.Helper;
 import io.reactivex.disposables.Disposable;
 
@@ -87,7 +89,8 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                     parseChessBoardAndRefresh(update.getPayload());
                     if(!getGameStateDisposable.isDisposed())
                         getGameStateDisposable.dispose();
-                    }, throwable -> runOnUiThread(() -> Toast.makeText(getBaseContext(), "An error occurred", Toast.LENGTH_SHORT).show()));
+                });
+
     }
 
 
@@ -602,8 +605,9 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                     try {
                         ChessBoard copyOfChessBoard = chessBoard.copy();
                         int destroyedPieceValue = copyOfChessBoard.performMoveOnBoard(move);
-                        String boardJsonString = objectMapper.writeValueAsString(copyOfChessBoard);
-                        client.sendGameUpdate(gameId, boardJsonString);
+                        GameDataDTO<ChessBoard> data = new GameDataDTO<>(copyOfChessBoard);
+                        String gameDataJsonString = objectMapper.writeValueAsString(data);
+                        client.sendGameUpdate(gameId, gameDataJsonString);
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
                     }
@@ -659,7 +663,9 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     }
 
     private void parseChessBoardAndRefresh(String json) throws JsonProcessingException {
-        chessBoard = objectMapper.readValue(json, ChessBoard.class);
+        GameDataDTO<?> gameData = objectMapper.readValue(json, GameDataDTO.class);
+        chessBoard = objectMapper.convertValue(gameData.getData(), ChessBoard.class);
+        // PlayerDTO nextPlayer = gameData.getNextPlayer();     // Show on UI
         runOnUiThread(this::initializePieces);
     }
 
@@ -681,8 +687,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     public void onDestroy() {
         super.onDestroy();
         gameUpdateDisposable.dispose();
-        if(!getGameStateDisposable.isDisposed())
-            getGameStateDisposable.dispose();
+        getGameStateDisposable.dispose();
         Helper.stopMusicBackground(this);
         mp.stop();
     }
