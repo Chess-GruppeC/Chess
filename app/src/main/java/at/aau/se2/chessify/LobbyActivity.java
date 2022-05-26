@@ -1,10 +1,12 @@
 package at.aau.se2.chessify;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.ContextCompat;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
@@ -22,6 +24,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import at.aau.se2.chessify.AndroidGameUI.BoardView;
 import at.aau.se2.chessify.Dice.DiceActivity;
 import at.aau.se2.chessify.network.WebSocketClient;
 import at.aau.se2.chessify.util.Helper;
@@ -100,6 +103,11 @@ public class LobbyActivity extends AppCompatActivity {
             }
         });
 
+        String gameId = Helper.getGameId(this);
+        if(gameId != null) {
+            Dialog dialog = createFinishGameDialog(gameId);
+            dialog.show();
+        }
 
     }
 
@@ -271,16 +279,29 @@ public class LobbyActivity extends AppCompatActivity {
         }
     }
 
+    private Dialog createFinishGameDialog(String gameId) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Do you want to resume your last game?");
+        builder.setPositiveButton("Ok", (dialog, id) -> {
+            WebSocketClient client = WebSocketClient.getInstance(Helper.getUniquePlayerName(LobbyActivity.this));
+            client.joinGame(gameId).subscribe();
+            Intent intent = new Intent(this, BoardView.class);
+            startActivity(intent);
+        });
+        builder.setNegativeButton("Cancel", (dialog, id) -> {
+            // User cancelled the dialog
+        });
+        return builder.create();
+    }
+
     @Override
     public void onPause() {
         super.onPause();
-
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-
     }
 
 }

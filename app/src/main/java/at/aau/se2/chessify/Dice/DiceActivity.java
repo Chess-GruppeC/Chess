@@ -43,7 +43,7 @@ public class DiceActivity extends AppCompatActivity {
 
     private Disposable getDiceResultDisposable;
 
-    private ObjectMapper jsonMapper;
+    private ObjectMapper objectMapper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,12 +56,12 @@ public class DiceActivity extends AppCompatActivity {
         Wallpaper= findViewById(R.id.imageView3);
 
         webSocketClient = WebSocketClient.getInstance(Helper.getUniquePlayerName(this));
-        jsonMapper = new ObjectMapper();
+        objectMapper = new ObjectMapper();
         //creatBoard.setEnabled(false);
 
         getDiceResultDisposable = webSocketClient.receiveStartingPlayer(Helper.getGameId(this))
                 .subscribe(stompMessage -> {
-            diceResultDTO = jsonMapper.readValue(stompMessage.getPayload(),DiceResultDTO.class);
+            diceResultDTO = objectMapper.readValue(stompMessage.getPayload(),DiceResultDTO.class);
             PlayerDTO winner = diceResultDTO.getWinner();
             if (winner == null){
                 // wiederholen

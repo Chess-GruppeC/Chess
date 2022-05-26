@@ -52,7 +52,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     private WebSocketClient client;
 
     private Disposable gameUpdateDisposable, getGameStateDisposable;
-    private ObjectMapper jsonMapper;
+    private ObjectMapper objectMapper;
 
     private TextView textView_gameId;
 
@@ -72,7 +72,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
 
         initializeBoard();
 
-        jsonMapper = new ObjectMapper();
+        objectMapper = new ObjectMapper();
         client = WebSocketClient.getInstance(Helper.getUniquePlayerName(this));
 
         gameId = Helper.getGameId(this);
@@ -602,7 +602,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                     try {
                         ChessBoard copyOfChessBoard = chessBoard.copy();
                         int destroyedPieceValue = copyOfChessBoard.performMoveOnBoard(move);
-                        String boardJsonString = jsonMapper.writeValueAsString(copyOfChessBoard);
+                        String boardJsonString = objectMapper.writeValueAsString(copyOfChessBoard);
                         client.sendGameUpdate(gameId, boardJsonString);
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
@@ -659,7 +659,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     }
 
     private void parseChessBoardAndRefresh(String json) throws JsonProcessingException {
-        chessBoard = jsonMapper.readValue(json, ChessBoard.class);
+        chessBoard = objectMapper.readValue(json, ChessBoard.class);
         runOnUiThread(this::initializePieces);
     }
 
