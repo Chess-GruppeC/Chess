@@ -42,7 +42,7 @@ public class BishopTest {
     }
 
     private ChessBoard initializeTestChessboardBishop(){
-        testChessBoard=new ChessBoard();
+        ChessBoard testChessBoard=new ChessBoard();
         testChessBoard.setGameBoard(manuallyGeneratedTestBoard);
         testBishop= new Bishop(PieceColour.BLACK);
         testChessBoard.getGameBoard()[3][4]=testBishop;
@@ -93,7 +93,7 @@ public class BishopTest {
     }
 
     private ChessBoard initializeTestChessboardBishopEnemy(){
-        testChessBoard=new ChessBoard();
+        ChessBoard testChessBoard=new ChessBoard();
         testChessBoard.setGameBoard(manuallyGeneratedTestBoard);
         testBishop= new Bishop(PieceColour.BLACK);
         testChessBoard.getGameBoard()[3][4]=testBishop;
@@ -146,7 +146,7 @@ public class BishopTest {
     }
 
     private ChessBoard initializeTestChessboardBishopAlly(){
-        testChessBoard=new ChessBoard();
+        ChessBoard testChessBoard=new ChessBoard();
         testChessBoard.setGameBoard(manuallyGeneratedTestBoard);
         testBishop= new Bishop(PieceColour.BLACK);
         testChessBoard.getGameBoard()[3][4]=testBishop;
