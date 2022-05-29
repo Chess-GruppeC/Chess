@@ -63,21 +63,6 @@ public class DiceActivity extends AppCompatActivity {
                 .subscribe(stompMessage -> {
             diceResultDTO = objectMapper.readValue(stompMessage.getPayload(),DiceResultDTO.class);
             PlayerDTO winner = diceResultDTO.getWinner();
-            if (winner == null){
-                // wiederholen
-                runOnUiThread(() -> {
-                    Toast.makeText(getBaseContext(), "Please roll again", Toast.LENGTH_SHORT).show();
-                });
-            }else{
-                // show winner
-                runOnUiThread(() -> creatBoard.setEnabled(true));
-                if(winner.getDiceValue().equals(diceNumber)) {
-                    runOnUiThread(() -> Toast.makeText(getBaseContext(), "You are the winner!", Toast.LENGTH_SHORT).show());
-                } else {
-                    runOnUiThread(() -> Toast.makeText(getBaseContext(), "You are the loser :(", Toast.LENGTH_SHORT).show());
-                }
-            }
-
         });
 
         dice.setOnClickListener(new View.OnClickListener() {

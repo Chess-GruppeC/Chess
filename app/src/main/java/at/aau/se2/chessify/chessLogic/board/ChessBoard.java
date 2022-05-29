@@ -95,9 +95,11 @@ public class ChessBoard {
     }
 
     public boolean isWithinBounds(Location location){
-        if((location.getRow() >= 0) && (location.getRow() < 8)
-                && (location.getColumn() >= 0) && (location.getColumn() < 8)){
-            return true;
+        if(location != null) {
+            if ((location.getRow() >= 0) && (location.getRow() < 8)
+                    && (location.getColumn() >= 0) && (location.getColumn() < 8)) {
+                return true;
+            }
         }
         return false;
     }

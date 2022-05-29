@@ -89,8 +89,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                     parseChessBoardAndRefresh(update.getPayload());
                     if(!getGameStateDisposable.isDisposed())
                         getGameStateDisposable.dispose();
-                });
-
+                }, throwable -> runOnUiThread(() -> Toast.makeText(getBaseContext(), "An error occurred", Toast.LENGTH_SHORT).show()));
     }
 
 
@@ -609,7 +608,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                         String gameDataJsonString = objectMapper.writeValueAsString(data);
                         client.sendGameUpdate(gameId, gameDataJsonString);
                     } catch (JsonProcessingException e) {
-                        e.printStackTrace();
+                        runOnUiThread(() -> Toast.makeText(getBaseContext(), "An error occurred", Toast.LENGTH_SHORT).show());
                     }
                     //TODO: update the SM-Bar accordingly!
                     break;
@@ -665,7 +664,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     private void parseChessBoardAndRefresh(String json) throws JsonProcessingException {
         GameDataDTO<?> gameData = objectMapper.readValue(json, GameDataDTO.class);
         chessBoard = objectMapper.convertValue(gameData.getData(), ChessBoard.class);
-        // PlayerDTO nextPlayer = gameData.getNextPlayer();     // Show on UI
+        // PlayerDTO nextPlayer = gameData.getNextPlayer();     // TODO Show on UI
         runOnUiThread(this::initializePieces);
     }
 
