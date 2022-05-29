@@ -81,7 +81,7 @@ public class WebSocketClientTest {
         joinGame(clientPlayerOne, gameID);
     }
 
-    @Test
+    /*@Test
     public void _5_sendAndReceiveGameDataTest() {
         assertNotNull(gameID);
         AtomicReference<String> receivedDataAtomicReference = new AtomicReference<>();
@@ -93,7 +93,7 @@ public class WebSocketClientTest {
         String receivedData = receivedDataAtomicReference.get();
         assertNotNull(receivedData);
         assertEquals("DATA", receivedData);
-    }
+    }*/
 
     @Test
     public void _6_getOpponentTest() throws JsonProcessingException {
