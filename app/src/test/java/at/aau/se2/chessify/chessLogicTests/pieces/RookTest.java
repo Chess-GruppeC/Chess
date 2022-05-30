@@ -1,6 +1,7 @@
 package at.aau.se2.chessify.chessLogicTests.pieces;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import at.aau.se2.chessify.chessLogic.board.*;
 import at.aau.se2.chessify.chessLogic.pieces.*;
@@ -23,8 +24,33 @@ public class RookTest {
 
     @Test
     public void getLegalMovesRookTest(){
+        //setup board
+        testChessBoard=initializeTestChessboardRook();
 
-        initializeTestChessboardRook();
+        //get locations manually and with method
+        ArrayList<Location> possibleMovesArray = setLegalMovesRook();
+        ArrayList<Location> legalMovesMethodArray = testRook.getLegalMoves(testChessBoard);
+
+        //compare location lists
+        assertEquals(possibleMovesArray.size(), legalMovesMethodArray.size());
+        for(Location loc : possibleMovesArray){
+            assertTrue(loc.checkIfLocationIsPartOfList(legalMovesMethodArray));
+        }
+        for(Location loc : legalMovesMethodArray){
+            assertTrue(loc.checkIfLocationIsPartOfList(possibleMovesArray));
+        }
+    }
+
+    private ChessBoard initializeTestChessboardRook(){
+        ChessBoard testChessBoard=new ChessBoard();
+        testChessBoard.setGameBoard(manuallyGeneratedTestBoard);
+        testRook= new Rook(PieceColour.BLACK);
+        testChessBoard.getGameBoard()[3][4]=testRook;
+
+        return testChessBoard;
+    }
+
+    private ArrayList<Location> setLegalMovesRook(){
         ArrayList<Location> possibleMovesArray = new ArrayList<>();
 
         possibleMovesArray.add(new Location(2,4));
@@ -45,30 +71,44 @@ public class RookTest {
         possibleMovesArray.add(new Location(3,6));
         possibleMovesArray.add(new Location(3,7));
 
-
-        ArrayList<Location> legalMovesMethodArray = testRook.getLegalMoves(testChessBoard);
-        assertEquals(possibleMovesArray.size(), legalMovesMethodArray.size());
-
-        for(Location loc : possibleMovesArray){
-            assertEquals(true, loc.checkIfLocationIsPartOfList(legalMovesMethodArray));
-        }
-        for(Location loc : legalMovesMethodArray){
-            assertEquals(true, loc.checkIfLocationIsPartOfList(possibleMovesArray));
-        }
-    }
-
-    private void initializeTestChessboardRook(){
-        testChessBoard=new ChessBoard();
-        testChessBoard.setGameBoard(manuallyGeneratedTestBoard);
-        testRook= new Rook(PieceColour.BLACK);
-        testChessBoard.getGameBoard()[3][4]=testRook;
-
+        return possibleMovesArray;
     }
 
     @Test
     public void getLegalMovesRookTestEnemy(){
+        //setup board
+        testChessBoard=initializeTestChessboardRookEnemy();
 
-        initializeTestChessboardRookEnemy();
+        //get locations manually and with method
+        ArrayList<Location> possibleMovesArray = setLegalMovesRookEnemy();
+        ArrayList<Location> legalMovesMethodArray = testRook.getLegalMoves(testChessBoard);
+
+        //compare location lists
+        assertEquals(possibleMovesArray.size(), legalMovesMethodArray.size());
+        for(Location loc : possibleMovesArray){
+            assertTrue(loc.checkIfLocationIsPartOfList(legalMovesMethodArray));
+        }
+        for(Location loc : legalMovesMethodArray){
+            assertTrue(loc.checkIfLocationIsPartOfList(possibleMovesArray));
+        }
+
+    }
+
+    private ChessBoard initializeTestChessboardRookEnemy(){
+        ChessBoard testChessBoard=new ChessBoard();
+        testChessBoard.setGameBoard(manuallyGeneratedTestBoard);
+        testRook= new Rook(PieceColour.BLACK);
+        testChessBoard.getGameBoard()[3][4]=testRook;
+        testChessBoard.getGameBoard()[1][4]=new Pawn(PieceColour.WHITE);
+        testChessBoard.getGameBoard()[3][0]=new Pawn(PieceColour.WHITE);
+
+        testChessBoard.getGameBoard()[4][4]=new Pawn(PieceColour.WHITE);
+        testChessBoard.getGameBoard()[3][6]=new Pawn(PieceColour.WHITE);
+
+        return testChessBoard;
+    }
+
+    private ArrayList<Location> setLegalMovesRookEnemy(){
         ArrayList<Location> possibleMovesArray = new ArrayList<>();
 
         possibleMovesArray.add(new Location(2,4));
@@ -84,35 +124,44 @@ public class RookTest {
         possibleMovesArray.add(new Location(3,5));
         possibleMovesArray.add(new Location(3,6));
 
-
-        ArrayList<Location> legalMovesMethodArray = testRook.getLegalMoves(testChessBoard);
-        assertEquals(possibleMovesArray.size(), legalMovesMethodArray.size());
-
-        for(Location loc : possibleMovesArray){
-            assertEquals(true, loc.checkIfLocationIsPartOfList(legalMovesMethodArray));
-        }
-        for(Location loc : legalMovesMethodArray){
-            assertEquals(true, loc.checkIfLocationIsPartOfList(possibleMovesArray));
-        }
-
-    }
-
-    private void initializeTestChessboardRookEnemy(){
-        testChessBoard=new ChessBoard();
-        testChessBoard.setGameBoard(manuallyGeneratedTestBoard);
-        testRook= new Rook(PieceColour.BLACK);
-        testChessBoard.getGameBoard()[3][4]=testRook;
-        testChessBoard.getGameBoard()[1][4]=new Pawn(PieceColour.WHITE);
-        testChessBoard.getGameBoard()[3][0]=new Pawn(PieceColour.WHITE);
-
-        testChessBoard.getGameBoard()[4][4]=new Pawn(PieceColour.WHITE);
-        testChessBoard.getGameBoard()[3][6]=new Pawn(PieceColour.WHITE);
+        return possibleMovesArray;
     }
 
     @Test
     public void getLegalMovesRookTestAlly(){
+        //setup board
+        testChessBoard=initializeTestChessboardRookAlly();
 
-        initializeTestChessboardRookAlly();
+        //get locations manually and with method
+        ArrayList<Location> possibleMovesArray = setLegalMovesRookAlly();
+        ArrayList<Location> legalMovesMethodArray = testRook.getLegalMoves(testChessBoard);
+
+        //compare location lists
+        assertEquals(possibleMovesArray.size(), legalMovesMethodArray.size());
+        for(Location loc : possibleMovesArray){
+            assertTrue(loc.checkIfLocationIsPartOfList(legalMovesMethodArray));
+        }
+        for(Location loc : legalMovesMethodArray){
+            assertTrue(loc.checkIfLocationIsPartOfList(possibleMovesArray));
+        }
+
+    }
+
+    private ChessBoard initializeTestChessboardRookAlly(){
+        ChessBoard testChessBoard=new ChessBoard();
+        testChessBoard.setGameBoard(manuallyGeneratedTestBoard);
+        testRook= new Rook(PieceColour.BLACK);
+        testChessBoard.getGameBoard()[3][4]=testRook;
+        testChessBoard.getGameBoard()[1][4]=new Pawn(PieceColour.BLACK);
+        testChessBoard.getGameBoard()[3][0]=new Pawn(PieceColour.BLACK);
+
+        testChessBoard.getGameBoard()[4][4]=new Pawn(PieceColour.BLACK);
+        testChessBoard.getGameBoard()[3][6]=new Pawn(PieceColour.BLACK);
+
+        return testChessBoard;
+    }
+
+    private ArrayList<Location> setLegalMovesRookAlly(){
         ArrayList<Location> possibleMovesArray = new ArrayList<>();
 
         possibleMovesArray.add(new Location(2,4));
@@ -123,29 +172,7 @@ public class RookTest {
 
         possibleMovesArray.add(new Location(3,5));
 
-
-        ArrayList<Location> legalMovesMethodArray = testRook.getLegalMoves(testChessBoard);
-        assertEquals(possibleMovesArray.size(), legalMovesMethodArray.size());
-
-        for(Location loc : possibleMovesArray){
-            assertEquals(true, loc.checkIfLocationIsPartOfList(legalMovesMethodArray));
-        }
-        for(Location loc : legalMovesMethodArray){
-            assertEquals(true, loc.checkIfLocationIsPartOfList(possibleMovesArray));
-        }
-
-    }
-
-    private void initializeTestChessboardRookAlly(){
-        testChessBoard=new ChessBoard();
-        testChessBoard.setGameBoard(manuallyGeneratedTestBoard);
-        testRook= new Rook(PieceColour.BLACK);
-        testChessBoard.getGameBoard()[3][4]=testRook;
-        testChessBoard.getGameBoard()[1][4]=new Pawn(PieceColour.BLACK);
-        testChessBoard.getGameBoard()[3][0]=new Pawn(PieceColour.BLACK);
-
-        testChessBoard.getGameBoard()[4][4]=new Pawn(PieceColour.BLACK);
-        testChessBoard.getGameBoard()[3][6]=new Pawn(PieceColour.BLACK);
+        return possibleMovesArray;
     }
 
 }

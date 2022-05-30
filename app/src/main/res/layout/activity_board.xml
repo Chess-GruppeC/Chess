@@ -45,14 +45,14 @@
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="360dp"
         android:layout_height="22dp"
-        android:layout_marginBottom="150dp"
-        android:max="30"
-        android:progress="12"
+        android:layout_marginTop="400dp"
+        android:max="10"
+        android:progress="0"
         android:progressDrawable="@drawable/custom_specialmove_background"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/gridLayout" />
 
     <ImageView
         android:id="@+id/imageView2"
@@ -1049,6 +1049,40 @@
             android:longClickable="false"
             android:onClick="onClick" />
     </GridLayout>
+
+    <TextView
+        android:id="@+id/textViewSMBCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/special_move_bar" />
+
+    <Button
+        android:id="@+id/btn_execute_SMB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:background="@drawable/custom_button_smb"
+        android:text="Execute"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/special_move_bar" />
+
+    <ImageView
+        android:id="@+id/btn_sound_BoardView"
+        android:layout_width="48dp"
+        android:layout_height="46dp"
+        android:layout_marginEnd="40dp"
+        android:layout_marginBottom="40dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/volume_on_white" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
