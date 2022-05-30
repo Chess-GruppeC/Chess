@@ -1,13 +1,19 @@
 package at.aau.se2.chessify;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.ContextCompat;
 
 import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -32,8 +38,12 @@ public class LobbyActivity extends AppCompatActivity {
     private Button btnStartGame;
     private TextView viewGameIdLabel;
     private ImageView iconCopy;
+    ImageView Wallpaper;
 
     private WebSocketClient webSocketClient;
+
+    private boolean triedToJoinAGame = false;
+    private final Handler enterIdHandler = new Handler(Looper.getMainLooper());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,72 +61,16 @@ public class LobbyActivity extends AppCompatActivity {
         btnStartGame = findViewById(R.id.btn_startGame);
         viewGameIdLabel = findViewById(R.id.textView_GameIdLabel);
         iconCopy = findViewById(R.id.icon_copy);
+        Wallpaper = (ImageView) findViewById(R.id.imageView3);
 
         webSocketClient = WebSocketClient.getInstance(Helper.getPlayerName(this));
 
-        CreateGame.setOnClickListener(new View.OnClickListener() {
-            @SuppressLint("CheckResult")
-            @Override
-            public void onClick(View view) {
-                if (!webSocketClient.isConnected()) {
-                    showNetworkError();
-                    return;
-                }
-                webSocketClient.requestNewGame()
-                        .subscribe(gameId -> {
-                            String id = gameId.getPayload();
-                            runOnUiThread(() -> {
-                                setStartGameLobby();
-                                saveGameId(id);
-                                viewGameID.setText(id);
-                            });
-                        }, throwable -> {
-                            throwable.printStackTrace();
-                            showNetworkError();
-                        });
-            }
-        });
-
-        btnStartGame.setOnClickListener(view -> {
-            startDiceActivity();
-        });
-
-        viewGameID.setOnClickListener(getCopyToClipboardListener());
-        iconCopy.setOnClickListener(getCopyToClipboardListener());
-
-        JoinGame.setOnClickListener(new View.OnClickListener() {
-            @SuppressLint("CheckResult")
-            @Override
-            public void onClick(View view) {
-                String input = inputGameID.getText().toString();
-                if (input.isEmpty()) {
-                    showToast("Please enter Game ID");
-                } else {
-                    if (!webSocketClient.isConnected()) {
-                        showNetworkError();
-                        return;
-                    }
-                    webSocketClient.joinGame(inputGameID.getText().toString()).subscribe(response -> {
-                        switch (response.getPayload()) {
-                            case "1":
-                                showToast("Successfully joined game");
-                                saveGameId(input);
-                                startDiceActivity();
-                                break;
-                            case "0":
-                                showToast("Game is already full");
-                                break;
-                            case "-1":
-                                showToast("Game does not exist");
-                                break;
-                        }
-                    }, throwable -> {
-                        throwable.printStackTrace();
-                        showNetworkError();
-                    });
-                }
-            }
-        });
+        btnStartGame.setOnClickListener(view -> startDiceActivity());
+        CreateGame.setOnClickListener(getCreateGameClickListener());
+        viewGameID.setOnClickListener(getCopyToClipboardClickListener());
+        iconCopy.setOnClickListener(getCopyToClipboardClickListener());
+        inputGameID.addTextChangedListener(getIdTextChangedListener());
+        JoinGame.setOnClickListener(getJoinGameClickListener());
 
         Back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -132,11 +86,15 @@ public class LobbyActivity extends AppCompatActivity {
             }
         });
 
-        SoundLobby.setOnClickListener(view -> {
+        SoundLobby.setOnClickListener(view ->
+
+        {
             if (Helper.getBackgroundSound(this)) {
                 SoundLobby.setImageResource(R.drawable.volume_off_white);
                 Helper.setBackgroundSound(this, false);
+                Helper.stopMusicBackground(this);
             } else {
+                Helper.playMusicBackground(this);
                 SoundLobby.setImageResource(R.drawable.volume_on_white);
                 Helper.setBackgroundSound(this, true);
             }
@@ -145,14 +103,91 @@ public class LobbyActivity extends AppCompatActivity {
 
     }
 
+    private View.OnClickListener getJoinGameClickListener() {
+        return view -> startDiceActivity();
+    }
+
+    @SuppressLint("CheckResult")
+    private View.OnClickListener getCreateGameClickListener() {
+        return view -> {
+            if (!webSocketClient.isConnected()) {
+                showNetworkError();
+                return;
+            }
+            webSocketClient.requestNewGame()
+                    .subscribe(gameId -> {
+                        String id = gameId.getPayload();
+                        runOnUiThread(() -> {
+                            enableStartGame();
+                            saveGameId(id);
+                            viewGameID.setText(id);
+                        });
+                    }, throwable -> showNetworkError());
+        };
+    }
+
+    private TextWatcher getIdTextChangedListener() {
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // method ignored
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                enterIdHandler.removeCallbacksAndMessages(null);
+                if (triedToJoinAGame && (charSequence.length() == 0 || charSequence.length() == 4 || charSequence.length() == 6)) {
+                    disableJoinGame();
+                }
+            }
+
+            @SuppressLint("CheckResult")
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (editable.length() == 5) {
+                    enterIdHandler.postDelayed(() -> {
+                        if (!webSocketClient.isConnected()) {
+                            showNetworkError();
+                            return;
+                        }
+                        String input = editable.toString();
+                        webSocketClient.joinGame(input).subscribe(response -> {
+                            triedToJoinAGame = true;
+                            switch (response.getPayload()) {
+                                case "1":
+                                    saveGameId(input);
+                                    enableJoinGame();
+                                    break;
+                                case "0":
+                                    showToast("Game is already full");
+                                    disableJoinGame();
+                                    break;
+                                case "-1":
+                                    showToast("Game does not exist");
+                                    disableJoinGame();
+                                    break;
+                                default:
+                                    showToast("Server error");
+                                    break;
+                            }
+                        }, throwable -> showNetworkError());
+                    }, 50);
+
+                }
+            }
+        };
+    }
+
     public void getToMainActivity() {
-        Intent intentgetBack = new Intent(this, MainActivity.class);
-        startActivity(intentgetBack);
+        //Intent intentgetBack = new Intent(this, MainActivity.class);
+        //startActivity(intentgetBack);
+        onBackPressed();
     }
 
     public void startDiceActivity() {
         Intent intentDiceActivity = new Intent(this, DiceActivity.class);
         startActivity(intentDiceActivity);
+
     }
 
     private void showToast(String text) {
@@ -160,7 +195,24 @@ public class LobbyActivity extends AppCompatActivity {
                 Toast.makeText(getBaseContext(), text, Toast.LENGTH_SHORT).show());
     }
 
-    private View.OnClickListener getCopyToClipboardListener() {
+    private void enableJoinGame() {
+        runOnUiThread(() -> {
+            JoinGame.setEnabled(true);
+            JoinGame.setBackground(AppCompatResources.getDrawable(this, R.drawable.custom_button_lobby_join_success));
+            JoinGame.setTextColor(Color.BLACK);
+        });
+        triedToJoinAGame = true;
+    }
+
+    private void disableJoinGame() {
+        runOnUiThread(() -> {
+            JoinGame.setEnabled(false);
+            JoinGame.setBackground(AppCompatResources.getDrawable(this, R.drawable.custom_button_lobby_join_error));
+            JoinGame.setTextColor(Color.WHITE);
+        });
+    }
+
+    private View.OnClickListener getCopyToClipboardClickListener() {
         return view -> {
             ClipboardManager clipboard = ContextCompat.getSystemService(getBaseContext(), ClipboardManager.class);
             if (clipboard != null) {
@@ -182,7 +234,7 @@ public class LobbyActivity extends AppCompatActivity {
         view.setVisibility(View.INVISIBLE);
     }
 
-    private void setStartGameLobby() {
+    private void enableStartGame() {
         setInvisible(CreateGame);
         setVisible(viewGameID);
         setVisible(viewGameIdLabel);
@@ -192,6 +244,43 @@ public class LobbyActivity extends AppCompatActivity {
 
     private void showNetworkError() {
         showToast("Network error");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // --> update Soundsymbol
+        if (Helper.getBackgroundSound(this)) {
+            SoundLobby.setImageResource(R.drawable.volume_on_white);
+        } else {
+            SoundLobby.setImageResource(R.drawable.volume_off_white);
+        }
+
+        // --> Update Color Scheme
+        if (Helper.getDarkmode(this)){
+            Wallpaper.setImageResource(R.drawable.wallpaper1_material_min);
+            CreateGame.setBackground(getDrawable(R.drawable.custom_button1));
+            btnStartGame.setBackground(getDrawable(R.drawable.custom_button1));
+            JoinGame.setBackground(getDrawable(R.drawable.custom_button1));
+        }else{
+            Wallpaper.setImageResource(R.drawable.wallpaper1_material_min_dark);
+            CreateGame.setBackground(getDrawable(R.drawable.custom_button2));
+            btnStartGame.setBackground(getDrawable(R.drawable.custom_button2));
+            JoinGame.setBackground(getDrawable(R.drawable.custom_button2));
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
     }
 
 }

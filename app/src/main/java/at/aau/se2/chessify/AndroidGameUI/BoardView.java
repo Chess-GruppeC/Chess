@@ -1,7 +1,11 @@
 package at.aau.se2.chessify.AndroidGameUI;
 
+
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -12,6 +16,7 @@ import java.util.ArrayList;
 import at.aau.se2.chessify.R;
 import at.aau.se2.chessify.chessLogic.board.ChessBoard;
 import at.aau.se2.chessify.chessLogic.board.Location;
+import at.aau.se2.chessify.chessLogic.board.Move;
 import at.aau.se2.chessify.chessLogic.pieces.Bishop;
 import at.aau.se2.chessify.chessLogic.pieces.ChessPiece;
 import at.aau.se2.chessify.chessLogic.pieces.King;
@@ -23,17 +28,24 @@ import at.aau.se2.chessify.chessLogic.pieces.Rook;
 import at.aau.se2.chessify.util.Helper;
 
 
-public class BoardView extends AppCompatActivity implements View.OnClickListener{
+public class BoardView extends AppCompatActivity implements View.OnClickListener {
 
     private int currentProgress = 0;
+    private int Buffer;
     ProgressBar specialMoveBar;
+    TextView SMBCount;
+    ImageView Soundbutton;
+    Button ExecuteSMB;
+
 
     public TextView[][] BoardView = new TextView[8][8];
     public TextView[][] BoardViewBackground = new TextView[8][8];
 
-    public Location onClickedPosition = new Location(0,0);
-    public boolean selectedPiece = false;
+    public Location onClickedPosition = new Location(0, 0);
+    public ChessPiece selectedPiece;
+    public boolean isPieceSelected = false;
     ChessBoard chessBoard = new ChessBoard();
+    ArrayList<Location> legalMoveList = new ArrayList<>();
     ChessBoard savedChessBoard = new ChessBoard();
     ArrayList<Location[][]> LastMove = new ArrayList<Location[][]>();
     public int countMoves;
@@ -42,11 +54,56 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_board);
+        SMBCount = findViewById(R.id.textViewSMBCount);
+        Soundbutton = findViewById(R.id.btn_sound_BoardView);
+        ExecuteSMB = findViewById(R.id.btn_execute_SMB);
+        ExecuteSMB.setVisibility(View.INVISIBLE);
+        Helper.setBackgroundSound(this,false);
+        Helper.stopMusicBackground(this);
+        Helper.playGameSound(this);
+        Helper.setGameSound(this,true);
+
 
         initializeBoard();
 
-        ((TextView)findViewById(R.id.tV_game_id)).setText("#".concat(Helper.getGameId(this)));
+        SpecialMoveBar();
+        SMBCount.setText(currentProgress + " | " + specialMoveBar.getMax());
+
+        ((TextView) findViewById(R.id.tV_game_id)).setText("#".concat(Helper.getGameId(this)));
+
+        Soundbutton.setOnClickListener(view -> {
+            if (Helper.getGameSound(this)) {
+                Soundbutton.setImageResource(R.drawable.volume_off_white);
+                Helper.setGameSound(this, false);
+                Helper.stopGameSound(this);
+
+            } else {
+                Helper.playGameSound(this);
+                Soundbutton.setImageResource(R.drawable.volume_on_white);
+                Helper.setGameSound(this, true);
+                Soundbutton.setSoundEffectsEnabled(true);
+
+            }
+        });
+
+        ExecuteSMB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // ToDO perform SpecialMove --> Atomic Move
+
+                // --> Executes SMB Bar - sets progress to remaining buffer
+                currentProgress = 0;
+                specialMoveBar.setProgress(currentProgress);
+                ExecuteSMB.setVisibility(View.INVISIBLE);
+                SMBCount.setText(Buffer + " | " + specialMoveBar.getMax());
+                currentProgress = Buffer;
+                specialMoveBar.setProgress(currentProgress);
+                Buffer = 0;
+            }
+        });
 
     }
 
@@ -189,61 +246,69 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         BoardView[7][7] = (TextView) findViewById(R.id.R77);
         BoardViewBackground[7][7] = (TextView) findViewById(R.id.R077);
 
+        initializePieces();
+
+
+        // setAltBoard();
+    }
+
+    private void initializePieces() {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                ChessPiece chessPiece = chessBoard.getPieceAtLocation(new Location(i,j));
+                ChessPiece chessPiece = chessBoard.getPieceAtLocation(new Location(i, j));
 
-                if (chessPiece != null){
-                    if (chessPiece.getClass() == Pawn.class && chessPiece.getColour() == PieceColour.BLACK){
+                if (chessPiece != null) {
+                    if (chessPiece.getClass() == Pawn.class && chessPiece.getColour() == PieceColour.BLACK) {
                         BoardView[i][j].setBackgroundResource(R.drawable.black_pawn);
                     }
-                    if (chessPiece.getClass() == Pawn.class && chessPiece.getColour() == PieceColour.WHITE){
+                    if (chessPiece.getClass() == Pawn.class && chessPiece.getColour() == PieceColour.WHITE) {
                         BoardView[i][j].setBackgroundResource(R.drawable.white_pawn);
                     }
-                    if (chessPiece.getClass() == Rook.class && chessPiece.getColour() == PieceColour.BLACK){
+                    if (chessPiece.getClass() == Rook.class && chessPiece.getColour() == PieceColour.BLACK) {
                         BoardView[i][j].setBackgroundResource(R.drawable.black_rook);
                     }
-                    if (chessPiece.getClass() == Rook.class && chessPiece.getColour() == PieceColour.WHITE){
+                    if (chessPiece.getClass() == Rook.class && chessPiece.getColour() == PieceColour.WHITE) {
                         BoardView[i][j].setBackgroundResource(R.drawable.white_rook);
                     }
-                    if (chessPiece.getClass() == Bishop.class && chessPiece.getColour() == PieceColour.BLACK){
+                    if (chessPiece.getClass() == Bishop.class && chessPiece.getColour() == PieceColour.BLACK) {
                         BoardView[i][j].setBackgroundResource(R.drawable.black_bishop);
                     }
-                    if (chessPiece.getClass() == Bishop.class && chessPiece.getColour() == PieceColour.WHITE){
+                    if (chessPiece.getClass() == Bishop.class && chessPiece.getColour() == PieceColour.WHITE) {
                         BoardView[i][j].setBackgroundResource(R.drawable.white_bishop);
                     }
-                    if (chessPiece.getClass() == Knight.class && chessPiece.getColour() == PieceColour.BLACK){
+                    if (chessPiece.getClass() == Knight.class && chessPiece.getColour() == PieceColour.BLACK) {
                         BoardView[i][j].setBackgroundResource(R.drawable.black_knight);
                     }
-                    if (chessPiece.getClass() == Knight.class && chessPiece.getColour() == PieceColour.WHITE){
+                    if (chessPiece.getClass() == Knight.class && chessPiece.getColour() == PieceColour.WHITE) {
                         BoardView[i][j].setBackgroundResource(R.drawable.white_knight);
                     }
-                    if (chessPiece.getClass() == King.class && chessPiece.getColour() == PieceColour.BLACK){
+                    if (chessPiece.getClass() == King.class && chessPiece.getColour() == PieceColour.BLACK) {
                         BoardView[i][j].setBackgroundResource(R.drawable.black_king);
                     }
-                    if (chessPiece.getClass() == King.class && chessPiece.getColour() == PieceColour.WHITE){
+                    if (chessPiece.getClass() == King.class && chessPiece.getColour() == PieceColour.WHITE) {
                         BoardView[i][j].setBackgroundResource(R.drawable.white_king);
                     }
-                    if (chessPiece.getClass() == Queen.class && chessPiece.getColour() == PieceColour.BLACK){
+                    if (chessPiece.getClass() == Queen.class && chessPiece.getColour() == PieceColour.BLACK) {
                         BoardView[i][j].setBackgroundResource(R.drawable.black_queen);
                     }
-                    if (chessPiece.getClass() == Queen.class && chessPiece.getColour() == PieceColour.WHITE){
+                    if (chessPiece.getClass() == Queen.class && chessPiece.getColour() == PieceColour.WHITE) {
                         BoardView[i][j].setBackgroundResource(R.drawable.white_queen);
                     }
+                } else {
+                    BoardView[i][j].setBackgroundResource(android.R.color.transparent);
                 }
             }
         }
 
-       // setAltBoard();
     }
-    private void setAltBoard(){
+
+    private void setAltBoard() {
 
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
 
             }
         }
-
 
 
     }
@@ -252,283 +317,319 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     public void onClick(View view) {
         //add clicked position
         // if selected ....
-            switch (view.getId()) {
-                case R.id.R00:
-                    onClickedPosition = new Location(0, 0);
-                    break;
-                case R.id.R10:
-                    onClickedPosition.setRow(1);
-                    onClickedPosition.setColumn(0);
-                    break;
-                case R.id.R20:
-                    onClickedPosition.setRow(2);
-                    onClickedPosition.setColumn(0);
-                    break;
-                case R.id.R30:
-                    onClickedPosition.setRow(3);
-                    onClickedPosition.setColumn(0);
-                    break;
-                case R.id.R40:
-                    onClickedPosition.setRow(4);
-                    onClickedPosition.setColumn(0);
-                    break;
-                case R.id.R50:
-                    onClickedPosition.setRow(5);
-                    onClickedPosition.setColumn(0);
-                    break;
-                case R.id.R60:
-                    onClickedPosition.setRow(6);
-                    onClickedPosition.setColumn(0);
-                    break;
-                case R.id.R70:
-                    onClickedPosition.setRow(7);
-                    onClickedPosition.setColumn(0);
-                    break;
+        switch (view.getId()) {
+            case R.id.R00:
+                onClickedPosition = new Location(0, 0);
+                break;
+            case R.id.R10:
+                onClickedPosition.setRow(1);
+                onClickedPosition.setColumn(0);
+                break;
+            case R.id.R20:
+                onClickedPosition.setRow(2);
+                onClickedPosition.setColumn(0);
+                break;
+            case R.id.R30:
+                onClickedPosition.setRow(3);
+                onClickedPosition.setColumn(0);
+                break;
+            case R.id.R40:
+                onClickedPosition.setRow(4);
+                onClickedPosition.setColumn(0);
+                break;
+            case R.id.R50:
+                onClickedPosition.setRow(5);
+                onClickedPosition.setColumn(0);
+                break;
+            case R.id.R60:
+                onClickedPosition.setRow(6);
+                onClickedPosition.setColumn(0);
+                break;
+            case R.id.R70:
+                onClickedPosition.setRow(7);
+                onClickedPosition.setColumn(0);
+                break;
 
-                case R.id.R01:
-                    onClickedPosition.setRow(0);
-                    onClickedPosition.setColumn(1);
-                    break;
-                case R.id.R11:
-                    onClickedPosition.setRow(1);
-                    onClickedPosition.setColumn(1);
-                    break;
-                case R.id.R21:
-                    onClickedPosition.setRow(2);
-                    onClickedPosition.setColumn(1);
-                    break;
-                case R.id.R31:
-                    onClickedPosition.setRow(3);
-                    onClickedPosition.setColumn(1);
-                    break;
-                case R.id.R41:
-                    onClickedPosition.setRow(4);
-                    onClickedPosition.setColumn(1);
-                    break;
-                case R.id.R51:
-                    onClickedPosition.setRow(5);
-                    onClickedPosition.setColumn(1);
-                    break;
-                case R.id.R61:
-                    onClickedPosition.setRow(6);
-                    onClickedPosition.setColumn(1);
-                    break;
-                case R.id.R71:
-                    onClickedPosition.setRow(7);
-                    onClickedPosition.setColumn(1);
-                    break;
+            case R.id.R01:
+                onClickedPosition.setRow(0);
+                onClickedPosition.setColumn(1);
+                break;
+            case R.id.R11:
+                onClickedPosition.setRow(1);
+                onClickedPosition.setColumn(1);
+                break;
+            case R.id.R21:
+                onClickedPosition.setRow(2);
+                onClickedPosition.setColumn(1);
+                break;
+            case R.id.R31:
+                onClickedPosition.setRow(3);
+                onClickedPosition.setColumn(1);
+                break;
+            case R.id.R41:
+                onClickedPosition.setRow(4);
+                onClickedPosition.setColumn(1);
+                break;
+            case R.id.R51:
+                onClickedPosition.setRow(5);
+                onClickedPosition.setColumn(1);
+                break;
+            case R.id.R61:
+                onClickedPosition.setRow(6);
+                onClickedPosition.setColumn(1);
+                break;
+            case R.id.R71:
+                onClickedPosition.setRow(7);
+                onClickedPosition.setColumn(1);
+                break;
 
-                case R.id.R02:
-                    onClickedPosition.setRow(0);
-                    onClickedPosition.setColumn(2);
-                    break;
-                case R.id.R12:
-                    onClickedPosition.setRow(1);
-                    onClickedPosition.setColumn(2);
-                    break;
-                case R.id.R22:
-                    onClickedPosition.setRow(2);
-                    onClickedPosition.setColumn(2);
-                    break;
-                case R.id.R32:
-                    onClickedPosition.setRow(3);
-                    onClickedPosition.setColumn(2);
-                    break;
-                case R.id.R42:
-                    onClickedPosition.setRow(4);
-                    onClickedPosition.setColumn(2);
-                    break;
-                case R.id.R52:
-                    onClickedPosition.setRow(5);
-                    onClickedPosition.setColumn(2);
-                    break;
-                case R.id.R62:
-                    onClickedPosition.setRow(6);
-                    onClickedPosition.setColumn(2);
-                    break;
-                case R.id.R72:
-                    onClickedPosition.setRow(7);
-                    onClickedPosition.setColumn(2);
-                    break;
+            case R.id.R02:
+                onClickedPosition.setRow(0);
+                onClickedPosition.setColumn(2);
+                break;
+            case R.id.R12:
+                onClickedPosition.setRow(1);
+                onClickedPosition.setColumn(2);
+                break;
+            case R.id.R22:
+                onClickedPosition.setRow(2);
+                onClickedPosition.setColumn(2);
+                break;
+            case R.id.R32:
+                onClickedPosition.setRow(3);
+                onClickedPosition.setColumn(2);
+                break;
+            case R.id.R42:
+                onClickedPosition.setRow(4);
+                onClickedPosition.setColumn(2);
+                break;
+            case R.id.R52:
+                onClickedPosition.setRow(5);
+                onClickedPosition.setColumn(2);
+                break;
+            case R.id.R62:
+                onClickedPosition.setRow(6);
+                onClickedPosition.setColumn(2);
+                break;
+            case R.id.R72:
+                onClickedPosition.setRow(7);
+                onClickedPosition.setColumn(2);
+                break;
 
-                case R.id.R03:
-                    onClickedPosition.setRow(0);
-                    onClickedPosition.setColumn(3);
-                    break;
-                case R.id.R13:
-                    onClickedPosition.setRow(1);
-                    onClickedPosition.setColumn(3);
-                    break;
-                case R.id.R23:
-                    onClickedPosition.setRow(2);
-                    onClickedPosition.setColumn(3);
-                    break;
-                case R.id.R33:
-                    onClickedPosition.setRow(3);
-                    onClickedPosition.setColumn(3);
-                    break;
-                case R.id.R43:
-                    onClickedPosition.setRow(4);
-                    onClickedPosition.setColumn(3);
-                    break;
-                case R.id.R53:
-                    onClickedPosition.setRow(5);
-                    onClickedPosition.setColumn(3);
-                    break;
-                case R.id.R63:
-                    onClickedPosition.setRow(6);
-                    onClickedPosition.setColumn(3);
-                    break;
-                case R.id.R73:
-                    onClickedPosition.setRow(7);
-                    onClickedPosition.setColumn(3);
-                    break;
-                case R.id.R04:
-                    onClickedPosition.setRow(0);
-                    onClickedPosition.setColumn(4);
-                    break;
-                case R.id.R14:
-                    onClickedPosition.setRow(1);
-                    onClickedPosition.setColumn(4);
-                    break;
-                case R.id.R24:
-                    onClickedPosition.setRow(2);
-                    onClickedPosition.setColumn(4);
-                    break;
-                case R.id.R34:
-                    onClickedPosition.setRow(3);
-                    onClickedPosition.setColumn(4);
-                    break;
-                case R.id.R44:
-                    onClickedPosition.setRow(4);
-                    onClickedPosition.setColumn(4);
-                    break;
-                case R.id.R54:
-                    onClickedPosition.setRow(5);
-                    onClickedPosition.setColumn(4);
-                    break;
-                case R.id.R64:
-                    onClickedPosition.setRow(6);
-                    onClickedPosition.setColumn(4);
-                    break;
-                case R.id.R74:
-                    onClickedPosition.setRow(7);
-                    onClickedPosition.setColumn(4);
-                    break;
+            case R.id.R03:
+                onClickedPosition.setRow(0);
+                onClickedPosition.setColumn(3);
+                break;
+            case R.id.R13:
+                onClickedPosition.setRow(1);
+                onClickedPosition.setColumn(3);
+                break;
+            case R.id.R23:
+                onClickedPosition.setRow(2);
+                onClickedPosition.setColumn(3);
+                break;
+            case R.id.R33:
+                onClickedPosition.setRow(3);
+                onClickedPosition.setColumn(3);
+                break;
+            case R.id.R43:
+                onClickedPosition.setRow(4);
+                onClickedPosition.setColumn(3);
+                break;
+            case R.id.R53:
+                onClickedPosition.setRow(5);
+                onClickedPosition.setColumn(3);
+                break;
+            case R.id.R63:
+                onClickedPosition.setRow(6);
+                onClickedPosition.setColumn(3);
+                break;
+            case R.id.R73:
+                onClickedPosition.setRow(7);
+                onClickedPosition.setColumn(3);
+                break;
+            case R.id.R04:
+                onClickedPosition.setRow(0);
+                onClickedPosition.setColumn(4);
+                break;
+            case R.id.R14:
+                onClickedPosition.setRow(1);
+                onClickedPosition.setColumn(4);
+                break;
+            case R.id.R24:
+                onClickedPosition.setRow(2);
+                onClickedPosition.setColumn(4);
+                break;
+            case R.id.R34:
+                onClickedPosition.setRow(3);
+                onClickedPosition.setColumn(4);
+                break;
+            case R.id.R44:
+                onClickedPosition.setRow(4);
+                onClickedPosition.setColumn(4);
+                break;
+            case R.id.R54:
+                onClickedPosition.setRow(5);
+                onClickedPosition.setColumn(4);
+                break;
+            case R.id.R64:
+                onClickedPosition.setRow(6);
+                onClickedPosition.setColumn(4);
+                break;
+            case R.id.R74:
+                onClickedPosition.setRow(7);
+                onClickedPosition.setColumn(4);
+                break;
 
-                case R.id.R05:
-                    onClickedPosition.setRow(0);
-                    onClickedPosition.setColumn(5);
-                    break;
-                case R.id.R15:
-                    onClickedPosition.setRow(1);
-                    onClickedPosition.setColumn(5);
-                    break;
-                case R.id.R25:
-                    onClickedPosition.setRow(2);
-                    onClickedPosition.setColumn(5);
-                    break;
-                case R.id.R35:
-                    onClickedPosition.setRow(3);
-                    onClickedPosition.setColumn(5);
-                    break;
-                case R.id.R45:
-                    onClickedPosition.setRow(4);
-                    onClickedPosition.setColumn(5);
-                    break;
-                case R.id.R55:
-                    onClickedPosition.setRow(5);
-                    onClickedPosition.setColumn(5);
-                    break;
-                case R.id.R65:
-                    onClickedPosition.setRow(6);
-                    onClickedPosition.setColumn(5);
-                    break;
-                case R.id.R75:
-                    onClickedPosition.setRow(7);
-                    onClickedPosition.setColumn(5);
-                    break;
+            case R.id.R05:
+                onClickedPosition.setRow(0);
+                onClickedPosition.setColumn(5);
+                break;
+            case R.id.R15:
+                onClickedPosition.setRow(1);
+                onClickedPosition.setColumn(5);
+                break;
+            case R.id.R25:
+                onClickedPosition.setRow(2);
+                onClickedPosition.setColumn(5);
+                break;
+            case R.id.R35:
+                onClickedPosition.setRow(3);
+                onClickedPosition.setColumn(5);
+                break;
+            case R.id.R45:
+                onClickedPosition.setRow(4);
+                onClickedPosition.setColumn(5);
+                break;
+            case R.id.R55:
+                onClickedPosition.setRow(5);
+                onClickedPosition.setColumn(5);
+                break;
+            case R.id.R65:
+                onClickedPosition.setRow(6);
+                onClickedPosition.setColumn(5);
+                break;
+            case R.id.R75:
+                onClickedPosition.setRow(7);
+                onClickedPosition.setColumn(5);
+                break;
 
-                case R.id.R06:
-                    onClickedPosition.setRow(0);
-                    onClickedPosition.setColumn(6);
-                    break;
-                case R.id.R16:
-                    onClickedPosition.setRow(1);
-                    onClickedPosition.setColumn(6);
-                    break;
-                case R.id.R26:
-                    onClickedPosition.setRow(2);
-                    onClickedPosition.setColumn(6);
-                    break;
-                case R.id.R36:
-                    onClickedPosition.setRow(3);
-                    onClickedPosition.setColumn(6);
-                    break;
-                case R.id.R46:
-                    onClickedPosition.setRow(4);
-                    onClickedPosition.setColumn(6);
-                    break;
-                case R.id.R56:
-                    onClickedPosition.setRow(5);
-                    onClickedPosition.setColumn(6);
-                    break;
-                case R.id.R66:
-                    onClickedPosition.setRow(6);
-                    onClickedPosition.setColumn(6);
-                    break;
-                case R.id.R76:
-                    onClickedPosition.setRow(7);
-                    onClickedPosition.setColumn(6);
-                    break;
+            case R.id.R06:
+                onClickedPosition.setRow(0);
+                onClickedPosition.setColumn(6);
+                break;
+            case R.id.R16:
+                onClickedPosition.setRow(1);
+                onClickedPosition.setColumn(6);
+                break;
+            case R.id.R26:
+                onClickedPosition.setRow(2);
+                onClickedPosition.setColumn(6);
+                break;
+            case R.id.R36:
+                onClickedPosition.setRow(3);
+                onClickedPosition.setColumn(6);
+                break;
+            case R.id.R46:
+                onClickedPosition.setRow(4);
+                onClickedPosition.setColumn(6);
+                break;
+            case R.id.R56:
+                onClickedPosition.setRow(5);
+                onClickedPosition.setColumn(6);
+                break;
+            case R.id.R66:
+                onClickedPosition.setRow(6);
+                onClickedPosition.setColumn(6);
+                break;
+            case R.id.R76:
+                onClickedPosition.setRow(7);
+                onClickedPosition.setColumn(6);
+                break;
 
-                case R.id.R07:
-                    onClickedPosition.setRow(0);
-                    onClickedPosition.setColumn(7);
-                    break;
-                case R.id.R17:
-                    onClickedPosition.setRow(1);
-                    onClickedPosition.setColumn(7);
-                    break;
-                case R.id.R27:
-                    onClickedPosition.setRow(2);
-                    onClickedPosition.setColumn(7);
-                    break;
-                case R.id.R37:
-                    onClickedPosition.setRow(3);
-                    onClickedPosition.setColumn(7);
-                    break;
-                case R.id.R47:
-                    onClickedPosition.setRow(4);
-                    onClickedPosition.setColumn(7);
-                    break;
-                case R.id.R57:
-                    onClickedPosition.setRow(5);
-                    onClickedPosition.setColumn(7);
-                    break;
-                case R.id.R67:
-                    onClickedPosition.setRow(6);
-                    onClickedPosition.setColumn(7);
-                    break;
-                case R.id.R77:
-                    onClickedPosition.setRow(7);
-                    onClickedPosition.setColumn(7);
-                    break;
+            case R.id.R07:
+                onClickedPosition.setRow(0);
+                onClickedPosition.setColumn(7);
+                break;
+            case R.id.R17:
+                onClickedPosition.setRow(1);
+                onClickedPosition.setColumn(7);
+                break;
+            case R.id.R27:
+                onClickedPosition.setRow(2);
+                onClickedPosition.setColumn(7);
+                break;
+            case R.id.R37:
+                onClickedPosition.setRow(3);
+                onClickedPosition.setColumn(7);
+                break;
+            case R.id.R47:
+                onClickedPosition.setRow(4);
+                onClickedPosition.setColumn(7);
+                break;
+            case R.id.R57:
+                onClickedPosition.setRow(5);
+                onClickedPosition.setColumn(7);
+                break;
+            case R.id.R67:
+                onClickedPosition.setRow(6);
+                onClickedPosition.setColumn(7);
+                break;
+            case R.id.R77:
+                onClickedPosition.setRow(7);
+                onClickedPosition.setColumn(7);
+                break;
+        }
+
+        if (chessBoard.getPieceAtLocation(onClickedPosition) != null) {
+            if (legalMoveList.size() == 0 || !onClickedPosition.checkIfLocationIsPartOfList(legalMoveList)) {
+                selectedPiece = chessBoard.getPieceAtLocation(onClickedPosition);
+                isPieceSelected = true;
             }
+        }
+        /*
+        if (selectedPiece != null) {
+            isPieceSelected = true;
+        }
 
-            if (!selectedPiece) {
+            /*
+            if (!isPieceSelected) {
                 chessBoard.getPieceAtLocation(onClickedPosition);
                 BoardViewBackground[onClickedPosition.getRow()][onClickedPosition.getColumn()].setBackgroundResource(R.color.select);
-                selectedPiece = true;
+                isPieceSelected = true;
             }else {
                 chessBoard.setLocationTo(chessBoard.getPieceAtLocation(onClickedPosition), onClickedPosition);
                 BoardView[onClickedPosition.getRow()][onClickedPosition.getColumn()].setBackgroundResource(R.drawable.white_queen);
-                selectedPiece = false;
+                isPieceSelected = false;
             }
+             */
+        if (isPieceSelected) {
+            resetColour();
+            BoardViewBackground[onClickedPosition.getRow()][onClickedPosition.getColumn()].setBackgroundResource(R.color.select);
+            legalMoveList = selectedPiece.getLegalMoves(chessBoard);
+            for (Location loc : legalMoveList) {
+                BoardViewBackground[loc.getRow()][loc.getColumn()].setBackgroundResource(R.color.highlight_moves);
+            }
+            isPieceSelected = false;
+        } else {
+            for (Location loc : legalMoveList) {
+                if (loc.compareLocation(onClickedPosition)) {
+
+                    Move move = new Move(chessBoard.getLocationOf(selectedPiece), loc);
+                    int destroyedPieceValue = chessBoard.performMoveOnBoard(move);
+                    initializePieces();
+
+                    // --> update SpecialMoveBar Progress
+                    currentProgress = currentProgress + destroyedPieceValue;
+                    break;
+                }
+            }
+            SpecialMoveBar();
+            legalMoveList = new ArrayList<>();
+            resetColour();
+        }
 
     }
-
-
 
     //method:
     //TODO: safe board
@@ -537,27 +638,54 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     //TODO: set color at allowed position
     //TODO: is King in danger
 
-    public void initSpecialmoveBar() {
+    // --> SpecialMoveBar
+    public void SpecialMoveBar() {
         specialMoveBar = findViewById(R.id.special_move_bar);
-    }
-
-    /* Konzept der Special Move Bar
-    public void fillSpecialMoveBar(){
-
-        if (piece.getPieceId().contains("bp"))
-            currentProgress = currentProgress + 2;
-        else if (piece.getPieceId().contains("bn") || piece.getPieceId().contains("bb"))
-            currentProgress = currentProgress + 5;
-        else if (piece.getPieceId().contains("br"))
-            currentProgress = currentProgress + 7;
-        else if (piece.getPieceId().contains("bq"))
-            currentProgress = currentProgress + 9;
-
         specialMoveBar.setProgress(currentProgress);
-        specialMoveBar.setMax(30);
-    }
-*/
+        specialMoveBar.setMax(5);
+        SMBCount.setText(currentProgress + " | " + specialMoveBar.getMax());
 
+        if (currentProgress >= specialMoveBar.getMax()) {
+            Buffer = currentProgress - specialMoveBar.getMax();
+            ExecuteSMB.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void resetColour() {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if ((i + j) % 2 == 0) {
+                    BoardViewBackground[i][j].setBackgroundResource(R.color.dark_square);
+                } else {
+                    BoardViewBackground[i][j].setBackgroundResource(R.color.light_square);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // --> update Soundsymbol
+        if (Helper.getGameSound(this)) {
+            Soundbutton.setImageResource(R.drawable.volume_on_white);
+        } else {
+            Soundbutton.setImageResource(R.drawable.volume_off_white);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Helper.setGameSound(this, false);
+        Helper.stopGameSound(this);
+    }
 
 
 }

@@ -80,7 +80,7 @@ public class ShakeSensor implements SensorListener {
                     if (shakeListener != null) {
                         try {
                             shakeListener.onShake();
-                        } catch (InterruptedException e) {
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }

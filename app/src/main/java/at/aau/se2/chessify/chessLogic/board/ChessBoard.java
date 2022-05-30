@@ -1,8 +1,15 @@
 package at.aau.se2.chessify.chessLogic.board;
 
-import at.aau.se2.chessify.chessLogic.pieces.*;
-
 import java.util.ArrayList;
+
+import at.aau.se2.chessify.chessLogic.pieces.Bishop;
+import at.aau.se2.chessify.chessLogic.pieces.ChessPiece;
+import at.aau.se2.chessify.chessLogic.pieces.King;
+import at.aau.se2.chessify.chessLogic.pieces.Knight;
+import at.aau.se2.chessify.chessLogic.pieces.Pawn;
+import at.aau.se2.chessify.chessLogic.pieces.PieceColour;
+import at.aau.se2.chessify.chessLogic.pieces.Queen;
+import at.aau.se2.chessify.chessLogic.pieces.Rook;
 
 public class ChessBoard {
     ChessPiece[][] gameBoard;
@@ -26,15 +33,21 @@ public class ChessBoard {
         this.gameBoard = gameBoard;
     }
 
-    public void performMoveOnBoard(Move move) throws IllegalArgumentException{
-        if(!isWithinBounds(move.getFrom()) && isWithinBounds(move.getTo())){
+    public int performMoveOnBoard(Move move) throws IllegalArgumentException{
+        int takenPieceValue=0;
+        if(!(isWithinBounds(move.getFrom()) && isWithinBounds(move.getTo()))){
             throw new IllegalArgumentException("Please select a field within bounds");
         }
-        ArrayList<Location> allLegalMoves = getPieceAtLocation(move.getFrom()).getLegalMoves(this);
+        ChessPiece movingPiece = getPieceAtLocation(move.getFrom());
+        ArrayList<Location> allLegalMoves = movingPiece.getLegalMoves(this);
         for(Location location : allLegalMoves){
-            if(move.getTo()==location){
+            if(move.getTo().compareLocation(location)){
+                if(getPieceAtLocation(move.getTo())!=null){
+                    takenPieceValue=getPieceAtLocation(move.getTo()).getPieceValue();
+                }
                 setLocationTo(getPieceAtLocation(move.getFrom()), move.getTo());
-                return;
+                movingPiece.setMoved(true);
+                return takenPieceValue;
             }
         }
         throw new IllegalArgumentException("Please perform a legal move");
