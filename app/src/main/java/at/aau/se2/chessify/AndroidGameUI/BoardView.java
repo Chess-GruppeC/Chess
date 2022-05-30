@@ -67,6 +67,10 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
 
     private String gameId;
 
+    private int destroyedPieceValue = 0;
+
+    private String playerName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,6 +85,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         client = WebSocketClient.getInstance(Helper.getUniquePlayerName(this));
 
         gameId = Helper.getGameId(this);
+        playerName = Helper.getUniquePlayerName(this);
         textView_gameId.setText("#".concat(gameId));
 
         getGameStateDisposable = client.getGameState(gameId)
@@ -90,18 +95,18 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         gameUpdateDisposable = client.receiveGameUpdates(gameId)
                 .subscribe(update -> {
                     parseChessBoardAndRefresh(update.getPayload());
-                    if(!getGameStateDisposable.isDisposed())
+                    if (!getGameStateDisposable.isDisposed())
                         getGameStateDisposable.dispose();
                 }, throwable -> runOnUiThread(() -> Toast.makeText(getBaseContext(), "An error occurred", Toast.LENGTH_SHORT).show()));
-  
+
         SMBCount = findViewById(R.id.textViewSMBCount);
         Soundbutton = findViewById(R.id.btn_sound_BoardView);
         ExecuteSMB = findViewById(R.id.btn_execute_SMB);
         ExecuteSMB.setVisibility(View.INVISIBLE);
-        Helper.setBackgroundSound(this,false);
+        Helper.setBackgroundSound(this, false);
         Helper.stopMusicBackground(this);
         Helper.playGameSound(this);
-        Helper.setGameSound(this,true);
+        Helper.setGameSound(this, true);
 
         SpecialMoveBar();
         SMBCount.setText(currentProgress + " | " + specialMoveBar.getMax());
@@ -647,23 +652,20 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                 if (loc.compareLocation(onClickedPosition)) {
 
                     Move move = new Move(chessBoard.getLocationOf(selectedPiece), loc);
-                    int destroyedPieceValue = 0;
                     try {
                         ChessBoard copyOfChessBoard = chessBoard.copy();
                         destroyedPieceValue = copyOfChessBoard.performMoveOnBoard(move);
                         GameDataDTO<ChessBoard> data = new GameDataDTO<>(copyOfChessBoard);
                         String gameDataJsonString = objectMapper.writeValueAsString(data);
                         client.sendGameUpdate(gameId, gameDataJsonString);
-                    } catch (JsonProcessingException e) {
+                    } catch (Exception e) {
                         runOnUiThread(() -> Toast.makeText(getBaseContext(), "An error occurred", Toast.LENGTH_SHORT).show());
+                        destroyedPieceValue = 0;
                     }
 
-                    // --> update SpecialMoveBar Progress
-                    currentProgress = currentProgress + destroyedPieceValue;
                     break;
                 }
             }
-            SpecialMoveBar();
             legalMoveList = new ArrayList<>();
             resetColour();
         }
@@ -705,8 +707,16 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     private void parseChessBoardAndRefresh(String json) throws JsonProcessingException {
         GameDataDTO<?> gameData = objectMapper.readValue(json, GameDataDTO.class);
         chessBoard = objectMapper.convertValue(gameData.getData(), ChessBoard.class);
-        // PlayerDTO nextPlayer = gameData.getNextPlayer();     // TODO Show on UI
+        PlayerDTO nextPlayer = gameData.getNextPlayer();     // TODO Show on UI
         runOnUiThread(this::initializePieces);
+        if (!nextPlayer.getName().equals(playerName)) {
+            // --> update SpecialMoveBar Progress
+            if (destroyedPieceValue != 0) {
+                currentProgress = currentProgress + destroyedPieceValue;
+                runOnUiThread(this::SpecialMoveBar);
+            }
+            destroyedPieceValue = 0;
+        }
     }
 
     @Override
