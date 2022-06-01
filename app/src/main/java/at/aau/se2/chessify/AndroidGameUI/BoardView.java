@@ -1,6 +1,10 @@
 package at.aau.se2.chessify.AndroidGameUI;
 
 
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
@@ -13,6 +17,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import at.aau.se2.chessify.R;
 import at.aau.se2.chessify.chessLogic.board.ChessBoard;
@@ -51,6 +56,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     ArrayList<Location[][]> LastMove = new ArrayList<Location[][]>();
     public int countMoves;
 
+    private boolean specialMoveActivated = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,12 +102,14 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                 // ToDO perform SpecialMove --> Atomic Move
 
                 // --> Executes SMB Bar - sets progress to remaining buffer
+                specialMoveActivated = true;
                 currentProgress = 0;
                 specialMoveBar.setProgress(currentProgress);
-                ExecuteSMB.setVisibility(View.INVISIBLE);
+//                ExecuteSMB.setVisibility(View.INVISIBLE);
                 SMBCount.setText(Buffer + " | " + specialMoveBar.getMax());
                 currentProgress = Buffer;
                 specialMoveBar.setProgress(currentProgress);
+                ExecuteSMB.setText("ACTIVE");
                 Buffer = 0;
             }
         });
@@ -617,9 +625,19 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         } else {
             for (Location loc : legalMoveList) {
                 if (loc.compareLocation(onClickedPosition)) {
-
+                    resetColour();
                     Move move = new Move(chessBoard.getLocationOf(selectedPiece), loc);
-                    int destroyedPieceValue = chessBoard.performMoveOnBoard(move);
+                    int destroyedPieceValue = 0;
+                    if(!specialMoveActivated) {
+                        destroyedPieceValue = chessBoard.performMoveOnBoard(move);
+                    } else {
+                        List<Location> destroyedLocations = chessBoard.performAtomicMove(move);
+                        ExecuteSMB.setVisibility(View.INVISIBLE);
+                        ExecuteSMB.setText("Execute");
+                        specialMoveActivated = false;
+                        animateAtomicHits(destroyedLocations);
+                    }
+
                     initializePieces();
 
                     // --> update SpecialMoveBar Progress
@@ -635,7 +653,6 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
             }
             SpecialMoveBar();
             legalMoveList = new ArrayList<>();
-            resetColour();
         }
 
     }
@@ -673,6 +690,38 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                 }
             }
         }
+    }
+
+    private void animateAtomicHits(List<Location> destroyedLocations) {
+        if(destroyedLocations == null) {
+            return;
+        }
+        AnimatorSet animationSet = new AnimatorSet();
+        List<Animator> animators = new ArrayList<>();
+        for (Location destroyedLoc : destroyedLocations) {
+            View view = BoardViewBackground[destroyedLoc.getRow()][destroyedLoc.getColumn()];
+            int colorFrom = getColor(R.color.atomic_hit);
+            int colorTo;
+            if ((destroyedLoc.getRow() + destroyedLoc.getColumn()) % 2 == 0) {
+                colorTo = getColor(R.color.dark_square);
+            } else {
+                colorTo = getColor(R.color.light_square);
+            }
+            ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
+            colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+                @Override
+                public void onAnimationUpdate(ValueAnimator animator) {
+                    view.setBackgroundColor((int) animator.getAnimatedValue());
+                }
+
+            });
+            animators.add(colorAnimation);
+
+        }
+        animationSet.setDuration(2000);
+        animationSet.playTogether(animators);
+        animationSet.start();
     }
 
     @Override
