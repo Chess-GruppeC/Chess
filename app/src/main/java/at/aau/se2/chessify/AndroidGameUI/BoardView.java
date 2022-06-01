@@ -1,6 +1,7 @@
 package at.aau.se2.chessify.AndroidGameUI;
 
 
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -105,8 +106,8 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         ExecuteSMB.setVisibility(View.INVISIBLE);
         Helper.setBackgroundSound(this, false);
         Helper.stopMusicBackground(this);
-        Helper.playGameSound(this);
-        Helper.setGameSound(this, true);
+        //Helper.playGameSound(this);
+        //Helper.setGameSound(this, true);
 
         SpecialMoveBar();
         SMBCount.setText(currentProgress + " | " + specialMoveBar.getMax());
@@ -351,6 +352,8 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
 
     @Override
     public void onClick(View view) {
+        MediaPlayer PieceCaptured = MediaPlayer.create(this, R.raw.piece_captured);
+        MediaPlayer PieceMoved = MediaPlayer.create(this, R.raw.piece_move_two);
         //add clicked position
         // if selected ....
         switch (view.getId()) {
@@ -662,7 +665,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                         runOnUiThread(() -> Toast.makeText(getBaseContext(), "An error occurred", Toast.LENGTH_SHORT).show());
                         destroyedPieceValue = 0;
                     }
-
+                  
                     break;
                 }
             }
@@ -681,6 +684,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
 
     // --> SpecialMoveBar
     public void SpecialMoveBar() {
+        MediaPlayer SMB = MediaPlayer.create(this, R.raw.smb_activate);
         specialMoveBar = findViewById(R.id.special_move_bar);
         specialMoveBar.setProgress(currentProgress);
         specialMoveBar.setMax(5);
@@ -688,6 +692,8 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
 
         if (currentProgress >= specialMoveBar.getMax()) {
             Buffer = currentProgress - specialMoveBar.getMax();
+            Helper.playSMB_BarSound(this);
+            SMB.start();
             ExecuteSMB.setVisibility(View.VISIBLE);
         }
     }
@@ -711,9 +717,12 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         runOnUiThread(this::initializePieces);
         if (!nextPlayer.getName().equals(playerName)) {
             // --> update SpecialMoveBar Progress
-            if (destroyedPieceValue != 0) {
+            if (destroyedPieceValue > 0) {
+                PieceCaptured.start();
                 currentProgress = currentProgress + destroyedPieceValue;
                 runOnUiThread(this::SpecialMoveBar);
+            } else {
+                PieceMoved.start();
             }
             destroyedPieceValue = 0;
         }
