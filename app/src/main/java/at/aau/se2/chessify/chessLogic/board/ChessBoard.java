@@ -1,6 +1,7 @@
 package at.aau.se2.chessify.chessLogic.board;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import at.aau.se2.chessify.chessLogic.pieces.Bishop;
 import at.aau.se2.chessify.chessLogic.pieces.ChessPiece;
@@ -51,6 +52,30 @@ public class ChessBoard {
             }
         }
         throw new IllegalArgumentException("Please perform a legal move");
+    }
+
+    public List<Location> performAtomicMove(Move move) {
+        List<Location> destroyedLocations = new ArrayList<>();
+        int takenPieceValue = performMoveOnBoard(move);
+        if (takenPieceValue == 0) {
+            return null;
+        }
+        Location location = move.getTo();
+        gameBoard[location.getRow()][location.getColumn()] = null;
+        destroyedLocations.add(location);
+        for (int i = location.getRow() - 1; i <= location.getRow() + 1; i++) {
+            for (int j = location.getColumn() - 1; j <= location.getColumn() + 1; j++) {
+                Location tempLocation = new Location(i, j);
+                if (isWithinBounds(tempLocation)) {
+                    ChessPiece piece = getPieceAtLocation(tempLocation);
+                    if (piece == null || piece instanceof Pawn)
+                        continue;
+                    destroyedLocations.add(tempLocation);
+                    gameBoard[tempLocation.getRow()][tempLocation.getColumn()] = null;
+                }
+            }
+        }
+        return destroyedLocations;
     }
 
     public ArrayList<Location> getLegalMovesForPiece(Location location){
