@@ -29,8 +29,8 @@ public class WebSocketClient {
     private static WebSocketClient INSTANCE;
     private static String playerName;
 
-    private WebSocketClient(String playerName) {
-        WebSocketClient.playerName = playerName;
+    private WebSocketClient(String name) {
+        playerName = name;
         establishConnection();
         initSubscriptions();
     }
@@ -111,6 +111,10 @@ public class WebSocketClient {
 
     public void sendDiceValue(String gameId, String diceValue) {
         mStompClient.send("/topic/game/rollDice/" + gameId, diceValue).subscribe();
+    }
+
+    public Flowable<StompMessage> getGameState(String gameId) {
+        return mStompClient.topic("/topic/state/" + gameId);
     }
 
     // Gegenerabfrage über Game ID

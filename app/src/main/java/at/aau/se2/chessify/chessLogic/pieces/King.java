@@ -7,6 +7,8 @@ import java.util.ArrayList;
 
 public class King extends ChessPiece{
 
+    public King() {}
+
     public King(PieceColour colour) {
         this.pieceValue=1000;
         this.colour=colour;

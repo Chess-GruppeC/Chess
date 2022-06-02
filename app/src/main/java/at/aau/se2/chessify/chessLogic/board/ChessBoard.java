@@ -1,6 +1,7 @@
 package at.aau.se2.chessify.chessLogic.board;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import at.aau.se2.chessify.chessLogic.pieces.Bishop;
@@ -14,6 +15,13 @@ import at.aau.se2.chessify.chessLogic.pieces.Rook;
 
 public class ChessBoard {
     ChessPiece[][] gameBoard;
+
+    public ChessBoard copy() {
+        ChessBoard copy = new ChessBoard();
+        ChessPiece[][] copyOfPieces = Arrays.stream(gameBoard).map(ChessPiece[]::clone).toArray(ChessPiece[][]::new);
+        copy.setGameBoard(copyOfPieces);
+        return copy;
+    }
 
     public ChessBoard() {
         this.gameBoard = new ChessPiece[8][8];
@@ -112,9 +120,11 @@ public class ChessBoard {
     }
 
     public boolean isWithinBounds(Location location){
-        if((location.getRow() >= 0) && (location.getRow() < 8)
-                && (location.getColumn() >= 0) && (location.getColumn() < 8)){
-            return true;
+        if(location != null) {
+            if ((location.getRow() >= 0) && (location.getRow() < 8)
+                    && (location.getColumn() >= 0) && (location.getColumn() < 8)) {
+                return true;
+            }
         }
         return false;
     }

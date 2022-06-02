@@ -7,6 +7,8 @@ import java.util.ArrayList;
 
 public class Knight extends ChessPiece{
 
+    public Knight() {}
+
     public Knight(PieceColour colour) {
         this.pieceValue=3;
         this.colour=colour;
