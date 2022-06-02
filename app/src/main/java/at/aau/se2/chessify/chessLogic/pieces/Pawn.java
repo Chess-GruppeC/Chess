@@ -7,6 +7,8 @@ import java.util.ArrayList;
 
 public class Pawn extends ChessPiece {
 
+    public Pawn() {}
+
     public Pawn(PieceColour colour) {
         this.pieceValue=1;
         this.colour=colour;

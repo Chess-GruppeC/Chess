@@ -5,6 +5,8 @@ public class Move {
     Location from;
     Location to;
 
+    public Move() {}
+
     public Move(Location from, Location to) {
         this.from = from;
         this.to = to;

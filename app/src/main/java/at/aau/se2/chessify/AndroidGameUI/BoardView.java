@@ -9,8 +9,12 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 
@@ -26,7 +30,11 @@ import at.aau.se2.chessify.chessLogic.pieces.Pawn;
 import at.aau.se2.chessify.chessLogic.pieces.PieceColour;
 import at.aau.se2.chessify.chessLogic.pieces.Queen;
 import at.aau.se2.chessify.chessLogic.pieces.Rook;
+import at.aau.se2.chessify.network.WebSocketClient;
+import at.aau.se2.chessify.network.dto.GameDataDTO;
+import at.aau.se2.chessify.network.dto.PlayerDTO;
 import at.aau.se2.chessify.util.Helper;
+import io.reactivex.disposables.Disposable;
 
 
 public class BoardView extends AppCompatActivity implements View.OnClickListener {
@@ -51,12 +59,53 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     ArrayList<Location[][]> LastMove = new ArrayList<Location[][]>();
     public int countMoves;
 
+    private WebSocketClient client;
+
+    private Disposable gameUpdateDisposable, getGameStateDisposable;
+    private ObjectMapper objectMapper;
+
+    private TextView textView_gameId;
+
+    private String gameId;
+
+    private int destroyedPieceValue = 0;
+
+    private String playerName;
+
+    private PlayerDTO nextPlayer;
+
+    private MediaPlayer PieceCaptured;
+    private MediaPlayer PieceMoved;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_board);
+
+        textView_gameId = findViewById(R.id.tV_game_id);
+
+        initializeBoard();
+
+        objectMapper = new ObjectMapper();
+        client = WebSocketClient.getInstance(Helper.getUniquePlayerName(this));
+
+        gameId = Helper.getGameId(this);
+        playerName = Helper.getUniquePlayerName(this);
+        textView_gameId.setText("#".concat(gameId));
+
+        getGameStateDisposable = client.getGameState(gameId)
+                .subscribe(lastState -> parseChessBoardAndRefresh(lastState.getPayload()),
+                        throwable -> runOnUiThread(() -> Toast.makeText(getBaseContext(), "An error occurred", Toast.LENGTH_SHORT).show()));
+
+        gameUpdateDisposable = client.receiveGameUpdates(gameId)
+                .subscribe(update -> {
+                    parseChessBoardAndRefresh(update.getPayload());
+                    refreshSpecialMoveBar();
+                    if (!getGameStateDisposable.isDisposed())
+                        getGameStateDisposable.dispose();
+                }, throwable -> runOnUiThread(() -> Toast.makeText(getBaseContext(), "An error occurred", Toast.LENGTH_SHORT).show()));
+
         SMBCount = findViewById(R.id.textViewSMBCount);
         Soundbutton = findViewById(R.id.btn_sound_BoardView);
         ExecuteSMB = findViewById(R.id.btn_execute_SMB);
@@ -66,13 +115,8 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         //Helper.playGameSound(this);
         //Helper.setGameSound(this, true);
 
-
-        initializeBoard();
-
         SpecialMoveBar();
         SMBCount.setText(currentProgress + " | " + specialMoveBar.getMax());
-
-        ((TextView) findViewById(R.id.tV_game_id)).setText("#".concat(Helper.getGameId(this)));
 
         Soundbutton.setOnClickListener(view -> {
             if (Helper.getGameSound(this)) {
@@ -248,8 +292,6 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         BoardViewBackground[7][7] = (TextView) findViewById(R.id.R077);
 
         initializePieces();
-
-
         // setAltBoard();
     }
 
@@ -316,8 +358,8 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
 
     @Override
     public void onClick(View view) {
-        MediaPlayer PieceCaptured = MediaPlayer.create(this, R.raw.piece_captured);
-        MediaPlayer PieceMoved = MediaPlayer.create(this, R.raw.piece_move_two);
+        PieceCaptured = MediaPlayer.create(this, R.raw.piece_captured);
+        PieceMoved = MediaPlayer.create(this, R.raw.piece_move_two);
         //add clicked position
         // if selected ....
         switch (view.getId()) {
@@ -619,21 +661,20 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                 if (loc.compareLocation(onClickedPosition)) {
 
                     Move move = new Move(chessBoard.getLocationOf(selectedPiece), loc);
-                    int destroyedPieceValue = chessBoard.performMoveOnBoard(move);
-                    initializePieces();
-
-                    // --> update SpecialMoveBar Progress
-                    currentProgress = currentProgress + destroyedPieceValue;
-                    if (destroyedPieceValue > 0) {
-                        PieceCaptured.start();
-                    } else {
-                        PieceMoved.start();
+                    try {
+                        ChessBoard copyOfChessBoard = chessBoard.copy();
+                        destroyedPieceValue = copyOfChessBoard.performMoveOnBoard(move);
+                        GameDataDTO<ChessBoard> data = new GameDataDTO<>(copyOfChessBoard);
+                        String gameDataJsonString = objectMapper.writeValueAsString(data);
+                        client.sendGameUpdate(gameId, gameDataJsonString);
+                    } catch (Exception e) {
+                        runOnUiThread(() -> Toast.makeText(getBaseContext(), "An error occurred", Toast.LENGTH_SHORT).show());
+                        destroyedPieceValue = 0;
                     }
 
                     break;
                 }
             }
-            SpecialMoveBar();
             legalMoveList = new ArrayList<>();
             resetColour();
         }
@@ -675,6 +716,27 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         }
     }
 
+    private void parseChessBoardAndRefresh(String json) throws JsonProcessingException {
+        GameDataDTO<?> gameData = objectMapper.readValue(json, GameDataDTO.class);
+        chessBoard = objectMapper.convertValue(gameData.getData(), ChessBoard.class);
+        nextPlayer = gameData.getNextPlayer();     // TODO Show on UI
+        runOnUiThread(this::initializePieces);
+    }
+
+    private void refreshSpecialMoveBar() {
+        if (!nextPlayer.getName().equals(playerName)) {
+            // --> update SpecialMoveBar Progress
+            if (destroyedPieceValue > 0) {
+                PieceCaptured.start();
+                currentProgress = currentProgress + destroyedPieceValue;
+                runOnUiThread(this::SpecialMoveBar);
+            } else {
+                PieceMoved.start();
+            }
+            destroyedPieceValue = 0;
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -695,6 +757,8 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     @Override
     public void onDestroy() {
         super.onDestroy();
+        gameUpdateDisposable.dispose();
+        getGameStateDisposable.dispose();
         Helper.setGameSound(this, false);
         Helper.stopGameSound(this);
     }
