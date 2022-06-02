@@ -72,6 +72,11 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
 
     private String playerName;
 
+    private PlayerDTO nextPlayer;
+
+    private MediaPlayer PieceCaptured;
+    private MediaPlayer PieceMoved;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,6 +101,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         gameUpdateDisposable = client.receiveGameUpdates(gameId)
                 .subscribe(update -> {
                     parseChessBoardAndRefresh(update.getPayload());
+                    refreshSpecialMoveBar();
                     if (!getGameStateDisposable.isDisposed())
                         getGameStateDisposable.dispose();
                 }, throwable -> runOnUiThread(() -> Toast.makeText(getBaseContext(), "An error occurred", Toast.LENGTH_SHORT).show()));
@@ -352,8 +358,8 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
 
     @Override
     public void onClick(View view) {
-        MediaPlayer PieceCaptured = MediaPlayer.create(this, R.raw.piece_captured);
-        MediaPlayer PieceMoved = MediaPlayer.create(this, R.raw.piece_move_two);
+        PieceCaptured = MediaPlayer.create(this, R.raw.piece_captured);
+        PieceMoved = MediaPlayer.create(this, R.raw.piece_move_two);
         //add clicked position
         // if selected ....
         switch (view.getId()) {
@@ -665,7 +671,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                         runOnUiThread(() -> Toast.makeText(getBaseContext(), "An error occurred", Toast.LENGTH_SHORT).show());
                         destroyedPieceValue = 0;
                     }
-                  
+
                     break;
                 }
             }
@@ -713,8 +719,11 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     private void parseChessBoardAndRefresh(String json) throws JsonProcessingException {
         GameDataDTO<?> gameData = objectMapper.readValue(json, GameDataDTO.class);
         chessBoard = objectMapper.convertValue(gameData.getData(), ChessBoard.class);
-        PlayerDTO nextPlayer = gameData.getNextPlayer();     // TODO Show on UI
+        nextPlayer = gameData.getNextPlayer();     // TODO Show on UI
         runOnUiThread(this::initializePieces);
+    }
+
+    private void refreshSpecialMoveBar() {
         if (!nextPlayer.getName().equals(playerName)) {
             // --> update SpecialMoveBar Progress
             if (destroyedPieceValue > 0) {
