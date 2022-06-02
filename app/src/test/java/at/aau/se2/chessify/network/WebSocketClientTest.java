@@ -159,7 +159,7 @@ public class WebSocketClientTest {
 
     @Test
     public void _8_reconnectWithNewPlayerNameTest() {
-        WebSocketClient.reconnectWithNewPlayerName("NewName");
+        WebSocketClient.reconnectWithPlayerName("NewName");
         waitOneSecond(); // wait one second to assure the connection has been established
         assertTrue(clientPlayerOne.isConnected());
         assertEquals("NewName", clientPlayerOne.getPlayerName());

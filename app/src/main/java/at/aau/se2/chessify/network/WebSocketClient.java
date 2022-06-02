@@ -29,6 +29,7 @@ public class WebSocketClient {
     private static WebSocketClient INSTANCE;
     private static String playerName;
 
+
     private WebSocketClient(String name) {
         playerName = name;
         establishConnection();
@@ -140,7 +141,7 @@ public class WebSocketClient {
         return playerName;
     }
 
-    public static void reconnectWithNewPlayerName(String newPlayerName) {
+    public static void reconnectWithPlayerName(String newPlayerName) {
         if (mStompClient != null) {
             compositeDisposable.clear();
             mStompClient.disconnect();

@@ -154,6 +154,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                 currentProgress = Buffer;
                 specialMoveBar.setProgress(currentProgress);
                 ExecuteSMB.setText("ACTIVE");
+                ExecuteSMB.setBackgroundResource(R.drawable.custom_button_lobby_join_success);
                 Buffer = 0;
             }
         });
@@ -671,16 +672,18 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                     Move move = new Move(chessBoard.getLocationOf(selectedPiece), loc);
                     try {
                         ChessBoard copyOfChessBoard = chessBoard.copy();
+                        List<Location> destroyedLocations = null;
                         if(!specialMoveActivated) {
                             destroyedPieceValue = copyOfChessBoard.performMoveOnBoard(move);
                         } else {
-                            List<Location> destroyedLocations = copyOfChessBoard.performAtomicMove(move);
+                            destroyedLocations = copyOfChessBoard.performAtomicMove(move);
                             ExecuteSMB.setVisibility(View.INVISIBLE);
                             ExecuteSMB.setText("Execute");
+                            ExecuteSMB.setBackgroundResource(R.drawable.custom_button_smb);
                             specialMoveActivated = false;
-                            animateAtomicHits(destroyedLocations);
                         }
                         GameDataDTO<ChessBoard> data = new GameDataDTO<>(copyOfChessBoard);
+                        data.setDestroyedLocationsByAtomicMove(destroyedLocations);
                         String gameDataJsonString = objectMapper.writeValueAsString(data);
                         client.sendGameUpdate(gameId, gameDataJsonString);
                     } catch (Exception e) {
@@ -767,7 +770,11 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         GameDataDTO<?> gameData = objectMapper.readValue(json, GameDataDTO.class);
         chessBoard = objectMapper.convertValue(gameData.getData(), ChessBoard.class);
         nextPlayer = gameData.getNextPlayer();     // TODO Show on UI
-        runOnUiThread(this::initializePieces);
+        List<Location> atomicHits = gameData.getDestroyedLocationsByAtomicMove();
+        runOnUiThread(() -> {
+            initializePieces();
+            animateAtomicHits(atomicHits);
+        });
     }
 
     private void refreshSpecialMoveBar() {
