@@ -32,21 +32,6 @@ public class SettingActivityTest {
     }
 
     @Test
-    public void textFieldSettings2() {
-        onView(withText("SOUND ON")).check(matches(isDisplayed()));
-    }
-
-    @Test
-    public void textFieldSettings3() {
-        onView(withText("VIBRATIONS ON")).check(matches(isDisplayed()));
-    }
-
-    @Test
-    public void textFieldSettings4() {
-        onView(withText("DARKMODE OFF")).check(matches(isDisplayed()));
-    }
-
-    @Test
     public void CheckIntent() {
         onView(ViewMatchers.withId(R.id.btn_sound)).perform(click());
     }
