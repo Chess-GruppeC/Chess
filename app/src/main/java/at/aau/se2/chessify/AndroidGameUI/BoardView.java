@@ -778,15 +778,32 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         }
         nextPlayer = gameData.getNextPlayer();     // TODO Show on UI
         List<Location> atomicHits = gameData.getDestroyedLocationsByAtomicMove();
-        runOnUiThread(() -> {
+        /*runOnUiThread(() -> {
             initializePieces();
             animateAtomicHits(atomicHits);
             showCurrentPlayerInfo(nextPlayer.getName());
-            if(chessBoard.checkWinner()!=null){
-                displayWinnerNotification();
-                gameId=null;
+            if(chessBoard!=null) {
+                displayWinnerIfKingDied();
+            }
+        });*/
+        runOnUiThread(new Runnable(){
+            @Override
+            public void run() {
+                initializePieces();
+                animateAtomicHits(atomicHits);
+                showCurrentPlayerInfo(nextPlayer.getName());
+                if (chessBoard != null) {
+                    displayWinnerIfKingDied();
+                }
             }
         });
+    }
+
+    private void displayWinnerIfKingDied() {
+        if(chessBoard.checkWinner()!=null){
+            displayWinnerNotification();
+            gameId=null;
+        }
     }
 
     private void showCurrentPlayerInfo(String nextPlayerName) {
