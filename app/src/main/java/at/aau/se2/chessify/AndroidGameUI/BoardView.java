@@ -789,7 +789,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         if (nextPlayerName.equals(playerName)) {
             currentPlayerInfoStr = "Your move";
         } else {
-            currentPlayerInfoStr = nextPlayer.getName() + "' move";
+            currentPlayerInfoStr = "Friend's move";
         }
         currentPlayerInfo.setText(currentPlayerInfoStr);
     }
