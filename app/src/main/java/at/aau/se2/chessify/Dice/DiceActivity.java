@@ -78,10 +78,6 @@ public class DiceActivity extends AppCompatActivity {
         creatBoard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                diceNumber = getRandomNumber(1, 6);
-
-                sendDiceValue();
                 openGameView();
             }
         });
