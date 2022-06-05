@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.media.Image;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -18,12 +19,15 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.List;
+
 import at.aau.se2.chessify.AndroidGameUI.BoardView;
 import at.aau.se2.chessify.LobbyActivity;
 import at.aau.se2.chessify.Player;
 import at.aau.se2.chessify.R;
 import at.aau.se2.chessify.network.WebSocketClient;
 import at.aau.se2.chessify.network.dto.DiceResultDTO;
+import at.aau.se2.chessify.network.dto.PlayerDTO;
 import at.aau.se2.chessify.util.Helper;
 
 public class DiceActivity extends AppCompatActivity {
@@ -55,17 +59,9 @@ public class DiceActivity extends AppCompatActivity {
         Wallpaper= findViewById(R.id.imageView3);
 
         webSocketClient = WebSocketClient.getInstance(Helper.getPlayerName(this));
+        getDiceWinner();
 
 
-        webSocketClient.receiveStartingPlayer(Helper.getGameId(this)).subscribe(stompMessage -> {
-            diceResultDTO = new ObjectMapper().readValue(stompMessage.getPayload(),DiceResultDTO.class);
-            if (diceResultDTO.getWinner() == null){
-                // wiederholen
-            }else{
-                // show winner
-            }
-
-        });
 
         dice.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,8 +69,9 @@ public class DiceActivity extends AppCompatActivity {
                 runShakeSensor();
 
                 if (mShaker.activCount != 0){
+                    //getDiceWinner();
                     getDiceNumber();
-                    sendDiceValue();
+                    //sendDiceValue();
                 }
             }
         });
@@ -96,7 +93,7 @@ public class DiceActivity extends AppCompatActivity {
 
     private void getDiceNumber(){
         diceNumber = getRandomNumber(1, 6);
-
+        sendDiceValue();
 
         switch (diceNumber){
             case 1:
@@ -120,6 +117,7 @@ public class DiceActivity extends AppCompatActivity {
         }
         //player.setDiceNumber1(diceNumber);
         //compareWhoStart();
+        //getDiceWinner();
     }
 
     private void runShakeSensor(){
@@ -179,6 +177,51 @@ public class DiceActivity extends AppCompatActivity {
     }
     private void getDiceValue(){
 
+    }
+
+    private void getDiceWinner(){
+        webSocketClient.receiveStartingPlayer(Helper.getGameId(this)).subscribe(stompMessage -> {
+            diceResultDTO = new ObjectMapper().readValue(stompMessage.getPayload(),DiceResultDTO.class);
+            Log.d("dicewinner", "aaaaaaaaaaaaaaaaaaaaaaaaaaa");
+            if (diceResultDTO.getWinner() == null){
+                // wiederholen
+                getDiceValue();
+            }else{
+                PlayerDTO winner = diceResultDTO.getWinner();
+                PlayerDTO loser = diceResultDTO.getPlayers()
+                        .stream().filter(playerDTO -> !playerDTO.getName().equals(winner.getName())).findFirst().get();
+                runOnUiThread(() -> {
+                    player1Color = findViewById(R.id.player1_color);
+                    player1Color.setText(winner.getName());
+                    player2Color = findViewById(R.id.player2_color);
+                    player2Color.setText(loser.getName());
+                });
+
+                // show winner
+               /* Log.d("dicewinner", "aaaaaaaaaaaaaaaaaaaaaaaaaaa");
+
+                List<PlayerDTO> playerDTOList = diceResultDTO.getPlayers();
+                System.out.println(playerDTOList.get(0).getName());
+                for (PlayerDTO playerDTO : playerDTOList) {
+                    if (playerDTO.equals(diceResultDTO.getWinner())) {
+                        // text
+                        int num1 = playerDTOList.get(0).getDiceValue();
+                        String p1 = playerDTOList.get(0).getName();
+                        Log.d("dicewinner",p1);
+                        player1Color = findViewById(R.id.player1_color);
+                        player1Color.setText(diceNumber);
+
+*/
+               /* int num2 = playerDTOList.get(1).getDiceValue();
+                String p2 = playerDTOList.get(1).getName();
+                player1Color = findViewById(R.id.player1_color);
+                player2Color = findViewById(R.id.player2_color);
+                player1Color.setText(diceNumber);*/
+                    }
+
+
+
+        });
     }
 
     @Override
