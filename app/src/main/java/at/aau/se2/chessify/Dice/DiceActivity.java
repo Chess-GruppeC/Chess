@@ -60,7 +60,7 @@ public class DiceActivity extends AppCompatActivity {
 
         webSocketClient = WebSocketClient.getInstance(Helper.getPlayerName(this));
         getDiceWinner();
-
+        creatBoard.setEnabled(false);
 
 
         dice.setOnClickListener(new View.OnClickListener() {
@@ -195,6 +195,8 @@ public class DiceActivity extends AppCompatActivity {
                     player1Color.setText(winner.getName());
                     player2Color = findViewById(R.id.player2_color);
                     player2Color.setText(loser.getName());
+                    creatBoard.setEnabled(true);
+
                 });
 
                 // show winner
