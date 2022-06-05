@@ -115,6 +115,7 @@ public class DiceActivity extends AppCompatActivity {
                 dice.setImageResource(R.drawable.dice6);
                 break;
         }
+        dice.setEnabled(false);
         //player.setDiceNumber1(diceNumber);
         //compareWhoStart();
         //getDiceWinner();
@@ -184,6 +185,7 @@ public class DiceActivity extends AppCompatActivity {
             diceResultDTO = new ObjectMapper().readValue(stompMessage.getPayload(),DiceResultDTO.class);
             Log.d("dicewinner", "aaaaaaaaaaaaaaaaaaaaaaaaaaa");
             if (diceResultDTO.getWinner() == null){
+                dice.setEnabled(true);
                 // wiederholen
                 getDiceValue();
             }else{
@@ -191,10 +193,12 @@ public class DiceActivity extends AppCompatActivity {
                 PlayerDTO loser = diceResultDTO.getPlayers()
                         .stream().filter(playerDTO -> !playerDTO.getName().equals(winner.getName())).findFirst().get();
                 runOnUiThread(() -> {
-                    player1Color = findViewById(R.id.player1_color);
+                    player1Color = findViewById(R.id.player1);
                     player1Color.setText(winner.getName());
-                    player2Color = findViewById(R.id.player2_color);
+
+                    player2Color = findViewById(R.id.player2);
                     player2Color.setText(loser.getName());
+
                     creatBoard.setEnabled(true);
 
                 });
