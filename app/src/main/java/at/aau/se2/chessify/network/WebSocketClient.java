@@ -114,7 +114,7 @@ public class WebSocketClient {
         mStompClient.send("/topic/game/rollDice/" + gameId, diceValue).subscribe();
     }
 
-    public Flowable<StompMessage> getGameState(String gameId) {
+    public Flowable<StompMessage> fetchGameState(String gameId) {
         return mStompClient.topic("/topic/state/" + gameId);
     }
 

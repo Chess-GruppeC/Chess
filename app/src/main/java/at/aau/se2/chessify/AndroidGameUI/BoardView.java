@@ -7,6 +7,7 @@ import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -50,6 +51,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     TextView SMBCount;
     ImageView Soundbutton;
     Button ExecuteSMB;
+    private TextView currentPlayerInfo;
 
 
     public TextView[][] BoardView = new TextView[8][8];
@@ -90,6 +92,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         setContentView(R.layout.activity_board);
 
         textView_gameId = findViewById(R.id.tV_game_id);
+        currentPlayerInfo = findViewById(R.id.current_player_info);
 
         initializeBoard();
 
@@ -100,7 +103,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         playerName = Helper.getUniquePlayerName(this);
         textView_gameId.setText("#".concat(gameId));
 
-        getGameStateDisposable = client.getGameState(gameId)
+        getGameStateDisposable = client.fetchGameState(gameId)
                 .subscribe(lastState -> parseChessBoardAndRefresh(lastState.getPayload()),
                         throwable -> runOnUiThread(() -> Toast.makeText(getBaseContext(), "An error occurred", Toast.LENGTH_SHORT).show()));
 
@@ -768,13 +771,27 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
 
     private void parseChessBoardAndRefresh(String json) throws JsonProcessingException {
         GameDataDTO<?> gameData = objectMapper.readValue(json, GameDataDTO.class);
-        chessBoard = objectMapper.convertValue(gameData.getData(), ChessBoard.class);
+        if (gameData.getData() != null) {
+            chessBoard = objectMapper.convertValue(gameData.getData(), ChessBoard.class);
+        }
         nextPlayer = gameData.getNextPlayer();     // TODO Show on UI
         List<Location> atomicHits = gameData.getDestroyedLocationsByAtomicMove();
         runOnUiThread(() -> {
             initializePieces();
             animateAtomicHits(atomicHits);
+            showCurrentPlayerInfo(nextPlayer.getName());
         });
+    }
+
+    private void showCurrentPlayerInfo(String nextPlayerName) {
+        Log.d("PLAYER", "SHow current");
+        String currentPlayerInfoStr;
+        if (nextPlayerName.equals(playerName)) {
+            currentPlayerInfoStr = "Your move";
+        } else {
+            currentPlayerInfoStr = nextPlayer.getName() + "' move";
+        }
+        currentPlayerInfo.setText(currentPlayerInfoStr);
     }
 
     private void refreshSpecialMoveBar() {
