@@ -5,10 +5,12 @@ import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
+import android.app.Dialog;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -780,6 +782,10 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
             initializePieces();
             animateAtomicHits(atomicHits);
             showCurrentPlayerInfo(nextPlayer.getName());
+            if(chessBoard.checkWinner()!=null){
+                displayWinnerNotification();
+                gameId=null;
+            }
         });
     }
 
@@ -834,5 +840,32 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         Helper.stopGameSound(this);
     }
 
+
+    public void displayWinnerNotification(){
+        final Dialog winnerNotificationWindow = new Dialog(at.aau.se2.chessify.AndroidGameUI.BoardView.this);
+        winnerNotificationWindow.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        winnerNotificationWindow.setCancelable(true);
+        winnerNotificationWindow.setContentView(R.layout.winner_notification_dialog);
+
+        String notifMessage = getNotificationMessage(chessBoard.checkWinner());
+
+        final TextView winnerNotificationText = winnerNotificationWindow.findViewById(R.id.winnerNotifTextView);
+        winnerNotificationText.setText(notifMessage);
+
+        winnerNotificationWindow.show();
+    }
+
+    public String getNotificationMessage(PieceColour pieceColour){
+        if (pieceColour==PieceColour.BLACK){
+            return "The player with the black pieces won!";
+        }
+        if (pieceColour==PieceColour.WHITE){
+            return "The player with the white pieces won!";
+        }
+        if (pieceColour==PieceColour.GREY){
+            return "The game ended in a draw!";
+        }
+        return "Winning player could not be determined";
+    }
 
 }
