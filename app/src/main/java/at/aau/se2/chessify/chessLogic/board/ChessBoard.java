@@ -47,12 +47,15 @@ public class ChessBoard {
         boolean isBlackKingAlive=false;
         for(int i=0; i<8; i++){
             for(int j=0; j<8; j++){
-                if (getPieceAtLocation(new Location(i, j)).getClass()==King.class){
-                    if (getPieceAtLocation(new Location(i, j)).getColour()==PieceColour.BLACK){
-                        isBlackKingAlive=true;
-                    }
-                    if (getPieceAtLocation(new Location(i, j)).getColour()==PieceColour.WHITE){
-                        isWhiteKingAlive=true;
+                ChessPiece checkPiece = getPieceAtLocation(new Location(i, j));
+                if(checkPiece!=null) {
+                    if (checkPiece.getClass() == King.class) {
+                        if (checkPiece.getColour() == PieceColour.BLACK) {
+                            isBlackKingAlive = true;
+                        }
+                        if (checkPiece.getColour() == PieceColour.WHITE) {
+                            isWhiteKingAlive = true;
+                        }
                     }
                 }
             }
@@ -63,7 +66,7 @@ public class ChessBoard {
         if(isBlackKingAlive){
             return PieceColour.BLACK;
         }
-        if(isBlackKingAlive){
+        if(isWhiteKingAlive){
             return PieceColour.WHITE;
         }
         return PieceColour.GREY;
