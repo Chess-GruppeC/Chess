@@ -34,6 +34,8 @@ public class DiceActivity extends AppCompatActivity {
     private ImageView dice;
     private TextView player1Color;
     private TextView player2Color;
+    private TextView player1Num;
+    private TextView player2Num;
     private int number;
     private ShakeSensor mShaker;
     private Button creatBoard;
@@ -131,9 +133,9 @@ public class DiceActivity extends AppCompatActivity {
                 mShaker.activCount = 1;
                 vibe.vibrate(500);
                 new AlertDialog.Builder(DiceActivity.this)
-                        .setPositiveButton(android.R.string.ok, null)
-                        .setMessage("SHAKE!")
-                        .show();
+                        .setPositiveButton(android.R.string.ok, null);
+                      //  .setMessage("SHAKE!")
+                     //   .show();
                 if (mShaker.activCount != 0) {
                     getDiceNumber();
                     onPause();
@@ -195,9 +197,14 @@ public class DiceActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     player1Color = findViewById(R.id.player1);
                     player1Color.setText(winner.getName());
+               //     player1Num = findViewById(R.id.player1_color);
+               //     player1Num.setText(winner.getDiceValue().toString());
 
                     player2Color = findViewById(R.id.player2);
                     player2Color.setText(loser.getName());
+                //    player2Num = findViewById(R.id.player2_color);
+               //     player2Num.setText(loser.getDiceValue().toString());
+
 
                     creatBoard.setEnabled(true);
 
