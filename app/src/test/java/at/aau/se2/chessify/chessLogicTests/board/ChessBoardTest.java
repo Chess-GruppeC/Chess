@@ -107,4 +107,29 @@ public class ChessBoardTest {
         assertEquals(3, destroyedLocations.size());
     }
 
+    @Test
+    public void checkWinnerTestNoWinner(){
+        assertEquals(null, testChessBoard.checkWinner());
+    }
+
+    @Test
+    public void checkWinnerTestDraw(){
+        testChessBoard.setGameBoard(manuallyGeneratedTestBoard);
+        assertEquals(PieceColour.GREY, testChessBoard.checkWinner());
+    }
+
+    @Test
+    public void checkWinnerTestWhiteWin(){
+        manuallyGeneratedTestBoard[5][5]=new King(PieceColour.WHITE);
+        testChessBoard.setGameBoard(manuallyGeneratedTestBoard);
+        assertEquals(PieceColour.WHITE, testChessBoard.checkWinner());
+    }
+
+    @Test
+    public void checkWinnerTestBlackWin(){
+        manuallyGeneratedTestBoard[5][5]=new King(PieceColour.BLACK);
+        testChessBoard.setGameBoard(manuallyGeneratedTestBoard);
+        assertEquals(PieceColour.BLACK, testChessBoard.checkWinner());
+    }
+
 }

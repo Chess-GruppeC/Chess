@@ -42,6 +42,36 @@ public class ChessBoard {
         this.gameBoard = gameBoard;
     }
 
+    public PieceColour checkWinner(){
+        boolean isWhiteKingAlive=false;
+        boolean isBlackKingAlive=false;
+        for(int i=0; i<8; i++){
+            for(int j=0; j<8; j++){
+                ChessPiece checkPiece = getPieceAtLocation(new Location(i, j));
+                if(checkPiece!=null) {
+                    if (checkPiece.getClass() == King.class) {
+                        if (checkPiece.getColour() == PieceColour.BLACK) {
+                            isBlackKingAlive = true;
+                        }
+                        if (checkPiece.getColour() == PieceColour.WHITE) {
+                            isWhiteKingAlive = true;
+                        }
+                    }
+                }
+            }
+        }
+        if(isBlackKingAlive&&isWhiteKingAlive){
+            return null;
+        }
+        if(isBlackKingAlive){
+            return PieceColour.BLACK;
+        }
+        if(isWhiteKingAlive){
+            return PieceColour.WHITE;
+        }
+        return PieceColour.GREY;
+    }
+
     public int performMoveOnBoard(Move move) throws IllegalArgumentException{
         int takenPieceValue=0;
         if(!(isWithinBounds(move.getFrom()) && isWithinBounds(move.getTo()))){
