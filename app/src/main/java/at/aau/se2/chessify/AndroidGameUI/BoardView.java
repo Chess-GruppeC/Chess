@@ -803,6 +803,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         if(chessBoard.checkWinner()!=null){
             displayWinnerNotification();
             gameId=null;
+            Helper.setGameId(getBaseContext(), gameId);
         }
     }
 
