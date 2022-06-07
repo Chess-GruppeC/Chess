@@ -8,7 +8,6 @@ import android.animation.ValueAnimator;
 import android.app.Dialog;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -87,6 +86,11 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     private MediaPlayer PieceCaptured;
     private MediaPlayer PieceMoved;
 
+    private PieceColour colour;
+
+    private boolean isAnyPieceSelected;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,6 +99,8 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
 
         textView_gameId = findViewById(R.id.tV_game_id);
         currentPlayerInfo = findViewById(R.id.current_player_info);
+
+        colour = Helper.getPlayerColour(this);
 
         initializeBoard();
 
@@ -646,6 +652,12 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                 isPieceSelected = true;
             }
         }
+
+        if (selectedPiece.getColour() != colour) {
+            return;
+        }
+
+
         /*
         if (selectedPiece != null) {
             isPieceSelected = true;
@@ -663,13 +675,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
             }
              */
         if (isPieceSelected) {
-            resetColour();
-            BoardViewBackground[onClickedPosition.getRow()][onClickedPosition.getColumn()].setBackgroundResource(R.color.select);
-            legalMoveList = selectedPiece.getLegalMoves(chessBoard);
-            for (Location loc : legalMoveList) {
-                BoardViewBackground[loc.getRow()][loc.getColumn()].setBackgroundResource(R.color.highlight_moves);
-            }
-            isPieceSelected = false;
+            showLegalMoves();
         } else {
             for (Location loc : legalMoveList) {
                 if (loc.compareLocation(onClickedPosition)) {
@@ -678,7 +684,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                     try {
                         ChessBoard copyOfChessBoard = chessBoard.copy();
                         List<Location> destroyedLocations = null;
-                        if(!specialMoveActivated) {
+                        if (!specialMoveActivated) {
                             destroyedPieceValue = copyOfChessBoard.performMoveOnBoard(move);
                         } else {
                             destroyedLocations = copyOfChessBoard.performAtomicMove(move);
@@ -691,6 +697,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                         data.setDestroyedLocationsByAtomicMove(destroyedLocations);
                         String gameDataJsonString = objectMapper.writeValueAsString(data);
                         client.sendGameUpdate(gameId, gameDataJsonString);
+                        isAnyPieceSelected = false;
                     } catch (Exception e) {
                         runOnUiThread(() -> Toast.makeText(getBaseContext(), "An error occurred", Toast.LENGTH_SHORT).show());
                         destroyedPieceValue = 0;
@@ -702,6 +709,17 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
             legalMoveList = new ArrayList<>();
         }
 
+    }
+
+    private void showLegalMoves() {
+        resetColour();
+        isAnyPieceSelected = true;
+        BoardViewBackground[onClickedPosition.getRow()][onClickedPosition.getColumn()].setBackgroundResource(R.color.select);
+        legalMoveList = selectedPiece.getLegalMoves(chessBoard);
+        for (Location loc : legalMoveList) {
+            BoardViewBackground[loc.getRow()][loc.getColumn()].setBackgroundResource(R.color.highlight_moves);
+        }
+        isPieceSelected = false;
     }
 
     //method:
@@ -740,7 +758,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     }
 
     private void animateAtomicHits(List<Location> destroyedLocations) {
-        if(destroyedLocations == null) {
+        if (destroyedLocations == null) {
             return;
         }
         AnimatorSet animationSet = new AnimatorSet();
@@ -776,7 +794,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         if (gameData.getData() != null) {
             chessBoard = objectMapper.convertValue(gameData.getData(), ChessBoard.class);
         }
-        nextPlayer = gameData.getNextPlayer();     // TODO Show on UI
+        nextPlayer = gameData.getNextPlayer();
         List<Location> atomicHits = gameData.getDestroyedLocationsByAtomicMove();
         /*runOnUiThread(() -> {
             initializePieces();
@@ -786,7 +804,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                 displayWinnerIfKingDied();
             }
         });*/
-        runOnUiThread(new Runnable(){
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 initializePieces();
@@ -794,21 +812,30 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                 showCurrentPlayerInfo(nextPlayer.getName());
                 if (chessBoard != null) {
                     displayWinnerIfKingDied();
+
+                    if (isAnyPieceSelected) {
+                        ChessPiece piece = chessBoard.getPieceAtLocation(onClickedPosition);
+                        if (piece != null && piece.getColour().equals(colour)) {
+                            selectedPiece = piece;
+                            showLegalMoves();
+                        } else {
+                            resetColour();
+                        }
+                    }
                 }
             }
         });
     }
 
     private void displayWinnerIfKingDied() {
-        if(chessBoard.checkWinner()!=null){
+        if (chessBoard.checkWinner() != null) {
             displayWinnerNotification();
-            gameId=null;
+            gameId = null;
             Helper.setGameId(getBaseContext(), gameId);
         }
     }
 
     private void showCurrentPlayerInfo(String nextPlayerName) {
-        Log.d("PLAYER", "SHow current");
         String currentPlayerInfoStr;
         if (nextPlayerName.equals(playerName)) {
             currentPlayerInfoStr = "Your move";
@@ -859,7 +886,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     }
 
 
-    public void displayWinnerNotification(){
+    public void displayWinnerNotification() {
         final Dialog winnerNotificationWindow = new Dialog(at.aau.se2.chessify.AndroidGameUI.BoardView.this);
         winnerNotificationWindow.requestWindowFeature(Window.FEATURE_NO_TITLE);
         winnerNotificationWindow.setCancelable(true);
@@ -873,14 +900,14 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         winnerNotificationWindow.show();
     }
 
-    public String getNotificationMessage(PieceColour pieceColour){
-        if (pieceColour==PieceColour.BLACK){
+    public String getNotificationMessage(PieceColour pieceColour) {
+        if (pieceColour == PieceColour.BLACK) {
             return "The player with the black pieces won!";
         }
-        if (pieceColour==PieceColour.WHITE){
+        if (pieceColour == PieceColour.WHITE) {
             return "The player with the white pieces won!";
         }
-        if (pieceColour==PieceColour.GREY){
+        if (pieceColour == PieceColour.GREY) {
             return "The game ended in a draw!";
         }
         return "Winning player could not be determined";
