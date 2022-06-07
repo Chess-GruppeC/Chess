@@ -104,7 +104,7 @@ public class LobbyActivity extends AppCompatActivity {
         });
 
         String gameId = Helper.getGameId(this);
-        if(gameId != null) {
+        if (gameId != null) {
             Dialog dialog = createFinishGameDialog(gameId);
             dialog.show();
         }
@@ -251,7 +251,9 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     private void showNetworkError() {
-        showToast("Network error");
+        showToast("Network error. Trying to connect..");
+        WebSocketClient.reconnectWithPlayerName(Helper.getUniquePlayerName(getBaseContext()));
+        webSocketClient = WebSocketClient.getInstance(Helper.getUniquePlayerName(getBaseContext()));
     }
 
     @Override
@@ -266,12 +268,12 @@ public class LobbyActivity extends AppCompatActivity {
         }
 
         // --> Update Color Scheme
-        if (Helper.getDarkmode(this)){
+        if (Helper.getDarkmode(this)) {
             Wallpaper.setImageResource(R.drawable.wallpaper1_material_min);
             CreateGame.setBackground(getDrawable(R.drawable.custom_button1));
             btnStartGame.setBackground(getDrawable(R.drawable.custom_button1));
             JoinGame.setBackground(getDrawable(R.drawable.custom_button1));
-        }else{
+        } else {
             Wallpaper.setImageResource(R.drawable.wallpaper1_material_min_dark);
             CreateGame.setBackground(getDrawable(R.drawable.custom_button2));
             btnStartGame.setBackground(getDrawable(R.drawable.custom_button2));
