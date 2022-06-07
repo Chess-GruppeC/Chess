@@ -12,14 +12,20 @@
         <entry key="..\:/Users/wende/OneDrive/Dokumente/GitHub/Chess/app/src/main/res/drawable/custom_button2.xml" value="0.2375" />
         <entry key="..\:/Users/wende/OneDrive/Dokumente/GitHub/Chess/app/src/main/res/drawable/custom_button_darkmode1.xml" value="0.2375" />
         <entry key="..\:/Users/wende/OneDrive/Dokumente/GitHub/Chess/app/src/main/res/drawable/custom_button_darkmode2.xml" value="0.199" />
+        <entry key="..\:/Users/wende/OneDrive/Dokumente/GitHub/Chess/app/src/main/res/drawable/custom_button_smb.xml" value="0.247" />
         <entry key="..\:/Users/wende/OneDrive/Dokumente/GitHub/Chess/app/src/main/res/layout-land/activity_lobby.xml" value="0.15027322404371585" />
         <entry key="..\:/Users/wende/OneDrive/Dokumente/GitHub/Chess/app/src/main/res/layout-land/activity_main.xml" value="0.43253968253968256" />
         <entry key="..\:/Users/wende/OneDrive/Dokumente/GitHub/Chess/app/src/main/res/layout-land/activity_setting.xml" value="0.43253968253968256" />
+        <entry key="..\:/Users/wende/OneDrive/Dokumente/GitHub/Chess/app/src/main/res/layout/activity_board.xml" value="0.25" />
         <entry key="..\:/Users/wende/OneDrive/Dokumente/GitHub/Chess/app/src/main/res/layout/activity_dice.xml" value="0.4352226720647773" />
-        <entry key="..\:/Users/wende/OneDrive/Dokumente/GitHub/Chess/app/src/main/res/layout/activity_lobby.xml" value="0.25" />
+        <entry key="..\:/Users/wende/OneDrive/Dokumente/GitHub/Chess/app/src/main/res/layout/activity_lobby.xml" value="0.33" />
         <entry key="..\:/Users/wende/OneDrive/Dokumente/GitHub/Chess/app/src/main/res/layout/activity_main.xml" value="0.23556231003039513" />
         <entry key="..\:/Users/wende/OneDrive/Dokumente/GitHub/Chess/app/src/main/res/layout/activity_setting.xml" value="0.4578804347826087" />
         <entry key="..\:/Users/wende/OneDrive/Dokumente/GitHub/Chess/app/src/main/res/layout/layout_footer.xml" value="0.4954710144927536" />
+        <entry key="..\:/git repos/Chess/app/src/main/res/layout/activity_board.xml" value="0.18802083333333333" />
+        <entry key="..\:/git repos/Chess/app/src/main/res/layout/activity_lobby.xml" value="0.18802083333333333" />
+        <entry key="..\:/git repos/Chess/app/src/main/res/layout/activity_main.xml" value="0.18802083333333333" />
+        <entry key="..\:/git repos/Chess/app/src/main/res/layout/winner_notification_dialog.xml" value="0.25" />
         <entry key="app/src/main/res/drawable/arrow_back.xml" value="0.271" />
         <entry key="app/src/main/res/drawable/arrow_white.xml" value="0.35" />
         <entry key="app/src/main/res/drawable/custom_button1.xml" value="0.282" />
@@ -34,7 +40,7 @@
         <entry key="app/src/main/res/layout-land/activity_lobby.xml" value="0.2595312317002177" />
         <entry key="app/src/main/res/layout-land/activity_main.xml" value="0.2707231040564374" />
         <entry key="app/src/main/res/layout-land/activity_setting.xml" value="0.2707231040564374" />
-        <entry key="app/src/main/res/layout/activity_board.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_board.xml" value="0.1782842221467391" />
         <entry key="app/src/main/res/layout/activity_dice.xml" value="0.17442321777343753" />
         <entry key="app/src/main/res/layout/activity_lobby.xml" value="0.18603312174479167" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.2603127299875453" />

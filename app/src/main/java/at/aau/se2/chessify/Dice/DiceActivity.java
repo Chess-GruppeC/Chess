@@ -1,10 +1,7 @@
 package at.aau.se2.chessify.Dice;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.media.Image;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.util.Log;
@@ -13,6 +10,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,6 +27,7 @@ import at.aau.se2.chessify.network.WebSocketClient;
 import at.aau.se2.chessify.network.dto.DiceResultDTO;
 import at.aau.se2.chessify.network.dto.PlayerDTO;
 import at.aau.se2.chessify.util.Helper;
+import io.reactivex.disposables.Disposable;
 
 public class DiceActivity extends AppCompatActivity {
     private ImageView dice;
@@ -48,9 +47,10 @@ public class DiceActivity extends AppCompatActivity {
     private WebSocketClient webSocketClient;
     private DiceResultDTO diceResultDTO;
 
+    private Disposable getDiceResultDisposable;
 
+    private ObjectMapper objectMapper;
 
-    @SuppressLint("CheckResult")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +69,15 @@ public class DiceActivity extends AppCompatActivity {
         reroll = (TextView)findViewById(R.id.reroll);
         reroll.setVisibility(View.INVISIBLE);
 
+        webSocketClient = WebSocketClient.getInstance(Helper.getUniquePlayerName(this));
+        objectMapper = new ObjectMapper();
+        //creatBoard.setEnabled(false);
+
+        getDiceResultDisposable = webSocketClient.receiveStartingPlayer(Helper.getGameId(this))
+                .subscribe(stompMessage -> {
+            diceResultDTO = objectMapper.readValue(stompMessage.getPayload(),DiceResultDTO.class);
+            PlayerDTO winner = diceResultDTO.getWinner();
+        });
 
         dice.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -100,6 +109,7 @@ public class DiceActivity extends AppCompatActivity {
 
     private void getDiceNumber(){
         diceNumber = getRandomNumber(1, 6);
+
         sendDiceValue();
 
         switch (diceNumber){
@@ -287,4 +297,9 @@ public class DiceActivity extends AppCompatActivity {
         super.onPause();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        getDiceResultDisposable.dispose();
+    }
 }

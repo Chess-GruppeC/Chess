@@ -1,6 +1,8 @@
 package at.aau.se2.chessify.chessLogic.board;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import at.aau.se2.chessify.chessLogic.pieces.Bishop;
 import at.aau.se2.chessify.chessLogic.pieces.ChessPiece;
@@ -13,6 +15,13 @@ import at.aau.se2.chessify.chessLogic.pieces.Rook;
 
 public class ChessBoard {
     ChessPiece[][] gameBoard;
+
+    public ChessBoard copy() {
+        ChessBoard copy = new ChessBoard();
+        ChessPiece[][] copyOfPieces = Arrays.stream(gameBoard).map(ChessPiece[]::clone).toArray(ChessPiece[][]::new);
+        copy.setGameBoard(copyOfPieces);
+        return copy;
+    }
 
     public ChessBoard() {
         this.gameBoard = new ChessPiece[8][8];
@@ -33,6 +42,36 @@ public class ChessBoard {
         this.gameBoard = gameBoard;
     }
 
+    public PieceColour checkWinner(){
+        boolean isWhiteKingAlive=false;
+        boolean isBlackKingAlive=false;
+        for(int i=0; i<8; i++){
+            for(int j=0; j<8; j++){
+                ChessPiece checkPiece = getPieceAtLocation(new Location(i, j));
+                if(checkPiece!=null) {
+                    if (checkPiece.getClass() == King.class) {
+                        if (checkPiece.getColour() == PieceColour.BLACK) {
+                            isBlackKingAlive = true;
+                        }
+                        if (checkPiece.getColour() == PieceColour.WHITE) {
+                            isWhiteKingAlive = true;
+                        }
+                    }
+                }
+            }
+        }
+        if(isBlackKingAlive&&isWhiteKingAlive){
+            return null;
+        }
+        if(isBlackKingAlive){
+            return PieceColour.BLACK;
+        }
+        if(isWhiteKingAlive){
+            return PieceColour.WHITE;
+        }
+        return PieceColour.GREY;
+    }
+
     public int performMoveOnBoard(Move move) throws IllegalArgumentException{
         int takenPieceValue=0;
         if(!(isWithinBounds(move.getFrom()) && isWithinBounds(move.getTo()))){
@@ -51,6 +90,30 @@ public class ChessBoard {
             }
         }
         throw new IllegalArgumentException("Please perform a legal move");
+    }
+
+    public List<Location> performAtomicMove(Move move) {
+        List<Location> destroyedLocations = new ArrayList<>();
+        int takenPieceValue = performMoveOnBoard(move);
+        if (takenPieceValue == 0) {
+            return null;
+        }
+        Location location = move.getTo();
+        gameBoard[location.getRow()][location.getColumn()] = null;
+        destroyedLocations.add(location);
+        for (int i = location.getRow() - 1; i <= location.getRow() + 1; i++) {
+            for (int j = location.getColumn() - 1; j <= location.getColumn() + 1; j++) {
+                Location tempLocation = new Location(i, j);
+                if (isWithinBounds(tempLocation)) {
+                    ChessPiece piece = getPieceAtLocation(tempLocation);
+                    if (piece == null || piece instanceof Pawn)
+                        continue;
+                    destroyedLocations.add(tempLocation);
+                    gameBoard[tempLocation.getRow()][tempLocation.getColumn()] = null;
+                }
+            }
+        }
+        return destroyedLocations;
     }
 
     public ArrayList<Location> getLegalMovesForPiece(Location location){
@@ -87,9 +150,11 @@ public class ChessBoard {
     }
 
     public boolean isWithinBounds(Location location){
-        if((location.getRow() >= 0) && (location.getRow() < 8)
-                && (location.getColumn() >= 0) && (location.getColumn() < 8)){
-            return true;
+        if(location != null) {
+            if ((location.getRow() >= 0) && (location.getRow() < 8)
+                    && (location.getColumn() >= 0) && (location.getColumn() < 8)) {
+                return true;
+            }
         }
         return false;
     }

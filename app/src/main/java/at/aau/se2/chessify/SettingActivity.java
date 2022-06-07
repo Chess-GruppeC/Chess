@@ -54,7 +54,7 @@ public class SettingActivity extends AppCompatActivity {
             } else {
                 String newPlayerName = setName.getText().toString();
                 Helper.setPlayerName(this, newPlayerName);
-                WebSocketClient.reconnectWithNewPlayerName(newPlayerName);
+                WebSocketClient.reconnectWithPlayerName(newPlayerName);
                 Toast.makeText(this, "Player name updated successfully", Toast.LENGTH_SHORT).show();
             }
         });
