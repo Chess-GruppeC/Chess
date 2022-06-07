@@ -36,6 +36,7 @@ public class DiceActivity extends AppCompatActivity {
     private TextView player2Color;
     private TextView player1Num;
     private TextView player2Num;
+    private TextView reroll;
     private int number;
     private ShakeSensor mShaker;
     private Button creatBoard;
@@ -63,6 +64,10 @@ public class DiceActivity extends AppCompatActivity {
         webSocketClient = WebSocketClient.getInstance(Helper.getPlayerName(this));
         getDiceWinner();
         creatBoard.setEnabled(false);
+
+        //reroll
+        reroll = (TextView)findViewById(R.id.reroll);
+        reroll.setVisibility(View.INVISIBLE);
 
 
         dice.setOnClickListener(new View.OnClickListener() {
@@ -118,6 +123,7 @@ public class DiceActivity extends AppCompatActivity {
                 break;
         }
         dice.setEnabled(false);
+        reroll.setVisibility(View.INVISIBLE);
         //player.setDiceNumber1(diceNumber);
         //compareWhoStart();
         //getDiceWinner();
@@ -128,7 +134,7 @@ public class DiceActivity extends AppCompatActivity {
         final Vibrator vibe = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
 
         mShaker = new ShakeSensor(this);
-        mShaker.setOnShakeListener(new ShakeSensor.OnShakeListener(){
+       /* mShaker.setOnShakeListener(new ShakeSensor.OnShakeListener(){
             public void onShake() {
                 mShaker.activCount = 1;
                 vibe.vibrate(500);
@@ -136,17 +142,19 @@ public class DiceActivity extends AppCompatActivity {
                         .setPositiveButton(android.R.string.ok, null);
                       //  .setMessage("SHAKE!")
                      //   .show();
-                if (mShaker.activCount != 0) {
+                if (mShaker.activCount != 0) {*/
                     getDiceNumber();
                     onPause();
-                }
+                   // reroll.setVisibility(View.INVISIBLE);
+
+             /*   }
             }
-        });
+        });*/
     }
 
     private int getRandomNumber(int min, int max) {
         number = (int) ((Math.random() * (max - min)) + min);
-        return number;
+        return  number;
     }
     private void openGameView() {
         Intent intent = new Intent(this, BoardView.class);
@@ -183,30 +191,47 @@ public class DiceActivity extends AppCompatActivity {
     }
 
     private void getDiceWinner(){
+
         webSocketClient.receiveStartingPlayer(Helper.getGameId(this)).subscribe(stompMessage -> {
             diceResultDTO = new ObjectMapper().readValue(stompMessage.getPayload(),DiceResultDTO.class);
-            Log.d("dicewinner", "aaaaaaaaaaaaaaaaaaaaaaaaaaa");
             if (diceResultDTO.getWinner() == null){
-                dice.setEnabled(true);
+               // dice.setEnabled(true);
                 // wiederholen
-                getDiceValue();
-            }else{
+              //  reroll.setVisibility(View.VISIBLE);
+
+                runOnUiThread(() -> {
+                    dice.setEnabled(true);
+                    reroll.setVisibility(View.VISIBLE);
+
+                });
+
+
+
+
+                }else{
                 PlayerDTO winner = diceResultDTO.getWinner();
                 PlayerDTO loser = diceResultDTO.getPlayers()
                         .stream().filter(playerDTO -> !playerDTO.getName().equals(winner.getName())).findFirst().get();
                 runOnUiThread(() -> {
-                    player1Color = findViewById(R.id.player1);
-                    player1Color.setText(winner.getName());
-               //     player1Num = findViewById(R.id.player1_color);
-               //     player1Num.setText(winner.getDiceValue().toString());
 
-                    player2Color = findViewById(R.id.player2);
-                    player2Color.setText(loser.getName());
-                //    player2Num = findViewById(R.id.player2_color);
-               //     player2Num.setText(loser.getDiceValue().toString());
+                    if (winner.getDiceValue() == loser.getDiceValue() ){
+                        dice.setEnabled(true);
+                        reroll.setVisibility(View.VISIBLE);
+                    }else {
+
+                        player1Color = findViewById(R.id.player1);
+                        player1Color.setText(winner.getName());
+                        //     player1Num = findViewById(R.id.player1_color);
+                        //     player1Num.setText(winner.getDiceValue().toString());
+
+                        player2Color = findViewById(R.id.player2);
+                        player2Color.setText(loser.getName());
+                        //    player2Num = findViewById(R.id.player2_color);
+                        //     player2Num.setText(loser.getDiceValue().toString());
 
 
-                    creatBoard.setEnabled(true);
+                        creatBoard.setEnabled(true);
+                    }
 
                 });
 
