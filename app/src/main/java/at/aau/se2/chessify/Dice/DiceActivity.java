@@ -134,7 +134,7 @@ public class DiceActivity extends AppCompatActivity {
         final Vibrator vibe = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
 
         mShaker = new ShakeSensor(this);
-       /* mShaker.setOnShakeListener(new ShakeSensor.OnShakeListener(){
+        mShaker.setOnShakeListener(new ShakeSensor.OnShakeListener(){
             public void onShake() {
                 mShaker.activCount = 1;
                 vibe.vibrate(500);
@@ -142,14 +142,14 @@ public class DiceActivity extends AppCompatActivity {
                         .setPositiveButton(android.R.string.ok, null);
                       //  .setMessage("SHAKE!")
                      //   .show();
-                if (mShaker.activCount != 0) {*/
+                if (mShaker.activCount != 0) {
                     getDiceNumber();
                     onPause();
                    // reroll.setVisibility(View.INVISIBLE);
 
-             /*   }
+                }
             }
-        });*/
+        });
     }
 
     private int getRandomNumber(int min, int max) {
