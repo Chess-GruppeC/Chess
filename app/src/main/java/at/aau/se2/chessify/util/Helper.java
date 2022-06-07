@@ -9,6 +9,7 @@ import android.preference.PreferenceManager;
 import java.util.UUID;
 
 import at.aau.se2.chessify.R;
+import at.aau.se2.chessify.chessLogic.pieces.PieceColour;
 
 public class Helper {
 
@@ -171,6 +172,14 @@ public class Helper {
             getSharedPreferences(context).edit().putString("PLAYER_ID", randomId).apply();
         }
         return getSharedPreferences(context).getString("PLAYER_ID", null);
+    }
+
+    public static void setPlayerColour(Context context, PieceColour colour) {
+        getSharedPreferences(context).edit().putString("PLAYER_COLOUR", colour.name()).apply();
+    }
+
+    public static PieceColour getPlayerColour(Context context) {
+        return PieceColour.valueOf(getSharedPreferences(context).getString("PLAYER_COLOUR", null));
     }
 
 }
