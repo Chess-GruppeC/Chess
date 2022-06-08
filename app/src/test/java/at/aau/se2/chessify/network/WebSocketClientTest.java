@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
@@ -81,7 +82,8 @@ public class WebSocketClientTest {
         joinGame(clientPlayerOne, gameID);
     }
 
-    /*@Test
+    @Test
+    @Ignore("Test needs to updated as player moves are synchronized now")
     public void _5_sendAndReceiveGameDataTest() {
         assertNotNull(gameID);
         AtomicReference<String> receivedDataAtomicReference = new AtomicReference<>();
@@ -93,7 +95,7 @@ public class WebSocketClientTest {
         String receivedData = receivedDataAtomicReference.get();
         assertNotNull(receivedData);
         assertEquals("DATA", receivedData);
-    }*/
+    }
 
     @Test
     public void _6_getOpponentTest() throws JsonProcessingException {
@@ -157,7 +159,7 @@ public class WebSocketClientTest {
 
     @Test
     public void _8_reconnectWithNewPlayerNameTest() {
-        WebSocketClient.reconnectWithNewPlayerName("NewName");
+        WebSocketClient.reconnectWithPlayerName("NewName");
         waitOneSecond(); // wait one second to assure the connection has been established
         assertTrue(clientPlayerOne.isConnected());
         assertEquals("NewName", clientPlayerOne.getPlayerName());
