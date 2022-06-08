@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -15,6 +16,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.List;
 
 import at.aau.se2.chessify.AndroidGameUI.BoardView;
 import at.aau.se2.chessify.LobbyActivity;
@@ -30,6 +33,9 @@ public class DiceActivity extends AppCompatActivity {
     private ImageView dice;
     private TextView player1Color;
     private TextView player2Color;
+    private TextView player1Num;
+    private TextView player2Num;
+    private TextView reroll;
     private int number;
     private ShakeSensor mShaker;
     private Button creatBoard;
@@ -55,15 +61,23 @@ public class DiceActivity extends AppCompatActivity {
         abort = findViewById(R.id.btn_abort);
         Wallpaper= findViewById(R.id.imageView3);
 
+        webSocketClient = WebSocketClient.getInstance(Helper.getPlayerName(this));
+        getDiceWinner();
+        creatBoard.setEnabled(false);
+
+        //reroll
+        reroll = (TextView)findViewById(R.id.reroll);
+        reroll.setVisibility(View.INVISIBLE);
+
         webSocketClient = WebSocketClient.getInstance(Helper.getUniquePlayerName(this));
         objectMapper = new ObjectMapper();
         //creatBoard.setEnabled(false);
 
-        getDiceResultDisposable = webSocketClient.receiveStartingPlayer(Helper.getGameId(this))
+       /* getDiceResultDisposable = webSocketClient.receiveStartingPlayer(Helper.getGameId(this))
                 .subscribe(stompMessage -> {
             diceResultDTO = objectMapper.readValue(stompMessage.getPayload(),DiceResultDTO.class);
             PlayerDTO winner = diceResultDTO.getWinner();
-        });
+        });*/
 
         dice.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,7 +85,9 @@ public class DiceActivity extends AppCompatActivity {
                 runShakeSensor();
 
                 if (mShaker.activCount != 0){
+                    //getDiceWinner();
                     getDiceNumber();
+                    //sendDiceValue();
                 }
             }
         });
@@ -116,8 +132,11 @@ public class DiceActivity extends AppCompatActivity {
                 dice.setImageResource(R.drawable.dice6);
                 break;
         }
+        dice.setEnabled(false);
+        reroll.setVisibility(View.INVISIBLE);
         //player.setDiceNumber1(diceNumber);
         //compareWhoStart();
+        //getDiceWinner();
     }
 
     private void runShakeSensor(){
@@ -130,12 +149,14 @@ public class DiceActivity extends AppCompatActivity {
                 mShaker.activCount = 1;
                 vibe.vibrate(500);
                 new AlertDialog.Builder(DiceActivity.this)
-                        .setPositiveButton(android.R.string.ok, null)
-                        .setMessage("SHAKE!")
-                        .show();
+                        .setPositiveButton(android.R.string.ok, null);
+                      //  .setMessage("SHAKE!")
+                     //   .show();
                 if (mShaker.activCount != 0) {
                     getDiceNumber();
                     onPause();
+                   // reroll.setVisibility(View.INVISIBLE);
+
                 }
             }
         });
@@ -143,7 +164,7 @@ public class DiceActivity extends AppCompatActivity {
 
     private int getRandomNumber(int min, int max) {
         number = (int) ((Math.random() * (max - min)) + min);
-        return number;
+        return  number;
     }
     private void openGameView() {
         Intent intent = new Intent(this, BoardView.class);
@@ -177,6 +198,78 @@ public class DiceActivity extends AppCompatActivity {
     }
     private void getDiceValue(){
 
+    }
+
+    private void getDiceWinner(){
+
+        webSocketClient.receiveStartingPlayer(Helper.getGameId(this)).subscribe(stompMessage -> {
+            diceResultDTO = new ObjectMapper().readValue(stompMessage.getPayload(),DiceResultDTO.class);
+            if (diceResultDTO.getWinner() == null){
+               // dice.setEnabled(true);
+                // wiederholen
+              //  reroll.setVisibility(View.VISIBLE);
+
+                runOnUiThread(() -> {
+                    dice.setEnabled(true);
+                    reroll.setVisibility(View.VISIBLE);
+
+                });
+
+
+
+
+                }else{
+                PlayerDTO winner = diceResultDTO.getWinner();
+                PlayerDTO loser = diceResultDTO.getPlayers()
+                        .stream().filter(playerDTO -> !playerDTO.getName().equals(winner.getName())).findFirst().get();
+                runOnUiThread(() -> {
+
+                    if (winner.getDiceValue().equals(loser.getDiceValue())){
+                        dice.setEnabled(true);
+                        reroll.setVisibility(View.VISIBLE);
+                    }else {
+
+                        player1Color = findViewById(R.id.player1);
+                        player1Color.setText(winner.getName());
+                        //     player1Num = findViewById(R.id.player1_color);
+                        //     player1Num.setText(winner.getDiceValue().toString());
+
+                        player2Color = findViewById(R.id.player2);
+                        player2Color.setText(loser.getName());
+                        //    player2Num = findViewById(R.id.player2_color);
+                        //     player2Num.setText(loser.getDiceValue().toString());
+
+
+                        creatBoard.setEnabled(true);
+                    }
+
+                });
+
+                // show winner
+               /* Log.d("dicewinner", "aaaaaaaaaaaaaaaaaaaaaaaaaaa");
+
+                List<PlayerDTO> playerDTOList = diceResultDTO.getPlayers();
+                System.out.println(playerDTOList.get(0).getName());
+                for (PlayerDTO playerDTO : playerDTOList) {
+                    if (playerDTO.equals(diceResultDTO.getWinner())) {
+                        // text
+                        int num1 = playerDTOList.get(0).getDiceValue();
+                        String p1 = playerDTOList.get(0).getName();
+                        Log.d("dicewinner",p1);
+                        player1Color = findViewById(R.id.player1_color);
+                        player1Color.setText(diceNumber);
+
+*/
+               /* int num2 = playerDTOList.get(1).getDiceValue();
+                String p2 = playerDTOList.get(1).getName();
+                player1Color = findViewById(R.id.player1_color);
+                player2Color = findViewById(R.id.player2_color);
+                player1Color.setText(diceNumber);*/
+                    }
+
+
+
+        });
     }
 
     @Override
