@@ -6,12 +6,23 @@ import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.preference.PreferenceManager;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
+import at.aau.se2.chessify.Game;
+import at.aau.se2.chessify.LobbyActivity;
 import at.aau.se2.chessify.R;
 import at.aau.se2.chessify.chessLogic.pieces.PieceColour;
 
 public class Helper {
+
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     public static SharedPreferences getSharedPreferences(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context);
@@ -167,7 +178,7 @@ public class Helper {
 
     public static String getPlayerId(Context context) {
         String id = getSharedPreferences(context).getString("PLAYER_ID", null);
-        if(id == null) {
+        if (id == null) {
             String randomId = UUID.randomUUID().toString().substring(0, 5);
             getSharedPreferences(context).edit().putString("PLAYER_ID", randomId).apply();
         }
@@ -182,4 +193,56 @@ public class Helper {
         return PieceColour.valueOf(getSharedPreferences(context).getString("PLAYER_COLOUR", null));
     }
 
+    public static void addGameIfNotExists(Context context, Game game) throws JsonProcessingException {
+        List<Game> games = getGameList(context);
+        Optional<String> gameId = games.stream().map(Game::getGameId).filter(id -> id.equals(game.getGameId())).findFirst();
+        if (gameId.isPresent()) {
+            return;
+        }
+
+        games.add(game);
+        writeGamesList(context, games);
+    }
+
+    public static List<Game> deleteGame(Context context, int index) throws JsonProcessingException {
+        List<Game> games = getGameList(context);
+        games.remove(index - 1);
+        writeGamesList(context, games);
+        return games;
+    }
+
+    private static void writeGamesList(Context context, List<Game> games) throws JsonProcessingException {
+        String gamesJsonStr = objectMapper.writeValueAsString(games);
+        getSharedPreferences(context).edit().putString("GAMES_LIST", gamesJsonStr).apply();
+    }
+
+    public static List<Game> clearGamesList(Context context, int status) throws JsonProcessingException {
+        List<Game> games = getGameList(context);
+        if (status == Game.DEFAULT) {
+            games = new ArrayList<>();
+            writeGamesList(context, games);
+            return games;
+        }
+
+        List<Game> toDelete = new ArrayList<>();
+        games.forEach(game -> {
+            if (game.getStatus() == status) {
+                toDelete.add(game);
+            }
+        });
+
+        games.removeAll(toDelete);
+        writeGamesList(context, games);
+        return games;
+    }
+
+    public static List<Game> getGameList(Context context) throws JsonProcessingException {
+        String gamesListJsonStr = getSharedPreferences(context).getString("GAMES_LIST", null);
+        if (gamesListJsonStr == null) {
+            return new ArrayList<>();
+        }
+
+        return objectMapper.readValue(gamesListJsonStr, new TypeReference<List<Game>>() {
+        });
+    }
 }
