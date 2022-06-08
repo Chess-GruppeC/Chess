@@ -73,11 +73,11 @@ public class DiceActivity extends AppCompatActivity {
         objectMapper = new ObjectMapper();
         //creatBoard.setEnabled(false);
 
-        getDiceResultDisposable = webSocketClient.receiveStartingPlayer(Helper.getGameId(this))
+       /* getDiceResultDisposable = webSocketClient.receiveStartingPlayer(Helper.getGameId(this))
                 .subscribe(stompMessage -> {
             diceResultDTO = objectMapper.readValue(stompMessage.getPayload(),DiceResultDTO.class);
             PlayerDTO winner = diceResultDTO.getWinner();
-        });
+        });*/
 
         dice.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -224,7 +224,7 @@ public class DiceActivity extends AppCompatActivity {
                         .stream().filter(playerDTO -> !playerDTO.getName().equals(winner.getName())).findFirst().get();
                 runOnUiThread(() -> {
 
-                    if (winner.getDiceValue() == loser.getDiceValue() ){
+                    if (winner.getDiceValue().equals(loser.getDiceValue())){
                         dice.setEnabled(true);
                         reroll.setVisibility(View.VISIBLE);
                     }else {
