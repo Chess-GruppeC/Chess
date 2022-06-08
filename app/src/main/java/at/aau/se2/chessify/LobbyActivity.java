@@ -4,11 +4,13 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.ContextCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -16,13 +18,22 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.android.material.navigation.NavigationView;
+
+import java.util.List;
 
 import at.aau.se2.chessify.AndroidGameUI.BoardView;
 import at.aau.se2.chessify.Dice.DiceActivity;
@@ -47,6 +58,13 @@ public class LobbyActivity extends AppCompatActivity {
 
     private boolean triedToJoinAGame = false;
     private final Handler enterIdHandler = new Handler(Looper.getMainLooper());
+
+    private DrawerLayout drawerLayout;
+
+    private NavigationView navigationView;
+    private ListView gamesList;
+    private GamesAdapter gamesAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +127,56 @@ public class LobbyActivity extends AppCompatActivity {
             dialog.show();
         }
 
+        LayoutInflater li = LayoutInflater.from(this);
+        View listView = li.inflate(R.layout.listview_games, null);
+
+        gamesList = (ListView) listView.findViewById(R.id.games_list_view);
+        drawerLayout = findViewById(R.id.my_drawer_layout);
+        navigationView = findViewById(R.id.games_list);
+
+        View listHeader = li.inflate(R.layout.listview_header, null);
+        ImageView delete = listHeader.findViewById(R.id.icon_delete);
+        delete.setOnClickListener((view) -> createDeleteGameListDialog().show());
+        gamesList.addHeaderView(listHeader, null, false);
+
+        List<Game> games;
+        try {
+            games = Helper.getGameList(this);
+        } catch (JsonProcessingException jsonProcessingException) {
+            TextView headerLabel = listHeader.findViewById(R.id.games_list_header);
+            headerLabel.setText("Error parsing data");
+            gamesList.addHeaderView(listHeader, null, false);
+            return;
+        }
+
+        gamesAdapter = new GamesAdapter(getApplicationContext(), games);
+        gamesList.setAdapter(gamesAdapter);
+        gamesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Game game = (Game) adapterView.getAdapter().getItem(i);
+                Helper.setGameId(getApplicationContext(), game.getGameId());
+                enterGame(game.getGameId());
+            }
+        });
+        gamesList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                createDeleteSingleGameDialog(i).show();
+                return true;
+            }
+        });
+        navigationView.addView(listView);
+    }
+
+    private void clearGames(int gameStatusFilter) throws JsonProcessingException {
+        List<Game> updatedList = Helper.clearGamesList(this, gameStatusFilter);
+        gamesAdapter.updateAdapter(updatedList);
+    }
+
+    private void deleteSingleGame(int index) throws JsonProcessingException {
+        List<Game> updatedList = Helper.deleteGame(this, index);
+        gamesAdapter.updateAdapter(updatedList);
     }
 
     private View.OnClickListener getJoinGameClickListener() {
@@ -189,7 +257,8 @@ public class LobbyActivity extends AppCompatActivity {
     public void getToMainActivity() {
         //Intent intentgetBack = new Intent(this, MainActivity.class);
         //startActivity(intentgetBack);
-        onBackPressed();
+//        onBackPressed();
+        drawerLayout.openDrawer(Gravity.LEFT);
     }
 
     public void startDiceActivity() {
@@ -281,19 +350,78 @@ public class LobbyActivity extends AppCompatActivity {
         }
     }
 
-    private Dialog createFinishGameDialog(String gameId) {
+    private Dialog createDeleteGameListDialog() {
+        final String[] gameStatusArray = new String[2];
+        gameStatusArray[Game.STATUS_RUNNING] = "Running";
+        gameStatusArray[Game.STATUS_FINISHED] = "Finished";
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Do you want to resume your last game?");
-        builder.setPositiveButton("Ok", (dialog, id) -> {
-            WebSocketClient client = WebSocketClient.getInstance(Helper.getUniquePlayerName(LobbyActivity.this));
-            client.joinGame(gameId).subscribe();
-            Intent intent = new Intent(this, BoardView.class);
-            startActivity(intent);
+        final boolean[] selected = new boolean[2];
+
+        builder.setMultiChoiceItems(gameStatusArray, selected, new DialogInterface.OnMultiChoiceClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i, boolean b) {
+                selected[i] = b;
+            }
+        });
+        builder.setTitle("Which games do you want to delete?");
+        builder.setPositiveButton("Delete", (dialog, id) -> {
+            for (int i = 0; i < selected.length; i++) {
+                try {
+                    if (selected[Game.STATUS_RUNNING] && selected[Game.STATUS_FINISHED]) {
+                        clearGames(Game.DEFAULT); // delete all games at once
+                        return;
+                    }
+                    // if only one status selected delete the games with this status
+                    if (selected[Game.STATUS_RUNNING]) {
+                        clearGames(Game.STATUS_RUNNING);
+                    } else if (selected[Game.STATUS_FINISHED]) {
+                        clearGames(Game.STATUS_FINISHED);
+                    }
+                    return;
+                } catch (JsonProcessingException jsonProcessingException) {
+                    showToast("An error occurred while trying to delete a game");
+                }
+            }
         });
         builder.setNegativeButton("Cancel", (dialog, id) -> {
             // User cancelled the dialog
         });
         return builder.create();
+    }
+
+    private Dialog createDeleteSingleGameDialog(int indexToDelete) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Do you really want to delete this game?");
+        builder.setPositiveButton("Ok", (dialog, id) -> {
+            try {
+                deleteSingleGame(indexToDelete);
+            } catch (JsonProcessingException jsonProcessingException) {
+                showToast("An error occurred while trying to delete this game");
+            }
+        });
+        builder.setNegativeButton("Cancel", (dialog, id) -> {
+            // User cancelled the dialog
+        });
+        return builder.create();
+    }
+
+    private Dialog createFinishGameDialog(String gameId) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Do you want to resume your last game?");
+        builder.setPositiveButton("Ok", (dialog, id) -> {
+            enterGame(gameId);
+        });
+        builder.setNegativeButton("Cancel", (dialog, id) -> {
+            // User cancelled the dialog
+        });
+        return builder.create();
+    }
+
+    private void enterGame(String gameId) {
+        WebSocketClient client = WebSocketClient.getInstance(Helper.getUniquePlayerName(LobbyActivity.this));
+        client.joinGame(gameId).subscribe();
+        Intent intent = new Intent(this, BoardView.class);
+        startActivity(intent);
     }
 
     @Override

@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 
+import at.aau.se2.chessify.Game;
 import at.aau.se2.chessify.R;
 import at.aau.se2.chessify.chessLogic.board.ChessBoard;
 import at.aau.se2.chessify.chessLogic.board.Location;
@@ -108,6 +109,11 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         client = WebSocketClient.getInstance(Helper.getUniquePlayerName(this));
 
         gameId = Helper.getGameId(this);
+        try {
+            Helper.addGameIfNotExists(this, new Game(new PlayerDTO("test"), gameId, Game.STATUS_RUNNING));
+        } catch (JsonProcessingException jsonProcessingException) {
+            // unhandled
+        }
         playerName = Helper.getUniquePlayerName(this);
         textView_gameId.setText("#".concat(gameId));
 

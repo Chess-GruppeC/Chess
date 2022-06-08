@@ -4,29 +4,22 @@ import at.aau.se2.chessify.network.dto.PlayerDTO;
 
 public class Game {
 
+    public Game() {
+        // empty constructor for JSON conversion
+    }
+
     private PlayerDTO opponent;
     private String gameId;
-    private String status;
+    private int status;
 
-    public static final Integer STATUS_FINISHED = 1;
-    public static final Integer STATUS_RUNNING = 0;
+    public static final int DEFAULT = -1;
+    public static final int STATUS_RUNNING = 0;
+    public static final int STATUS_FINISHED = 1;
 
-    public Game(PlayerDTO opponent, String gameId, Integer status) {
+    public Game(PlayerDTO opponent, String gameId, int status) {
         this.opponent = opponent;
         this.gameId = gameId;
-        String statusStr;
-        switch (status) {
-            case 0:
-                statusStr = "Running";
-                break;
-            case 1:
-                statusStr = "Finished";
-                break;
-            default:
-                statusStr = "Unknown state";
-                break;
-        }
-        this.status = statusStr;
+        this.status = status;
     }
 
     public PlayerDTO getOpponent() {
@@ -45,11 +38,11 @@ public class Game {
         this.gameId = gameId;
     }
 
-    public String getStatus() {
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 }
