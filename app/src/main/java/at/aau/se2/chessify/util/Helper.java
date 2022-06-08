@@ -211,7 +211,7 @@ public class Helper {
         return games;
     }
 
-    private static void writeGamesList(Context context, List<Game> games) throws JsonProcessingException {
+    public static void writeGamesList(Context context, List<Game> games) throws JsonProcessingException {
         String gamesJsonStr = objectMapper.writeValueAsString(games);
         getSharedPreferences(context).edit().putString("GAMES_LIST", gamesJsonStr).apply();
     }

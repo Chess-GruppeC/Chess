@@ -1,5 +1,6 @@
 package at.aau.se2.chessify;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -18,9 +19,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -65,6 +68,11 @@ public class LobbyActivity extends AppCompatActivity {
     private ListView gamesList;
     private GamesAdapter gamesAdapter;
 
+    float offsetX = 0, offsetY = 0;
+    float startX, startY;
+    float startXArrow, startYArrow;
+
+    int arrowState = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,6 +129,7 @@ public class LobbyActivity extends AppCompatActivity {
             }
         });
 
+
         String gameId = Helper.getGameId(this);
         if (gameId != null) {
             Dialog dialog = createFinishGameDialog(gameId);
@@ -133,6 +142,59 @@ public class LobbyActivity extends AppCompatActivity {
         gamesList = (ListView) listView.findViewById(R.id.games_list_view);
         drawerLayout = findViewById(R.id.my_drawer_layout);
         navigationView = findViewById(R.id.games_list);
+        ImageView arrow = findViewById(R.id.arrow_swipe);
+
+        drawerLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                startX = navigationView.getX();
+                startY = navigationView.getY();
+                startXArrow = arrow.getX();
+                startYArrow = arrow.getY();
+                drawerLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+            }
+        });
+
+        navigationView.getViewTreeObserver().addOnDrawListener(new ViewTreeObserver.OnDrawListener() {
+            @Override
+            public void onDraw() {
+                offsetX = navigationView.getX() - startX;
+                offsetY = navigationView.getY() - startY;
+                arrow.setX(startXArrow + offsetX);
+                arrow.setY(startYArrow + offsetY);
+
+                if (arrowState == 1 && arrow.getX() <= startXArrow + 50) {
+                    arrow.animate().rotation(0).setDuration(300).start();
+                    arrowState = 0;
+                }
+
+            }
+        });
+
+        arrow.setOnClickListener((view -> drawerLayout.openDrawer(Gravity.LEFT)));
+
+        drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
+                // not implemented
+            }
+
+            @Override
+            public void onDrawerOpened(@NonNull View drawerView) {
+                arrow.animate().rotation(180).setDuration(300).start();
+                arrowState = 1;
+            }
+
+            @Override
+            public void onDrawerClosed(@NonNull View drawerView) {
+                // not implemented
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+                // not implemented
+            }
+        });
 
         View listHeader = li.inflate(R.layout.listview_header, null);
         ImageView delete = listHeader.findViewById(R.id.icon_delete);
