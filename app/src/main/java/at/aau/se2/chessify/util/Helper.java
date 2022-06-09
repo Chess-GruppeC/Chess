@@ -203,7 +203,7 @@ public class Helper {
             return;
         }
 
-        games.add(game);
+        games.add(0, game);
         writeGamesList(context, games);
     }
 
