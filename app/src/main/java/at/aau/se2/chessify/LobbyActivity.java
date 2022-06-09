@@ -319,8 +319,7 @@ public class LobbyActivity extends AppCompatActivity {
     public void getToMainActivity() {
         //Intent intentgetBack = new Intent(this, MainActivity.class);
         //startActivity(intentgetBack);
-//        onBackPressed();
-        drawerLayout.openDrawer(Gravity.LEFT);
+        onBackPressed();
     }
 
     public void startDiceActivity() {
@@ -382,9 +381,9 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     private void showNetworkError() {
-        showToast("Network error. Trying to connect..");
-        WebSocketClient.reconnectWithPlayerName(Helper.getUniquePlayerName(getBaseContext()));
-        webSocketClient = WebSocketClient.getInstance(Helper.getUniquePlayerName(getBaseContext()));
+        showToast("Network error");
+//        WebSocketClient.reconnectWithPlayerName(Helper.getUniquePlayerName(getBaseContext()));
+//        webSocketClient = WebSocketClient.getInstance(Helper.getUniquePlayerName(getBaseContext()));
     }
 
     @Override
@@ -409,6 +408,13 @@ public class LobbyActivity extends AppCompatActivity {
             CreateGame.setBackground(getDrawable(R.drawable.custom_button2));
             btnStartGame.setBackground(getDrawable(R.drawable.custom_button2));
             JoinGame.setBackground(getDrawable(R.drawable.custom_button2));
+        }
+
+        try {
+            List<Game> updatedList = Helper.getGameList(this);
+            gamesAdapter.updateAdapter(updatedList);
+        } catch (JsonProcessingException jsonProcessingException) {
+            // unhandled
         }
     }
 
@@ -480,8 +486,7 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     private void enterGame(String gameId) {
-        WebSocketClient client = WebSocketClient.getInstance(Helper.getUniquePlayerName(LobbyActivity.this));
-        client.joinGame(gameId).subscribe();
+        webSocketClient.joinGame(gameId).subscribe();
         Intent intent = new Intent(this, BoardView.class);
         startActivity(intent);
     }

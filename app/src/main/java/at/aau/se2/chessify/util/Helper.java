@@ -16,13 +16,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 import at.aau.se2.chessify.Game;
-import at.aau.se2.chessify.LobbyActivity;
 import at.aau.se2.chessify.R;
 import at.aau.se2.chessify.chessLogic.pieces.PieceColour;
+import at.aau.se2.chessify.network.dto.PlayerDTO;
 
 public class Helper {
 
-    private static ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static SharedPreferences getSharedPreferences(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context);
@@ -244,5 +244,15 @@ public class Helper {
 
         return objectMapper.readValue(gamesListJsonStr, new TypeReference<List<Game>>() {
         });
+    }
+
+    public static void setOpponent(Context context, PlayerDTO opponent) throws JsonProcessingException {
+        String opponentJsonStr = objectMapper.writeValueAsString(opponent);
+        getSharedPreferences(context).edit().putString("OPPONENT", opponentJsonStr).apply();
+    }
+
+    public static PlayerDTO getOpponent(Context context) throws JsonProcessingException {
+        String opponentJsonStr = getSharedPreferences(context).getString("OPPONENT", null);
+        return objectMapper.readValue(opponentJsonStr, PlayerDTO.class);
     }
 }

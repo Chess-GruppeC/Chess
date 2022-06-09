@@ -6,6 +6,7 @@ import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.app.Dialog;
+import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
@@ -91,6 +92,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
 
     private boolean isAnyPieceSelected;
 
+    private Context baseContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,6 +103,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         textView_gameId = findViewById(R.id.tV_game_id);
         currentPlayerInfo = findViewById(R.id.current_player_info);
 
+        baseContext = getBaseContext();
         colour = Helper.getPlayerColour(this);
 
         initializeBoard();
@@ -109,17 +112,20 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         client = WebSocketClient.getInstance(Helper.getUniquePlayerName(this));
 
         gameId = Helper.getGameId(this);
+
         try {
-            Helper.addGameIfNotExists(this, new Game(new PlayerDTO("test"), gameId, Game.STATUS_RUNNING));
+            PlayerDTO opponent = Helper.getOpponent(baseContext);
+            Helper.addGameIfNotExists(this, new Game(opponent, gameId, Game.STATUS_RUNNING));
         } catch (JsonProcessingException jsonProcessingException) {
             // unhandled
         }
+
         playerName = Helper.getUniquePlayerName(this);
         textView_gameId.setText("#".concat(gameId));
 
         getGameStateDisposable = client.fetchGameState(gameId)
                 .subscribe(lastState -> parseChessBoardAndRefresh(lastState.getPayload()),
-                        throwable -> runOnUiThread(() -> Toast.makeText(getBaseContext(), "An error occurred", Toast.LENGTH_SHORT).show()));
+                        throwable -> runOnUiThread(() -> Toast.makeText(baseContext, "An error occurred", Toast.LENGTH_SHORT).show()));
 
         gameUpdateDisposable = client.receiveGameUpdates(gameId)
                 .subscribe(update -> {
@@ -127,7 +133,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                     refreshSpecialMoveBar();
                     if (!getGameStateDisposable.isDisposed())
                         getGameStateDisposable.dispose();
-                }, throwable -> runOnUiThread(() -> Toast.makeText(getBaseContext(), "An error occurred", Toast.LENGTH_SHORT).show()));
+                }, throwable -> runOnUiThread(() -> Toast.makeText(baseContext, "An error occurred", Toast.LENGTH_SHORT).show()));
 
         SMBCount = findViewById(R.id.textViewSMBCount);
         Soundbutton = findViewById(R.id.btn_sound_BoardView);
@@ -705,7 +711,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                         client.sendGameUpdate(gameId, gameDataJsonString);
                         isAnyPieceSelected = false;
                     } catch (Exception e) {
-                        runOnUiThread(() -> Toast.makeText(getBaseContext(), "An error occurred", Toast.LENGTH_SHORT).show());
+                        runOnUiThread(() -> Toast.makeText(baseContext, "An error occurred", Toast.LENGTH_SHORT).show());
                         destroyedPieceValue = 0;
                     }
 
@@ -838,8 +844,8 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
             displayWinnerNotification();
             try {
                 List<Game> games = Helper.getGameList(this);
-                for (Game g: games) {
-                    if(g.getGameId().equals(Helper.getGameId(this))) {
+                for (Game g : games) {
+                    if (g.getGameId().equals(Helper.getGameId(this))) {
                         g.setStatus(Game.STATUS_FINISHED);
                         break;
                     }
@@ -850,7 +856,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
             }
 
             gameId = null;
-            Helper.setGameId(getBaseContext(), gameId);
+            Helper.setGameId(baseContext, gameId);
         }
     }
 
