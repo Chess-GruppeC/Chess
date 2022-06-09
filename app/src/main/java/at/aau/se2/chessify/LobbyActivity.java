@@ -19,7 +19,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -67,6 +66,8 @@ public class LobbyActivity extends AppCompatActivity {
     private NavigationView navigationView;
     private ListView gamesList;
     private GamesAdapter gamesAdapter;
+    private TextView tVlossCount;
+    private TextView tVwinCount;
 
     float offsetX = 0, offsetY = 0;
     float startX, startY;
@@ -200,6 +201,8 @@ public class LobbyActivity extends AppCompatActivity {
         ImageView delete = listHeader.findViewById(R.id.icon_delete);
         delete.setOnClickListener((view) -> createDeleteGameListDialog().show());
         gamesList.addHeaderView(listHeader, null, false);
+        tVlossCount = listHeader.findViewById(R.id.games_list_statistic_losses);
+        tVwinCount = listHeader.findViewById(R.id.games_list_statistic_winnings);
 
         List<Game> games;
         try {
@@ -233,12 +236,12 @@ public class LobbyActivity extends AppCompatActivity {
 
     private void clearGames(int gameStatusFilter) throws JsonProcessingException {
         List<Game> updatedList = Helper.clearGamesList(this, gameStatusFilter);
-        gamesAdapter.updateAdapter(updatedList);
+        updateGamesList(updatedList);
     }
 
     private void deleteSingleGame(int index) throws JsonProcessingException {
         List<Game> updatedList = Helper.deleteGame(this, index);
-        gamesAdapter.updateAdapter(updatedList);
+        updateGamesList(updatedList);
     }
 
     private View.OnClickListener getJoinGameClickListener() {
@@ -412,10 +415,28 @@ public class LobbyActivity extends AppCompatActivity {
 
         try {
             List<Game> updatedList = Helper.getGameList(this);
-            gamesAdapter.updateAdapter(updatedList);
+            updateGamesList(updatedList);
         } catch (JsonProcessingException jsonProcessingException) {
             // unhandled
         }
+    }
+
+    private void updateGamesList(List<Game> updatedList) throws JsonProcessingException {
+        gamesAdapter.updateAdapter(updatedList);
+        int winCount = 0;
+        int lossCount = 0;
+        for (Game g : updatedList) {
+            if (g.getStatus() != Game.STATUS_RUNNING)
+                if (g.isWinner()) {
+                    winCount++;
+                } else {
+                    lossCount++;
+                }
+        }
+        String lossCountStr = "Lost: " + lossCount;
+        String winCountStr = "Won: " + winCount;
+        tVlossCount.setText(lossCountStr);
+        tVwinCount.setText(winCountStr);
     }
 
     private Dialog createDeleteGameListDialog() {

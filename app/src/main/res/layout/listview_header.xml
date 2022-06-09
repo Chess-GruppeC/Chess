@@ -16,6 +16,30 @@
         app:layout_constraintBottom_toBottomOf="parent"
         />
 
+    <TextView
+        android:id="@+id/games_list_statistic_winnings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:textSize="12sp"
+        android:text="Won: "
+        app:layout_constraintStart_toStartOf="@id/games_list_header"
+        app:layout_constraintTop_toBottomOf="@id/games_list_header"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+    <TextView
+        android:id="@+id/games_list_statistic_losses"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:textSize="12sp"
+        android:text="Lost: "
+        app:layout_constraintEnd_toEndOf="@id/games_list_header"
+        app:layout_constraintTop_toBottomOf="@id/games_list_header"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
     <ImageView
         android:id="@+id/icon_delete"
         android:layout_width="wrap_content"

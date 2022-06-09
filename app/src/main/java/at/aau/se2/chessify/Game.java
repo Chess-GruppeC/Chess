@@ -16,6 +16,8 @@ public class Game {
     public static final int STATUS_RUNNING = 0;
     public static final int STATUS_FINISHED = 1;
 
+    private boolean isWinner = false;
+
     public Game(PlayerDTO opponent, String gameId, int status) {
         this.opponent = opponent;
         this.gameId = gameId;
@@ -44,5 +46,13 @@ public class Game {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public boolean isWinner() {
+        return isWinner;
+    }
+
+    public void setWinner(boolean winner) {
+        isWinner = winner;
     }
 }

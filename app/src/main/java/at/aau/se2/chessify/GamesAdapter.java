@@ -49,7 +49,8 @@ public class GamesAdapter extends BaseAdapter {
                 statusStr = "Running";
                 break;
             case 1:
-                statusStr = "Finished";
+                statusStr = "Finished. ";
+                statusStr += game.isWinner() ? "You won!" : "You lost";
                 break;
             default:
                 statusStr = "Unknown state";

@@ -190,7 +190,10 @@ public class Helper {
     }
 
     public static PieceColour getPlayerColour(Context context) {
-        return PieceColour.valueOf(getSharedPreferences(context).getString("PLAYER_COLOUR", null));
+        String val = getSharedPreferences(context).getString("PLAYER_COLOUR", null);
+        if (val == null)
+            return null;
+        return PieceColour.valueOf(val);
     }
 
     public static void addGameIfNotExists(Context context, Game game) throws JsonProcessingException {
@@ -253,6 +256,8 @@ public class Helper {
 
     public static PlayerDTO getOpponent(Context context) throws JsonProcessingException {
         String opponentJsonStr = getSharedPreferences(context).getString("OPPONENT", null);
+        if (opponentJsonStr == null)
+            return null;
         return objectMapper.readValue(opponentJsonStr, PlayerDTO.class);
     }
 }

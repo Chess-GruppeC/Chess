@@ -840,12 +840,15 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     }
 
     private void displayWinnerIfKingDied() {
-        if (chessBoard.checkWinner() != null) {
+        PieceColour pieceColour;
+        if ((pieceColour = chessBoard.checkWinner()) != null) {
             displayWinnerNotification();
             try {
                 List<Game> games = Helper.getGameList(this);
                 for (Game g : games) {
                     if (g.getGameId().equals(Helper.getGameId(this))) {
+                        boolean winner = pieceColour.equals(colour);
+                        g.setWinner(winner);
                         g.setStatus(Game.STATUS_FINISHED);
                         break;
                     }
