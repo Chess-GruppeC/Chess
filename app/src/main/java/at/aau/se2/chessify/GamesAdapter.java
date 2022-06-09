@@ -37,12 +37,13 @@ public class GamesAdapter extends BaseAdapter {
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
         view = inflater.inflate(R.layout.listview_games_item, null);
-        TextView playerName = (TextView) view.findViewById(R.id.player_name);
+        TextView playerName = view.findViewById(R.id.player_name);
         Game game = games.get(i);
         playerName.setText(game.getOpponent().getName());
-        TextView gameId = (TextView) view.findViewById(R.id.game_id);
-        gameId.setText("#".concat(game.getGameId()));
-        TextView gameState = (TextView) view.findViewById(R.id.game_status);
+        TextView gameId = view.findViewById(R.id.game_id);
+        String gameIdStr = "#" + game.getGameId();
+        gameId.setText(gameIdStr);
+        TextView gameState = view.findViewById(R.id.game_status);
         String statusStr;
         switch (game.getStatus()) {
             case 0:

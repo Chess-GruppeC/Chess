@@ -197,6 +197,9 @@ public class Helper {
     }
 
     public static void addGameIfNotExists(Context context, Game game) throws JsonProcessingException {
+        if (game.getGameId() == null)
+            return;
+
         List<Game> games = getGameList(context);
         Optional<String> gameId = games.stream().map(Game::getGameId).filter(id -> id.equals(game.getGameId())).findFirst();
         if (gameId.isPresent()) {

@@ -9,6 +9,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -121,7 +122,9 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         }
 
         playerName = Helper.getUniquePlayerName(this);
-        textView_gameId.setText("#".concat(gameId));
+        if (gameId != null) {
+            textView_gameId.setText("#".concat(gameId));
+        }
 
         getGameStateDisposable = client.fetchGameState(gameId)
                 .subscribe(lastState -> parseChessBoardAndRefresh(lastState.getPayload()),

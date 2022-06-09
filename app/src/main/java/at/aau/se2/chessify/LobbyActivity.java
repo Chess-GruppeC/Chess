@@ -13,6 +13,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -35,6 +36,7 @@ import android.widget.Toast;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.android.material.navigation.NavigationView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import at.aau.se2.chessify.AndroidGameUI.BoardView;
@@ -137,10 +139,15 @@ public class LobbyActivity extends AppCompatActivity {
             dialog.show();
         }
 
+        int orientation = getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            return; // the following feature is only available in portrait mode
+        }
+
         LayoutInflater li = LayoutInflater.from(this);
         View listView = li.inflate(R.layout.listview_games, null);
 
-        gamesList = (ListView) listView.findViewById(R.id.games_list_view);
+        gamesList = listView.findViewById(R.id.games_list_view);
         drawerLayout = findViewById(R.id.my_drawer_layout);
         navigationView = findViewById(R.id.games_list);
         ImageView arrow = findViewById(R.id.arrow_swipe);
@@ -211,6 +218,9 @@ public class LobbyActivity extends AppCompatActivity {
             TextView headerLabel = listHeader.findViewById(R.id.games_list_header);
             headerLabel.setText("Error parsing data");
             gamesList.addHeaderView(listHeader, null, false);
+            gamesAdapter = new GamesAdapter(getApplicationContext(), new ArrayList<>());
+            gamesList.setAdapter(gamesAdapter);
+            navigationView.addView(listView);
             return;
         }
 
@@ -413,12 +423,16 @@ public class LobbyActivity extends AppCompatActivity {
             JoinGame.setBackground(getDrawable(R.drawable.custom_button2));
         }
 
-        try {
-            List<Game> updatedList = Helper.getGameList(this);
-            updateGamesList(updatedList);
-        } catch (JsonProcessingException jsonProcessingException) {
-            // unhandled
+        int orientation = getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            try {
+                List<Game> updatedList = Helper.getGameList(this);
+                updateGamesList(updatedList);
+            } catch (JsonProcessingException jsonProcessingException) {
+                // unhandled
+            }
         }
+
     }
 
     private void updateGamesList(List<Game> updatedList) throws JsonProcessingException {
