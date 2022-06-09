@@ -1,9 +1,7 @@
 package at.aau.se2.chessify;
 
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -13,8 +11,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import org.w3c.dom.Text;
-
+import at.aau.se2.chessify.network.WebSocketClient;
 import at.aau.se2.chessify.util.Helper;
 
 public class MainActivity extends AppCompatActivity {
@@ -34,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Helper.setBackgroundSound(this, true);
         Helper.playMusicBackground(this);
+
+        WebSocketClient.getInstance(Helper.getUniquePlayerName(this));
 
         play = findViewById(R.id.btn_play);
         exit = findViewById(R.id.btn_exit);
