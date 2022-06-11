@@ -5,6 +5,7 @@ import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.media.MediaPlayer;
@@ -40,6 +41,7 @@ import at.aau.se2.chessify.chessLogic.pieces.Pawn;
 import at.aau.se2.chessify.chessLogic.pieces.PieceColour;
 import at.aau.se2.chessify.chessLogic.pieces.Queen;
 import at.aau.se2.chessify.chessLogic.pieces.Rook;
+import at.aau.se2.chessify.network.LifeCycleObserver;
 import at.aau.se2.chessify.network.WebSocketClient;
 import at.aau.se2.chessify.network.dto.GameDataDTO;
 import at.aau.se2.chessify.network.dto.PlayerDTO;
@@ -95,6 +97,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
 
     private Context baseContext;
 
+    @SuppressLint("CheckResult")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,21 +110,39 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         baseContext = getBaseContext();
         colour = Helper.getPlayerColour(this);
 
+        playerName = Helper.getUniquePlayerName(this);
+
         initializeBoard();
 
         objectMapper = new ObjectMapper();
+
         client = WebSocketClient.getInstance(Helper.getUniquePlayerName(this));
+
+        LifeCycleObserver lifeCycleObserver = new LifeCycleObserver(getBaseContext());
+        lifeCycleObserver.onClientReconnect().subscribe(c -> {
+            c.joinGame(gameId).subscribe(message -> {
+                if (message.getPayload().equals("1")) {
+                    runOnUiThread(() -> {
+                        finish();
+                        overridePendingTransition(0, 0);
+                        startActivity(getIntent());
+                        overridePendingTransition(0, 0);
+                    });
+                }
+            });
+
+        });
+        getLifecycle().addObserver(lifeCycleObserver);
 
         gameId = Helper.getGameId(this);
 
         try {
             PlayerDTO opponent = Helper.getOpponent(baseContext);
-            Helper.addGameIfNotExists(this, new Game(opponent, gameId, Game.STATUS_RUNNING));
+            Helper.addGameIfNotExists(this, new Game(opponent, gameId, Game.STATUS_RUNNING, colour));
         } catch (JsonProcessingException jsonProcessingException) {
             // unhandled
         }
 
-        playerName = Helper.getUniquePlayerName(this);
         if (gameId != null) {
             textView_gameId.setText("#".concat(gameId));
         }

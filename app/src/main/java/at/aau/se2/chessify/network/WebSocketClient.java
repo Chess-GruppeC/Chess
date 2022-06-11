@@ -10,6 +10,7 @@ import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import ua.naiksoftware.stomp.Stomp;
 import ua.naiksoftware.stomp.StompClient;
+import ua.naiksoftware.stomp.dto.LifecycleEvent;
 import ua.naiksoftware.stomp.dto.StompHeader;
 import ua.naiksoftware.stomp.dto.StompMessage;
 
@@ -67,6 +68,7 @@ public class WebSocketClient {
         compositeDisposable.add(mStompClient.topic("/user/queue/game/opponent")
                 .subscribe(response -> forwardResponseTo(response, getOpponentSubject),
                         throwable -> forwardErrorTo(throwable, getOpponentSubject)));
+
 
     }
 
@@ -144,7 +146,6 @@ public class WebSocketClient {
     public static void reconnectWithPlayerName(String newPlayerName) {
         if (mStompClient != null) {
             compositeDisposable.clear();
-            mStompClient.disconnect();
             mStompClient = null;
             INSTANCE = null;
             getInstance(newPlayerName);

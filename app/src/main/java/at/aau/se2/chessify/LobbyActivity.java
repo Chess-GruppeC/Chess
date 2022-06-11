@@ -6,11 +6,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.DefaultLifecycleObserver;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -41,10 +43,11 @@ import java.util.List;
 
 import at.aau.se2.chessify.AndroidGameUI.BoardView;
 import at.aau.se2.chessify.Dice.DiceActivity;
+import at.aau.se2.chessify.network.LifeCycleObserver;
 import at.aau.se2.chessify.network.WebSocketClient;
 import at.aau.se2.chessify.util.Helper;
 
-public class LobbyActivity extends AppCompatActivity {
+public class LobbyActivity extends AppCompatActivity implements DefaultLifecycleObserver {
 
     Button JoinGame;
     Button CreateGame;
@@ -77,6 +80,9 @@ public class LobbyActivity extends AppCompatActivity {
 
     int arrowState = 0;
 
+    private  LifeCycleObserver lifeCycleObserver;
+
+    @SuppressLint("CheckResult")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,7 +101,21 @@ public class LobbyActivity extends AppCompatActivity {
         iconCopy = findViewById(R.id.icon_copy);
         Wallpaper = (ImageView) findViewById(R.id.imageView3);
 
-        webSocketClient = WebSocketClient.getInstance(Helper.getUniquePlayerName(this));
+        String playerName = Helper.getUniquePlayerName(this);
+        webSocketClient = WebSocketClient.getInstance(playerName);
+
+        lifeCycleObserver = new LifeCycleObserver(getBaseContext());
+        lifeCycleObserver.onClientReconnect().subscribe(client -> {
+            // the websockets client has reconnected, restart this activity to guarantee correct functionality
+            runOnUiThread(() -> {
+                finish();
+                overridePendingTransition(0, 0);
+                startActivity(getIntent());
+                overridePendingTransition(0, 0);
+            });
+
+        });
+        getLifecycle().addObserver(lifeCycleObserver);
 
         btnStartGame.setOnClickListener(view -> startDiceActivity());
         CreateGame.setOnClickListener(getCreateGameClickListener());
@@ -230,7 +250,9 @@ public class LobbyActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Game game = (Game) adapterView.getAdapter().getItem(i);
-                Helper.setGameId(getApplicationContext(), game.getGameId());
+                Context baseContext = getBaseContext();
+                Helper.setGameId(baseContext, game.getGameId());
+                Helper.setPlayerColour(baseContext, game.getPieceColour());
                 enterGame(game.getGameId());
             }
         });
@@ -336,6 +358,7 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     public void startDiceActivity() {
+        getLifecycle().removeObserver(lifeCycleObserver);
         Intent intentDiceActivity = new Intent(this, DiceActivity.class);
         startActivity(intentDiceActivity);
 
@@ -395,13 +418,15 @@ public class LobbyActivity extends AppCompatActivity {
 
     private void showNetworkError() {
         showToast("Network error");
-//        WebSocketClient.reconnectWithPlayerName(Helper.getUniquePlayerName(getBaseContext()));
-//        webSocketClient = WebSocketClient.getInstance(Helper.getUniquePlayerName(getBaseContext()));
+//            WebSocketClient.reconnectWithPlayerName(Helper.getUniquePlayerName(getBaseContext()));
+//            webSocketClient = WebSocketClient.getInstance(Helper.getUniquePlayerName(getBaseContext()));
     }
 
     @Override
     public void onResume() {
         super.onResume();
+
+        getLifecycle().addObserver(lifeCycleObserver);
 
         // --> update Soundsymbol
         if (Helper.getBackgroundSound(this)) {
@@ -521,6 +546,7 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     private void enterGame(String gameId) {
+        getLifecycle().removeObserver(lifeCycleObserver);
         webSocketClient.joinGame(gameId).subscribe();
         Intent intent = new Intent(this, BoardView.class);
         startActivity(intent);

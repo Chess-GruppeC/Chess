@@ -1,5 +1,6 @@
 package at.aau.se2.chessify;
 
+import at.aau.se2.chessify.chessLogic.pieces.PieceColour;
 import at.aau.se2.chessify.network.dto.PlayerDTO;
 
 public class Game {
@@ -11,17 +12,18 @@ public class Game {
     private PlayerDTO opponent;
     private String gameId;
     private int status;
+    private boolean isWinner = false;
+    private PieceColour pieceColour;
 
     public static final int DEFAULT = -1;
     public static final int STATUS_RUNNING = 0;
     public static final int STATUS_FINISHED = 1;
 
-    private boolean isWinner = false;
-
-    public Game(PlayerDTO opponent, String gameId, int status) {
+    public Game(PlayerDTO opponent, String gameId, int status, PieceColour pieceColour) {
         this.opponent = opponent;
         this.gameId = gameId;
         this.status = status;
+        this.pieceColour = pieceColour;
     }
 
     public PlayerDTO getOpponent() {
@@ -54,5 +56,9 @@ public class Game {
 
     public void setWinner(boolean winner) {
         isWinner = winner;
+    }
+
+    public PieceColour getPieceColour() {
+        return pieceColour;
     }
 }
