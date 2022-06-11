@@ -461,6 +461,8 @@ public class LobbyActivity extends AppCompatActivity implements DefaultLifecycle
     }
 
     private void updateGamesList(List<Game> updatedList) throws JsonProcessingException {
+        if (gamesAdapter == null)
+            return;
         gamesAdapter.updateAdapter(updatedList);
         int winCount = 0;
         int lossCount = 0;
