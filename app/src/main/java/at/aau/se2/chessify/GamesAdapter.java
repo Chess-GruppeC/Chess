@@ -35,8 +35,13 @@ public class GamesAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int i, View view, ViewGroup viewGroup) {
-        view = inflater.inflate(R.layout.listview_games_item, null);
+    public View getView(int i, View v, ViewGroup viewGroup) {
+
+        if (v == null) {
+            v = inflater.inflate(R.layout.listview_games_item, null);
+        }
+
+        View view = v;
         TextView playerName = view.findViewById(R.id.player_name);
         Game game = games.get(i);
         playerName.setText(game.getOpponent().getName());
