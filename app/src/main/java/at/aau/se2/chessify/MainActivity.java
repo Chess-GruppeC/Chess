@@ -1,13 +1,17 @@
 package at.aau.se2.chessify;
 
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -22,7 +26,12 @@ public class MainActivity extends AppCompatActivity {
     private TextView displayPlayername;
     ImageView Wallpaper;
     TextView Heading;
+    private WebSocketClient webSocketClient;
 
+    private ProgressDialog connectingToServerDialog;
+    private boolean tryingToConnect;
+    private Handler handler;
+    private boolean loading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,8 +41,6 @@ public class MainActivity extends AppCompatActivity {
         Helper.setBackgroundSound(this, true);
         Helper.playMusicBackground(this);
 
-        WebSocketClient.getInstance(Helper.getUniquePlayerName(this));
-
         play = findViewById(R.id.btn_play);
         exit = findViewById(R.id.btn_exit);
         settings = findViewById(R.id.btn_settings);
@@ -41,7 +48,6 @@ public class MainActivity extends AppCompatActivity {
         displayPlayername = findViewById(R.id.TextViewPlayerName);
         Wallpaper = (ImageView) findViewById(R.id.imageView2);
         Heading = findViewById(R.id.textview_welcome);
-
 
         play.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,11 +83,40 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        connectingToServerDialog = new ProgressDialog(this);
+        connectingToServerDialog.setMessage("Connecting to server..");
+        connectingToServerDialog.setTitle("Please wait");
+        connectingToServerDialog.setIndeterminate(false);
+        connectingToServerDialog.setCancelable(false);
+
+        handler = new Handler(Looper.getMainLooper());
     }
 
     public void play() {
-        Intent intent = new Intent(this, LobbyActivity.class);
-        startActivity(intent);
+
+        connectingToServerDialog.show();
+        tryingToConnect = true;
+        handler.removeCallbacksAndMessages(null);
+        handler.postDelayed(() -> {
+            tryingToConnect = false;
+            loading = false;
+            Toast.makeText(MainActivity.this, "Connection timeout", Toast.LENGTH_SHORT).show();
+        }, 10000);
+
+        if (!loading) {
+            new Thread(() -> {
+                loading = true;
+                Intent intent = new Intent(this, LobbyActivity.class);
+                webSocketClient = WebSocketClient.getInstance(Helper.getUniquePlayerName(getBaseContext()));
+                while (tryingToConnect && !webSocketClient.isConnected()) ;
+                connectingToServerDialog.cancel();
+                handler.removeCallbacksAndMessages(null);
+                if (tryingToConnect)
+                    startActivity(intent);
+                loading = false;
+            }).start();
+        }
+
     }
 
     public void closeApp() {
