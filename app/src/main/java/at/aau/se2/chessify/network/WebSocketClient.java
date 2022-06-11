@@ -1,5 +1,7 @@
 package at.aau.se2.chessify.network;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +32,7 @@ public class WebSocketClient {
     private static WebSocketClient INSTANCE;
     private static String playerName;
 
+    private static boolean error = false;
 
     private WebSocketClient(String name) {
         playerName = name;
@@ -38,7 +41,7 @@ public class WebSocketClient {
     }
 
     public static WebSocketClient getInstance(String playerName) {
-        if (INSTANCE == null) {
+        if (INSTANCE == null || error) {
             INSTANCE = new WebSocketClient(playerName);
         }
         return INSTANCE;
@@ -49,6 +52,17 @@ public class WebSocketClient {
         headers.add(new StompHeader("username", playerName));
         mStompClient = Stomp.over(Stomp.ConnectionProvider.JWS, getURI());
         mStompClient.connect(headers);
+
+        compositeDisposable.add(mStompClient.lifecycle().subscribe(lifecycleEvent -> {
+            switch (lifecycleEvent.getType()) {
+                case OPENED:
+                    error = false;
+                    break;
+                case ERROR:
+                    error = true;
+                    break;
+            }
+        }));
     }
 
     public String getURI() {
