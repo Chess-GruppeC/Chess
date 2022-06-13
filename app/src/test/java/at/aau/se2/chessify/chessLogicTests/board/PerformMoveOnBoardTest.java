@@ -9,7 +9,11 @@ import at.aau.se2.chessify.chessLogic.board.Location;
 import at.aau.se2.chessify.chessLogic.board.Move;
 import at.aau.se2.chessify.chessLogic.pieces.Bishop;
 import at.aau.se2.chessify.chessLogic.pieces.ChessPiece;
+import at.aau.se2.chessify.chessLogic.pieces.Knight;
+import at.aau.se2.chessify.chessLogic.pieces.Pawn;
 import at.aau.se2.chessify.chessLogic.pieces.PieceColour;
+import at.aau.se2.chessify.chessLogic.pieces.Queen;
+import at.aau.se2.chessify.chessLogic.pieces.Rook;
 
 public class PerformMoveOnBoardTest {
 
@@ -148,6 +152,57 @@ public class PerformMoveOnBoardTest {
     public void testIsWithinBounds6() {
         ChessBoard chessBoard = new ChessBoard();
         assertFalse(chessBoard.isWithinBounds(new Location(1, -1)));
+    }
+
+    @Test
+    public void testTransformationAfterMove(){
+        ChessBoard chessBoard = new ChessBoard();
+        ChessPiece[][] manuallyGeneratedBoard = setupTransformationTest();
+        chessBoard.setGameBoard(manuallyGeneratedBoard);
+
+        ChessPiece[][] manuallyGeneratedResultBoard = setupTransformationTestResult();
+
+        Move move = new Move (new Location(1,3),new Location(0,3));
+        chessBoard.performMoveOnBoard(move);
+        move = new Move (new Location(6,3),new Location(7,3));
+        chessBoard.performMoveOnBoard(move);
+
+        for(int i=0; i<8; i++){
+            for(int j=0; j<8; j++){
+                Location loc = new Location(i,j);
+                if(chessBoard.getPieceAtLocation(loc)!=null) {
+                    assertEquals(chessBoard.getPieceAtLocation(loc).getClass(),
+                            manuallyGeneratedResultBoard[i][j].getClass());
+                    assertEquals(chessBoard.getPieceAtLocation(loc).getColour(),
+                            manuallyGeneratedResultBoard[i][j].getColour());
+                }
+            }
+        }
+
+    }
+
+    public ChessPiece[][] setupTransformationTest(){
+        ChessPiece[][] manuallyGeneratedBoard = new ChessPiece[8][8];
+
+        manuallyGeneratedBoard[1][3]=new Pawn(PieceColour.WHITE);
+        manuallyGeneratedBoard[0][2]=new Knight(PieceColour.BLACK);
+
+        manuallyGeneratedBoard[6][3]=new Pawn(PieceColour.BLACK);
+        manuallyGeneratedBoard[7][2]=new Rook(PieceColour.WHITE);
+
+        return manuallyGeneratedBoard;
+    }
+
+    public ChessPiece[][] setupTransformationTestResult(){
+        ChessPiece[][] manuallyGeneratedResultBoard = new ChessPiece[8][8];
+
+        manuallyGeneratedResultBoard[0][3]=new Queen(PieceColour.WHITE);
+        manuallyGeneratedResultBoard[0][2]=new Knight(PieceColour.BLACK);
+
+        manuallyGeneratedResultBoard[7][3]=new Queen(PieceColour.BLACK);
+        manuallyGeneratedResultBoard[7][2]=new Rook(PieceColour.WHITE);
+
+        return manuallyGeneratedResultBoard;
     }
 
 }
