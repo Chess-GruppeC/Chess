@@ -5,7 +5,7 @@ import at.aau.se2.chessify.chessLogic.board.Location;
 
 import java.util.ArrayList;
 
-public class King extends ChessPiece{
+public class King extends ChessPiece implements ChessMoveInterface{
 
     public King() {}
 
@@ -26,18 +26,8 @@ public class King extends ChessPiece{
         for(int i=-1; i<=1; i++){
             for(int j=-1; j<=1; j++){
                 if(board.isWithinBounds(row+i,column+j)){
-
-                    if(board.getPieceAtLocation(new Location(row+i, column+j))==null) {    //if empty space, add move option to legal moves
-                        legalMoveTargetList.add(new Location(row+i, column+j));
-                    }else
-                        //don't need that middle part because nothing happens, can just leave it out cause else-if
-                    /*if(board.getPieceAtLocation(new Location(i, j)).getColour()==this.getColour()){
-                                                                         //if space is occupied from friendly piece, don't add
-                    }else*/
-                    if(board.getPieceAtLocation(new Location(row+i, column+j)).getColour()!=this.getColour()){
-                        legalMoveTargetList.add(new Location(row+i, column+j));
-                                                                         //if space is occupied from enemy piece, give option to take
-                    }
+                    Location loc = new Location(row+i,column+j);
+                    addMovesToLegalMoveListBasicParameters(legalMoveTargetList, loc, board, this);
 
                 }
             }
