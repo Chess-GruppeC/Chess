@@ -104,7 +104,7 @@ public class ChessBoard {
             if(getLocationOf(piece).getRow()==0){
                 performPawnQueenSwap(piece);
             }
-        }
+        }else
         if(getLocationOf(piece).getRow()==7){
             performPawnQueenSwap(piece);
         }
@@ -157,7 +157,9 @@ public class ChessBoard {
     public void setLocationTo(ChessPiece piece, Location targetLocation){
         Location originLocation = this.getLocationOf(piece);
         gameBoard[targetLocation.getRow()][targetLocation.getColumn()]=piece;
-        gameBoard[originLocation.getRow()][originLocation.getColumn()]=null;
+        if(originLocation!=null) {
+            gameBoard[originLocation.getRow()][originLocation.getColumn()] = null;
+        }
     }
 
     public ChessPiece getPieceAtLocation(Location location){
