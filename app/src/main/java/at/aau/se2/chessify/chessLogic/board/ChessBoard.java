@@ -84,12 +84,35 @@ public class ChessBoard {
                 if(getPieceAtLocation(move.getTo())!=null){
                     takenPieceValue=getPieceAtLocation(move.getTo()).getPieceValue();
                 }
-                setLocationTo(getPieceAtLocation(move.getFrom()), move.getTo());
+                setLocationTo(movingPiece, move.getTo());
                 movingPiece.setMoved(true);
+                checkForPawnTransformation(movingPiece);
                 return takenPieceValue;
             }
         }
         throw new IllegalArgumentException("Please perform a legal move");
+    }
+
+    public void checkForPawnTransformation(ChessPiece piece){
+        if(piece.getClass()==Pawn.class){
+            checkPawnForTransformationLocation(piece);
+        }
+    }
+
+    public void checkPawnForTransformationLocation (ChessPiece piece){
+        if(piece.getColour()==PieceColour.WHITE){
+            if(getLocationOf(piece).getRow()==0){
+                performPawnQueenSwap(piece);
+            }
+        }
+        if(getLocationOf(piece).getRow()==7){
+            performPawnQueenSwap(piece);
+        }
+    }
+
+    public void performPawnQueenSwap(ChessPiece piece){
+        Queen transformedPiece = new Queen(piece.getColour());
+        setLocationTo(transformedPiece, getLocationOf(piece));
     }
 
     public List<Location> performAtomicMove(Move move) {
