@@ -162,7 +162,22 @@ public class PerformMoveOnBoardTest {
 
         ChessPiece[][] manuallyGeneratedResultBoard = setupTransformationTestResult();
 
+        Move move = new Move (new Location(1,3),new Location(0,3));
+        chessBoard.performMoveOnBoard(move);
+        move = new Move (new Location(6,3),new Location(7,3));
+        chessBoard.performMoveOnBoard(move);
 
+        for(int i=0; i<8; i++){
+            for(int j=0; j<8; j++){
+                Location loc = new Location(i,j);
+                if(chessBoard.getPieceAtLocation(loc)!=null) {
+                    assertEquals(chessBoard.getPieceAtLocation(loc).getClass(),
+                            manuallyGeneratedResultBoard[i][j].getClass());
+                    assertEquals(chessBoard.getPieceAtLocation(loc).getColour(),
+                            manuallyGeneratedResultBoard[i][j].getColour());
+                }
+            }
+        }
 
     }
 
@@ -172,8 +187,8 @@ public class PerformMoveOnBoardTest {
         manuallyGeneratedBoard[1][3]=new Pawn(PieceColour.WHITE);
         manuallyGeneratedBoard[0][2]=new Knight(PieceColour.BLACK);
 
-        manuallyGeneratedBoard[6][3]=new Pawn(PieceColour.WHITE);
-        manuallyGeneratedBoard[7][2]=new Rook(PieceColour.BLACK);
+        manuallyGeneratedBoard[6][3]=new Pawn(PieceColour.BLACK);
+        manuallyGeneratedBoard[7][2]=new Rook(PieceColour.WHITE);
 
         return manuallyGeneratedBoard;
     }
@@ -184,8 +199,8 @@ public class PerformMoveOnBoardTest {
         manuallyGeneratedResultBoard[0][3]=new Queen(PieceColour.WHITE);
         manuallyGeneratedResultBoard[0][2]=new Knight(PieceColour.BLACK);
 
-        manuallyGeneratedResultBoard[7][3]=new Queen(PieceColour.WHITE);
-        manuallyGeneratedResultBoard[7][2]=new Rook(PieceColour.BLACK);
+        manuallyGeneratedResultBoard[7][3]=new Queen(PieceColour.BLACK);
+        manuallyGeneratedResultBoard[7][2]=new Rook(PieceColour.WHITE);
 
         return manuallyGeneratedResultBoard;
     }
