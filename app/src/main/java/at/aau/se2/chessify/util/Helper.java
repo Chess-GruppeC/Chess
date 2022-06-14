@@ -263,4 +263,22 @@ public class Helper {
             return null;
         return objectMapper.readValue(opponentJsonStr, PlayerDTO.class);
     }
+
+    public static int getWinCount(Context context) {
+        return getSharedPreferences(context).getInt("WIN_COUNT", 0);
+    }
+
+    public static void incrementWinCount(Context context) {
+        int winCount = getWinCount(context);
+        getSharedPreferences(context).edit().putInt("WIN_COUNT", ++winCount).apply();
+    }
+
+    public static int getLossCount(Context context) {
+        return getSharedPreferences(context).getInt("LOSS_COUNT", 0);
+    }
+
+    public static void incrementLossCount(Context context) {
+        int lossCount = getLossCount(context);
+        getSharedPreferences(context).edit().putInt("LOSS_COUNT", ++lossCount).apply();
+    }
 }

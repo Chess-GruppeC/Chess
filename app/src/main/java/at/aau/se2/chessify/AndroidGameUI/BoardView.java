@@ -871,8 +871,15 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                 List<Game> games = Helper.getGameList(this);
                 for (Game g : games) {
                     if (g.getGameId().equals(Helper.getGameId(this))) {
-                        boolean winner = pieceColour.equals(colour);
-                        g.setWinner(winner);
+                        if (g.getStatus() != Game.STATUS_FINISHED) {
+                            if (pieceColour.equals(colour)) {
+                                g.setWinner(true);
+                                Helper.incrementWinCount(this);
+                            } else {
+                                g.setWinner(false);
+                                Helper.incrementLossCount(this);
+                            }
+                        }
                         g.setStatus(Game.STATUS_FINISHED);
                         break;
                     }

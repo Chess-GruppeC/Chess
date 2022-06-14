@@ -464,20 +464,10 @@ public class LobbyActivity extends AppCompatActivity implements DefaultLifecycle
         if (gamesAdapter == null)
             return;
         gamesAdapter.updateAdapter(updatedList);
-        int winCount = 0;
-        int lossCount = 0;
-        for (Game g : updatedList) {
-            if (g.getStatus() != Game.STATUS_RUNNING)
-                if (g.isWinner()) {
-                    winCount++;
-                } else {
-                    lossCount++;
-                }
-        }
-        String lossCountStr = "Lost: " + lossCount;
-        String winCountStr = "Won: " + winCount;
-        tVlossCount.setText(lossCountStr);
-        tVwinCount.setText(winCountStr);
+        String winCount = "Won: " + Helper.getWinCount(this);
+        String lossCount = "Lost: " + Helper.getLossCount(this);
+        tVlossCount.setText(lossCount);
+        tVwinCount.setText(winCount);
     }
 
     private Dialog createDeleteGameListDialog() {
