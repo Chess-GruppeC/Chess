@@ -5,7 +5,9 @@ import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
@@ -26,6 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 
+import at.aau.se2.chessify.Game;
 import at.aau.se2.chessify.R;
 import at.aau.se2.chessify.chessLogic.board.ChessBoard;
 import at.aau.se2.chessify.chessLogic.board.Location;
@@ -38,6 +41,7 @@ import at.aau.se2.chessify.chessLogic.pieces.Pawn;
 import at.aau.se2.chessify.chessLogic.pieces.PieceColour;
 import at.aau.se2.chessify.chessLogic.pieces.Queen;
 import at.aau.se2.chessify.chessLogic.pieces.Rook;
+import at.aau.se2.chessify.network.LifeCycleObserver;
 import at.aau.se2.chessify.network.WebSocketClient;
 import at.aau.se2.chessify.network.dto.GameDataDTO;
 import at.aau.se2.chessify.network.dto.PlayerDTO;
@@ -87,6 +91,13 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     private MediaPlayer PieceCaptured;
     private MediaPlayer PieceMoved;
 
+    private PieceColour colour;
+
+    private boolean isAnyPieceSelected;
+
+    private Context baseContext;
+
+    @SuppressLint("CheckResult")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,18 +107,49 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         textView_gameId = findViewById(R.id.tV_game_id);
         currentPlayerInfo = findViewById(R.id.current_player_info);
 
+        baseContext = getBaseContext();
+        colour = Helper.getPlayerColour(this);
+
+        playerName = Helper.getUniquePlayerName(this);
+
         initializeBoard();
 
         objectMapper = new ObjectMapper();
+
         client = WebSocketClient.getInstance(Helper.getUniquePlayerName(this));
 
+        LifeCycleObserver lifeCycleObserver = new LifeCycleObserver(getBaseContext());
+        lifeCycleObserver.onClientReconnect().subscribe(c -> {
+            c.joinGame(gameId).subscribe(message -> {
+                if (message.getPayload().equals("1")) {
+                    runOnUiThread(() -> {
+                        finish();
+                        overridePendingTransition(0, 0);
+                        startActivity(getIntent());
+                        overridePendingTransition(0, 0);
+                    });
+                }
+            });
+
+        });
+        getLifecycle().addObserver(lifeCycleObserver);
+
         gameId = Helper.getGameId(this);
-        playerName = Helper.getUniquePlayerName(this);
-        textView_gameId.setText("#".concat(gameId));
+
+        try {
+            PlayerDTO opponent = Helper.getOpponent(baseContext);
+            Helper.addGameIfNotExists(this, new Game(opponent, gameId, Game.STATUS_RUNNING, colour));
+        } catch (JsonProcessingException jsonProcessingException) {
+            // unhandled
+        }
+
+        if (gameId != null) {
+            textView_gameId.setText("#".concat(gameId));
+        }
 
         getGameStateDisposable = client.fetchGameState(gameId)
                 .subscribe(lastState -> parseChessBoardAndRefresh(lastState.getPayload()),
-                        throwable -> runOnUiThread(() -> Toast.makeText(getBaseContext(), "An error occurred", Toast.LENGTH_SHORT).show()));
+                        throwable -> runOnUiThread(() -> Toast.makeText(baseContext, "An error occurred", Toast.LENGTH_SHORT).show()));
 
         gameUpdateDisposable = client.receiveGameUpdates(gameId)
                 .subscribe(update -> {
@@ -115,7 +157,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                     refreshSpecialMoveBar();
                     if (!getGameStateDisposable.isDisposed())
                         getGameStateDisposable.dispose();
-                }, throwable -> runOnUiThread(() -> Toast.makeText(getBaseContext(), "An error occurred", Toast.LENGTH_SHORT).show()));
+                }, throwable -> runOnUiThread(() -> Toast.makeText(baseContext, "An error occurred", Toast.LENGTH_SHORT).show()));
 
         SMBCount = findViewById(R.id.textViewSMBCount);
         Soundbutton = findViewById(R.id.btn_sound_BoardView);
@@ -646,6 +688,12 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                 isPieceSelected = true;
             }
         }
+
+        if (selectedPiece.getColour() != colour) {
+            return;
+        }
+
+
         /*
         if (selectedPiece != null) {
             isPieceSelected = true;
@@ -663,13 +711,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
             }
              */
         if (isPieceSelected) {
-            resetColour();
-            BoardViewBackground[onClickedPosition.getRow()][onClickedPosition.getColumn()].setBackgroundResource(R.color.select);
-            legalMoveList = selectedPiece.getLegalMoves(chessBoard);
-            for (Location loc : legalMoveList) {
-                BoardViewBackground[loc.getRow()][loc.getColumn()].setBackgroundResource(R.color.highlight_moves);
-            }
-            isPieceSelected = false;
+            showLegalMoves();
         } else {
             for (Location loc : legalMoveList) {
                 if (loc.compareLocation(onClickedPosition)) {
@@ -678,7 +720,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                     try {
                         ChessBoard copyOfChessBoard = chessBoard.copy();
                         List<Location> destroyedLocations = null;
-                        if(!specialMoveActivated) {
+                        if (!specialMoveActivated) {
                             destroyedPieceValue = copyOfChessBoard.performMoveOnBoard(move);
                         } else {
                             destroyedLocations = copyOfChessBoard.performAtomicMove(move);
@@ -691,8 +733,9 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                         data.setDestroyedLocationsByAtomicMove(destroyedLocations);
                         String gameDataJsonString = objectMapper.writeValueAsString(data);
                         client.sendGameUpdate(gameId, gameDataJsonString);
+                        isAnyPieceSelected = false;
                     } catch (Exception e) {
-                        runOnUiThread(() -> Toast.makeText(getBaseContext(), "An error occurred", Toast.LENGTH_SHORT).show());
+                        runOnUiThread(() -> Toast.makeText(baseContext, "An error occurred", Toast.LENGTH_SHORT).show());
                         destroyedPieceValue = 0;
                     }
 
@@ -702,6 +745,17 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
             legalMoveList = new ArrayList<>();
         }
 
+    }
+
+    private void showLegalMoves() {
+        resetColour();
+        isAnyPieceSelected = true;
+        BoardViewBackground[onClickedPosition.getRow()][onClickedPosition.getColumn()].setBackgroundResource(R.color.select);
+        legalMoveList = selectedPiece.getLegalMoves(chessBoard);
+        for (Location loc : legalMoveList) {
+            BoardViewBackground[loc.getRow()][loc.getColumn()].setBackgroundResource(R.color.highlight_moves);
+        }
+        isPieceSelected = false;
     }
 
     //method:
@@ -740,7 +794,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     }
 
     private void animateAtomicHits(List<Location> destroyedLocations) {
-        if(destroyedLocations == null) {
+        if (destroyedLocations == null) {
             return;
         }
         AnimatorSet animationSet = new AnimatorSet();
@@ -776,7 +830,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         if (gameData.getData() != null) {
             chessBoard = objectMapper.convertValue(gameData.getData(), ChessBoard.class);
         }
-        nextPlayer = gameData.getNextPlayer();     // TODO Show on UI
+        nextPlayer = gameData.getNextPlayer();
         List<Location> atomicHits = gameData.getDestroyedLocationsByAtomicMove();
         /*runOnUiThread(() -> {
             initializePieces();
@@ -786,7 +840,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                 displayWinnerIfKingDied();
             }
         });*/
-        runOnUiThread(new Runnable(){
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 initializePieces();
@@ -794,21 +848,46 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                 showCurrentPlayerInfo(nextPlayer.getName());
                 if (chessBoard != null) {
                     displayWinnerIfKingDied();
+
+                    if (isAnyPieceSelected) {
+                        ChessPiece piece = chessBoard.getPieceAtLocation(onClickedPosition);
+                        if (piece != null && piece.getColour().equals(colour)) {
+                            selectedPiece = piece;
+                            showLegalMoves();
+                        } else {
+                            resetColour();
+                        }
+                    }
                 }
             }
         });
     }
 
     private void displayWinnerIfKingDied() {
-        if(chessBoard.checkWinner()!=null){
+        PieceColour pieceColour;
+        if ((pieceColour = chessBoard.checkWinner()) != null) {
             displayWinnerNotification();
-            gameId=null;
-            Helper.setGameId(getBaseContext(), gameId);
+            try {
+                List<Game> games = Helper.getGameList(this);
+                for (Game g : games) {
+                    if (g.getGameId().equals(Helper.getGameId(this))) {
+                        boolean winner = pieceColour.equals(colour);
+                        g.setWinner(winner);
+                        g.setStatus(Game.STATUS_FINISHED);
+                        break;
+                    }
+                }
+                Helper.writeGamesList(this, games);
+            } catch (Exception e) {
+                // unhandled
+            }
+
+            gameId = null;
+            Helper.setGameId(baseContext, gameId);
         }
     }
 
     private void showCurrentPlayerInfo(String nextPlayerName) {
-        Log.d("PLAYER", "SHow current");
         String currentPlayerInfoStr;
         if (nextPlayerName.equals(playerName)) {
             currentPlayerInfoStr = "Your move";
@@ -859,7 +938,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     }
 
 
-    public void displayWinnerNotification(){
+    public void displayWinnerNotification() {
         final Dialog winnerNotificationWindow = new Dialog(at.aau.se2.chessify.AndroidGameUI.BoardView.this);
         winnerNotificationWindow.requestWindowFeature(Window.FEATURE_NO_TITLE);
         winnerNotificationWindow.setCancelable(true);
@@ -873,14 +952,14 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         winnerNotificationWindow.show();
     }
 
-    public String getNotificationMessage(PieceColour pieceColour){
-        if (pieceColour==PieceColour.BLACK){
+    public String getNotificationMessage(PieceColour pieceColour) {
+        if (pieceColour == PieceColour.BLACK) {
             return "The player with the black pieces won!";
         }
-        if (pieceColour==PieceColour.WHITE){
+        if (pieceColour == PieceColour.WHITE) {
             return "The player with the white pieces won!";
         }
-        if (pieceColour==PieceColour.GREY){
+        if (pieceColour == PieceColour.GREY) {
             return "The game ended in a draw!";
         }
         return "Winning player could not be determined";

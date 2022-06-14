@@ -28,23 +28,9 @@
             </intent-filter>
         </activity>
         <activity
-
-            android:name=".Dice.DiceActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:name=".Dice.DiceActivity" />
         <activity
-            android:name=".AndroidGameUI.BoardView"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:name=".AndroidGameUI.BoardView" />
     </application>
 
 </manifest>

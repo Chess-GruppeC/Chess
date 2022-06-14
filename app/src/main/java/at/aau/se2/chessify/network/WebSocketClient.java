@@ -1,5 +1,7 @@
 package at.aau.se2.chessify.network;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +12,7 @@ import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import ua.naiksoftware.stomp.Stomp;
 import ua.naiksoftware.stomp.StompClient;
+import ua.naiksoftware.stomp.dto.LifecycleEvent;
 import ua.naiksoftware.stomp.dto.StompHeader;
 import ua.naiksoftware.stomp.dto.StompMessage;
 
@@ -29,6 +32,7 @@ public class WebSocketClient {
     private static WebSocketClient INSTANCE;
     private static String playerName;
 
+    private static boolean error = false;
 
     private WebSocketClient(String name) {
         playerName = name;
@@ -37,7 +41,7 @@ public class WebSocketClient {
     }
 
     public static WebSocketClient getInstance(String playerName) {
-        if (INSTANCE == null) {
+        if (INSTANCE == null || error) {
             INSTANCE = new WebSocketClient(playerName);
         }
         return INSTANCE;
@@ -48,6 +52,17 @@ public class WebSocketClient {
         headers.add(new StompHeader("username", playerName));
         mStompClient = Stomp.over(Stomp.ConnectionProvider.JWS, getURI());
         mStompClient.connect(headers);
+
+        compositeDisposable.add(mStompClient.lifecycle().subscribe(lifecycleEvent -> {
+            switch (lifecycleEvent.getType()) {
+                case OPENED:
+                    error = false;
+                    break;
+                case ERROR:
+                    error = true;
+                    break;
+            }
+        }));
     }
 
     public String getURI() {
@@ -67,6 +82,7 @@ public class WebSocketClient {
         compositeDisposable.add(mStompClient.topic("/user/queue/game/opponent")
                 .subscribe(response -> forwardResponseTo(response, getOpponentSubject),
                         throwable -> forwardErrorTo(throwable, getOpponentSubject)));
+
 
     }
 
@@ -144,7 +160,6 @@ public class WebSocketClient {
     public static void reconnectWithPlayerName(String newPlayerName) {
         if (mStompClient != null) {
             compositeDisposable.clear();
-            mStompClient.disconnect();
             mStompClient = null;
             INSTANCE = null;
             getInstance(newPlayerName);
