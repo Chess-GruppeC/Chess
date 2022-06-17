@@ -152,7 +152,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         executeSMB = findViewById(R.id.btn_execute_SMB);
         executeSMB.setVisibility(View.INVISIBLE);
         Helper.setBackgroundSound(this, false);
-        Helper.stopMusicBackground(this);
+        Helper.stopMusicBackground();
 
         SpecialMoveBar();
         smbCount.setText(currentProgress + " | " + specialMoveBar.getMax());
@@ -161,7 +161,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
             if (Helper.getGameSound(this)) {
                 soundButton.setImageResource(R.drawable.volume_off_white);
                 Helper.setGameSound(this, false);
-                Helper.stopGameSound(this);
+                Helper.stopGameSound();
 
             } else {
                 Helper.playGameSound(this);
@@ -722,7 +722,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
 
         if (currentProgress >= specialMoveBar.getMax()) {
             buffer = currentProgress - specialMoveBar.getMax();
-            Helper.playSMB_BarSound(this);
+            Helper.playSmbBarSound(this);
             smb.start();
             executeSMB.setVisibility(View.VISIBLE);
         }
@@ -870,7 +870,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         gameUpdateDisposable.dispose();
         getGameStateDisposable.dispose();
         Helper.setGameSound(this, false);
-        Helper.stopGameSound(this);
+        Helper.stopGameSound();
     }
 
 

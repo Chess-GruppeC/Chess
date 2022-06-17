@@ -23,41 +23,30 @@ import at.aau.se2.chessify.network.dto.PlayerDTO;
 public class Helper {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final String BACKGROUND_SOUND = "Background Sound";
+    private static final String PLAYER = "Player";
+    public static final String PLAYER_ID = "PLAYER_ID";
 
     public static SharedPreferences getSharedPreferences(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context);
     }
 
-    public static SharedPreferences getSharedPreferencesWithContext(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context);
-    }
-
-
     // --> Sound Menu
     public static boolean getBackgroundSound(Context context) {
-        return getSharedPreferences(context).getBoolean("Background Sound", true);
+        return getSharedPreferences(context).getBoolean(BACKGROUND_SOUND, true);
     }
 
     public static void setBackgroundSound(Context context, boolean sound) {
-        getSharedPreferences(context).edit().putBoolean("Background Sound", sound).apply();
-    }
-
-    // --> Sound SBM Bar
-    public static boolean getSMB_BarSound(Context context) {
-        return getSharedPreferences(context).getBoolean("Background Sound", true);
-    }
-
-    public static void setSMB_BarSound(Context context, boolean sound) {
-        getSharedPreferences(context).edit().putBoolean("Background Sound", sound).apply();
+        getSharedPreferences(context).edit().putBoolean(BACKGROUND_SOUND, sound).apply();
     }
 
     // --> Sound Game
     public static boolean getGameSound(Context context) {
-        return getSharedPreferences(context).getBoolean("Background Sound", true);
+        return getSharedPreferences(context).getBoolean(BACKGROUND_SOUND, true);
     }
 
     public static void setGameSound(Context context, boolean sound) {
-        getSharedPreferences(context).edit().putBoolean("Background Sound", sound).apply();
+        getSharedPreferences(context).edit().putBoolean(BACKGROUND_SOUND, sound).apply();
 
     }
 
@@ -83,15 +72,15 @@ public class Helper {
 
     // --> Player Name
     public static String getPlayerName(Context context) {
-        return getSharedPreferences(context).getString("Player", "Name");
+        return getSharedPreferences(context).getString(PLAYER, "Name");
     }
 
     public static void setPlayerName(Context context, String type) {
-        getSharedPreferences(context).edit().putString("Player", type).apply();
+        getSharedPreferences(context).edit().putString(PLAYER, type).apply();
     }
 
     public static String getUniquePlayerName(Context context) {
-        return getSharedPreferences(context).getString("Player", "Name") + "#" + getPlayerId(context);
+        return getSharedPreferences(context).getString(PLAYER, "Name") + "#" + getPlayerId(context);
     }
 
     // --> Player ID
@@ -103,28 +92,15 @@ public class Helper {
         return getSharedPreferences(context).getString("GAME_ID", null);
     }
 
-    static MediaPlayer mediaPlayer_Menu;
-    static MediaPlayer mediaPlayer_Game;
-    static MediaPlayer SMB_Bar;
+    static MediaPlayer mediaPlayerMenu;
+    static MediaPlayer mediaPlayerGame;
+    static MediaPlayer smbBar;
 
     // --> Sound SMB Bar
-    public static void playSMB_BarSound(Activity context) {
+    public static void playSmbBarSound(Activity context) {
         try {
-            SMB_Bar = MediaPlayer.create(context, R.raw.smb_activate);
-            SMB_Bar.start();
-            //SMB_Bar.setLooping(true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void stopSMB_BarSound(Activity context) {
-        try {
-            if (SMB_Bar != null) {
-                SMB_Bar.stop();
-                SMB_Bar.release();
-                SMB_Bar = null;
-            }
+            smbBar = MediaPlayer.create(context, R.raw.smb_activate);
+            smbBar.start();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -133,20 +109,20 @@ public class Helper {
     // --> Sound Menu
     public static void playMusicBackground(Activity context) {
         try {
-            mediaPlayer_Menu = MediaPlayer.create(context, R.raw.backgroundmusic);
-            mediaPlayer_Menu.start();
-            mediaPlayer_Menu.setLooping(true);
+            mediaPlayerMenu = MediaPlayer.create(context, R.raw.backgroundmusic);
+            mediaPlayerMenu.start();
+            mediaPlayerMenu.setLooping(true);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void stopMusicBackground(Activity context) {
+    public static void stopMusicBackground() {
         try {
-            if (mediaPlayer_Menu != null) {
-                mediaPlayer_Menu.stop();
-                mediaPlayer_Menu.release();
-                mediaPlayer_Menu = null;
+            if (mediaPlayerMenu != null) {
+                mediaPlayerMenu.stop();
+                mediaPlayerMenu.release();
+                mediaPlayerMenu = null;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -156,20 +132,20 @@ public class Helper {
     // --> Sound Game
     public static void playGameSound(Activity context) {
         try {
-            mediaPlayer_Game = MediaPlayer.create(context, R.raw.ticking);
-            mediaPlayer_Game.start();
-            mediaPlayer_Game.setLooping(true);
+            mediaPlayerGame = MediaPlayer.create(context, R.raw.ticking);
+            mediaPlayerGame.start();
+            mediaPlayerGame.setLooping(true);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void stopGameSound(Activity context) {
+    public static void stopGameSound() {
         try {
-            if (mediaPlayer_Game != null) {
-                mediaPlayer_Game.stop();
-                mediaPlayer_Game.release();
-                mediaPlayer_Game = null;
+            if (mediaPlayerGame != null) {
+                mediaPlayerGame.stop();
+                mediaPlayerGame.release();
+                mediaPlayerGame = null;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -177,12 +153,12 @@ public class Helper {
     }
 
     public static String getPlayerId(Context context) {
-        String id = getSharedPreferences(context).getString("PLAYER_ID", null);
+        String id = getSharedPreferences(context).getString(PLAYER_ID, null);
         if (id == null) {
             String randomId = UUID.randomUUID().toString().substring(0, 5);
-            getSharedPreferences(context).edit().putString("PLAYER_ID", randomId).apply();
+            getSharedPreferences(context).edit().putString(PLAYER_ID, randomId).apply();
         }
-        return getSharedPreferences(context).getString("PLAYER_ID", null);
+        return getSharedPreferences(context).getString(PLAYER_ID, null);
     }
 
     public static void setPlayerColour(Context context, PieceColour colour) {
