@@ -1,4 +1,4 @@
-package at.aau.se2.chessify.chessLogic.pieces;
+package at.aau.se2.chessify.chess_logic.pieces;
 
 public enum PieceColour {
     BLACK,

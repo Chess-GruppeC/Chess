@@ -17,7 +17,7 @@ import java.util.UUID;
 
 import at.aau.se2.chessify.Game;
 import at.aau.se2.chessify.R;
-import at.aau.se2.chessify.chessLogic.pieces.PieceColour;
+import at.aau.se2.chessify.chess_logic.pieces.PieceColour;
 import at.aau.se2.chessify.network.dto.PlayerDTO;
 
 public class Helper {
