@@ -7,7 +7,9 @@ import java.util.ArrayList;
 
 public class Knight extends ChessPiece implements ChessMoveInterface{
 
-    public Knight() {}
+    public Knight() {
+        // empty constructor needed for JSON parsing
+    }
 
     public Knight(PieceColour colour) {
         this.pieceValue=3;
