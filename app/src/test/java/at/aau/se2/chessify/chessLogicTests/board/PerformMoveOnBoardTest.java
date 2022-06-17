@@ -228,6 +228,7 @@ public class PerformMoveOnBoardTest {
     private ChessPiece[][] initializeBasicMoveSetup() {
         ChessPiece[][] manuallyGeneratedBoard = new ChessPiece[8][8];
 
+        manuallyGeneratedBoard[0][1]=new Pawn(PieceColour.BLACK);
         manuallyGeneratedBoard[0][4]=new Rook(PieceColour.BLACK);
         manuallyGeneratedBoard[2][5]=new Knight(PieceColour.WHITE);
         manuallyGeneratedBoard[0][7]=new Pawn(PieceColour.BLACK);
@@ -251,6 +252,7 @@ public class PerformMoveOnBoardTest {
     private ChessPiece[][] initializeBasicMoveResultQueen() {
         ChessPiece[][] manuallyGeneratedBoard = new ChessPiece[8][8];
 
+        manuallyGeneratedBoard[0][1]=new Pawn(PieceColour.BLACK);
         manuallyGeneratedBoard[0][4]=new Rook(PieceColour.BLACK);
 
         manuallyGeneratedBoard[0][7]=new Pawn(PieceColour.BLACK);
@@ -289,6 +291,7 @@ public class PerformMoveOnBoardTest {
     private ChessPiece[][] initializeBasicMoveResultKnight() {
         ChessPiece[][] manuallyGeneratedBoard = new ChessPiece[8][8];
 
+        manuallyGeneratedBoard[0][1]=new Pawn(PieceColour.BLACK);
 
         manuallyGeneratedBoard[0][4]=new Knight(PieceColour.WHITE);
         manuallyGeneratedBoard[0][7]=new Pawn(PieceColour.BLACK);
@@ -306,6 +309,84 @@ public class PerformMoveOnBoardTest {
         ChessPiece[][] manuallyGeneratedResultBoard = initializeBasicMoveSetup();
         try {
             chessBoard.performMoveOnBoard(new Move(new Location(2, 5), new Location(3, 4)));
+        }catch (IllegalArgumentException e){
+            assertEquals("Please perform a legal move", e.getMessage());
+        }
+
+        compareBoardStates(chessBoard.getGameBoard(), manuallyGeneratedResultBoard);
+    }
+
+    @Test
+    public void performMoveTestBasicMoveCaptureBishop(){
+        ChessPiece[][] manuallyGeneratedInitialBoard = initializeBasicMoveSetup();
+        chessBoard.setGameBoard(manuallyGeneratedInitialBoard);
+
+        ChessPiece[][] manuallyGeneratedResultBoard = initializeBasicMoveResultBishop();
+        chessBoard.performMoveOnBoard(new Move(new Location(3,4),new Location(0,1)));
+
+        compareBoardStates(chessBoard.getGameBoard(), manuallyGeneratedResultBoard);
+    }
+
+    private ChessPiece[][] initializeBasicMoveResultBishop() {
+        ChessPiece[][] manuallyGeneratedBoard = new ChessPiece[8][8];
+
+
+        manuallyGeneratedBoard[0][4]=new Rook(PieceColour.BLACK);
+        manuallyGeneratedBoard[2][5]=new Knight(PieceColour.WHITE);
+        manuallyGeneratedBoard[0][7]=new Pawn(PieceColour.BLACK);
+        manuallyGeneratedBoard[2][2]=new Queen(PieceColour.BLACK);
+        manuallyGeneratedBoard[0][1]=new Bishop(PieceColour.WHITE);
+
+        return manuallyGeneratedBoard;
+    }
+
+    @Test
+    public void performMoveTestIllegalMoveBishop(){
+        ChessPiece[][] manuallyGeneratedInitialBoard = initializeBasicMoveSetup();
+        chessBoard.setGameBoard(manuallyGeneratedInitialBoard);
+
+        ChessPiece[][] manuallyGeneratedResultBoard = initializeBasicMoveSetup();
+        try {
+            chessBoard.performMoveOnBoard(new Move(new Location(3, 4), new Location(2, 5)));
+        }catch (IllegalArgumentException e){
+            assertEquals("Please perform a legal move", e.getMessage());
+        }
+
+        compareBoardStates(chessBoard.getGameBoard(), manuallyGeneratedResultBoard);
+    }
+
+    @Test
+    public void performMoveTestBasicMoveCaptureRook(){
+        ChessPiece[][] manuallyGeneratedInitialBoard = initializeBasicMoveSetup();
+        chessBoard.setGameBoard(manuallyGeneratedInitialBoard);
+
+        ChessPiece[][] manuallyGeneratedResultBoard = initializeBasicMoveResultRook();
+        chessBoard.performMoveOnBoard(new Move(new Location(0,4),new Location(3,4)));
+
+        compareBoardStates(chessBoard.getGameBoard(), manuallyGeneratedResultBoard);
+    }
+
+    private ChessPiece[][] initializeBasicMoveResultRook() {
+        ChessPiece[][] manuallyGeneratedBoard = new ChessPiece[8][8];
+
+        manuallyGeneratedBoard[0][1]=new Pawn(PieceColour.BLACK);
+        manuallyGeneratedBoard[3][4]=new Rook(PieceColour.BLACK);
+        manuallyGeneratedBoard[2][5]=new Knight(PieceColour.WHITE);
+        manuallyGeneratedBoard[0][7]=new Pawn(PieceColour.BLACK);
+        manuallyGeneratedBoard[2][2]=new Queen(PieceColour.BLACK);
+
+
+        return manuallyGeneratedBoard;
+    }
+
+    @Test
+    public void performMoveTestIllegalMoveRook(){
+        ChessPiece[][] manuallyGeneratedInitialBoard = initializeBasicMoveSetup();
+        chessBoard.setGameBoard(manuallyGeneratedInitialBoard);
+
+        ChessPiece[][] manuallyGeneratedResultBoard = initializeBasicMoveSetup();
+        try {
+            chessBoard.performMoveOnBoard(new Move(new Location(0, 4), new Location(0, 1)));
         }catch (IllegalArgumentException e){
             assertEquals("Please perform a legal move", e.getMessage());
         }
