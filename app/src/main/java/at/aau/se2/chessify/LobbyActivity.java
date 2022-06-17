@@ -121,7 +121,7 @@ public class LobbyActivity extends AppCompatActivity implements DefaultLifecycle
             if (Helper.getBackgroundSound(this)) {
                 soundLobby.setImageResource(R.drawable.volume_off_white);
                 Helper.setBackgroundSound(this, false);
-                Helper.stopMusicBackground(this);
+                Helper.stopMusicBackground();
             } else {
                 Helper.playMusicBackground(this);
                 soundLobby.setImageResource(R.drawable.volume_on_white);
