@@ -102,7 +102,7 @@ public class Helper {
             smbBar = MediaPlayer.create(context, R.raw.smb_activate);
             smbBar.start();
         } catch (Exception e) {
-            e.printStackTrace();
+            // unhandled
         }
     }
 
@@ -113,7 +113,7 @@ public class Helper {
             mediaPlayerMenu.start();
             mediaPlayerMenu.setLooping(true);
         } catch (Exception e) {
-            e.printStackTrace();
+            // unhandled
         }
     }
 
@@ -125,7 +125,7 @@ public class Helper {
                 mediaPlayerMenu = null;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            // unhandled
         }
     }
 
@@ -136,7 +136,7 @@ public class Helper {
             mediaPlayerGame.start();
             mediaPlayerGame.setLooping(true);
         } catch (Exception e) {
-            e.printStackTrace();
+            // unhandled
         }
     }
 
@@ -148,7 +148,7 @@ public class Helper {
                 mediaPlayerGame = null;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            // unhandled
         }
     }
 
