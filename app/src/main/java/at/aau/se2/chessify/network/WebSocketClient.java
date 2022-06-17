@@ -32,15 +32,15 @@ public class WebSocketClient {
 
     private static boolean error = false;
 
-    private WebSocketClient() {
+    private WebSocketClient(String name) {
+        playerName = name;
         establishConnection();
         initSubscriptions();
     }
 
-    public static WebSocketClient getInstance(String name) {
+    public static WebSocketClient getInstance(String playerName) {
         if (instance == null || error) {
-            playerName = name;
-            instance = new WebSocketClient();
+            instance = new WebSocketClient(playerName);
         }
         return instance;
     }
