@@ -5,6 +5,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.DefaultLifecycleObserver;
 
@@ -13,7 +14,6 @@ import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -22,12 +22,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -49,17 +47,17 @@ import at.aau.se2.chessify.util.Helper;
 
 public class LobbyActivity extends AppCompatActivity implements DefaultLifecycleObserver {
 
-    Button JoinGame;
-    Button CreateGame;
-    ImageView SoundLobby;
+    Button joinGame;
+    Button createGame;
+    ImageView soundLobby;
     ImageView Back;
-    TextView TextViewBack;
+    TextView textViewBack;
     TextView viewGameID;
     EditText inputGameID;
     private Button btnStartGame;
     private TextView viewGameIdLabel;
     private ImageView iconCopy;
-    ImageView Wallpaper;
+    ImageView wallpaper;
 
     private WebSocketClient webSocketClient;
 
@@ -69,18 +67,20 @@ public class LobbyActivity extends AppCompatActivity implements DefaultLifecycle
     private DrawerLayout drawerLayout;
 
     private NavigationView navigationView;
-    private ListView gamesList;
     private GamesAdapter gamesAdapter;
-    private TextView tVlossCount;
-    private TextView tVwinCount;
+    private TextView lossCountLabel;
+    private TextView winCountLabel;
 
-    float offsetX = 0, offsetY = 0;
-    float startX, startY;
-    float startXArrow, startYArrow;
+    private float offsetX = 0;
+    private float offsetY = 0;
+    private float startX;
+    private float startY;
+    float startXArrow;
+    float startYArrow;
 
-    int arrowState = 0;
+    private int arrowState = 0;
 
-    private  LifeCycleObserver lifeCycleObserver;
+    private LifeCycleObserver lifeCycleObserver;
 
     @SuppressLint("CheckResult")
     @Override
@@ -89,85 +89,57 @@ public class LobbyActivity extends AppCompatActivity implements DefaultLifecycle
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_lobby);
 
-        JoinGame = findViewById(R.id.btn_JoinGame);
-        CreateGame = findViewById(R.id.btn_CreateGame);
+        joinGame = findViewById(R.id.btn_JoinGame);
+        createGame = findViewById(R.id.btn_CreateGame);
         Back = findViewById(R.id.ArrowBacklobby);
-        TextViewBack = findViewById(R.id.textView2);
+        textViewBack = findViewById(R.id.textView2);
         viewGameID = findViewById(R.id.textView_viewGameID);
         inputGameID = findViewById(R.id.PlaintextEnterGameID);
-        SoundLobby = findViewById(R.id.btn_sound_lobby);
+        soundLobby = findViewById(R.id.btn_sound_lobby);
         btnStartGame = findViewById(R.id.btn_startGame);
         viewGameIdLabel = findViewById(R.id.textView_GameIdLabel);
         iconCopy = findViewById(R.id.icon_copy);
-        Wallpaper = (ImageView) findViewById(R.id.imageView3);
+        wallpaper = (ImageView) findViewById(R.id.imageView3);
 
         String playerName = Helper.getUniquePlayerName(this);
         webSocketClient = WebSocketClient.getInstance(playerName);
 
-        lifeCycleObserver = new LifeCycleObserver(getBaseContext());
-        lifeCycleObserver.onClientReconnect().subscribe(client -> {
-            // the websockets client has reconnected, restart this activity to guarantee correct functionality
-            runOnUiThread(() -> {
-                finish();
-                overridePendingTransition(0, 0);
-                startActivity(getIntent());
-                overridePendingTransition(0, 0);
-            });
-
-        });
-        getLifecycle().addObserver(lifeCycleObserver);
+        initLifeCycleObserver();
 
         btnStartGame.setOnClickListener(view -> startDiceActivity());
-        CreateGame.setOnClickListener(getCreateGameClickListener());
+        createGame.setOnClickListener(getCreateGameClickListener());
         viewGameID.setOnClickListener(getCopyToClipboardClickListener());
         iconCopy.setOnClickListener(getCopyToClipboardClickListener());
         inputGameID.addTextChangedListener(getIdTextChangedListener());
-        JoinGame.setOnClickListener(getJoinGameClickListener());
+        joinGame.setOnClickListener(getJoinGameClickListener());
 
-        Back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getToMainActivity();
-            }
-        });
+        Back.setOnClickListener(view -> getToMainActivity());
 
-        TextViewBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getToMainActivity();
-            }
-        });
+        textViewBack.setOnClickListener(view -> getToMainActivity());
 
-        SoundLobby.setOnClickListener(view ->
-
-        {
+        soundLobby.setOnClickListener(view -> {
             if (Helper.getBackgroundSound(this)) {
-                SoundLobby.setImageResource(R.drawable.volume_off_white);
+                soundLobby.setImageResource(R.drawable.volume_off_white);
                 Helper.setBackgroundSound(this, false);
-                Helper.stopMusicBackground(this);
+                Helper.stopMusicBackground();
             } else {
                 Helper.playMusicBackground(this);
-                SoundLobby.setImageResource(R.drawable.volume_on_white);
+                soundLobby.setImageResource(R.drawable.volume_on_white);
                 Helper.setBackgroundSound(this, true);
             }
         });
 
-
-        String gameId = Helper.getGameId(this);
-        if (gameId != null) {
-            Dialog dialog = createFinishGameDialog(gameId);
-            dialog.show();
-        }
+        showFinishGameDialog(Helper.getGameId(this));
 
         int orientation = getResources().getConfiguration().orientation;
-        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            return; // the following feature is only available in portrait mode
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            initNavigationDrawer();
+            initGamesList();
         }
 
-        LayoutInflater li = LayoutInflater.from(this);
-        View listView = li.inflate(R.layout.listview_games, null);
+    }
 
-        gamesList = listView.findViewById(R.id.games_list_view);
+    private void initNavigationDrawer() {
         drawerLayout = findViewById(R.id.my_drawer_layout);
         navigationView = findViewById(R.id.games_list);
         ImageView arrow = findViewById(R.id.arrow_swipe);
@@ -183,23 +155,21 @@ public class LobbyActivity extends AppCompatActivity implements DefaultLifecycle
             }
         });
 
-        navigationView.getViewTreeObserver().addOnDrawListener(new ViewTreeObserver.OnDrawListener() {
-            @Override
-            public void onDraw() {
-                offsetX = navigationView.getX() - startX;
-                offsetY = navigationView.getY() - startY;
-                arrow.setX(startXArrow + offsetX);
-                arrow.setY(startYArrow + offsetY);
+        navigationView.getViewTreeObserver().addOnDrawListener(() -> {
 
-                if (arrowState == 1 && arrow.getX() <= startXArrow + 50) {
-                    arrow.animate().rotation(0).setDuration(300).start();
-                    arrowState = 0;
-                }
+            offsetX = navigationView.getX() - startX;
+            offsetY = navigationView.getY() - startY;
+            arrow.setX(startXArrow + offsetX);
+            arrow.setY(startYArrow + offsetY);
 
+            if (arrowState == 1 && arrow.getX() <= startXArrow + 50) {
+                arrow.animate().rotation(0).setDuration(300).start();
+                arrowState = 0;
             }
+
         });
 
-        arrow.setOnClickListener((view -> drawerLayout.openDrawer(Gravity.LEFT)));
+        arrow.setOnClickListener((view -> drawerLayout.openDrawer(GravityCompat.START)));
 
         drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
@@ -223,20 +193,26 @@ public class LobbyActivity extends AppCompatActivity implements DefaultLifecycle
                 // not implemented
             }
         });
+    }
 
+    private void initGamesList() {
+        LayoutInflater li = LayoutInflater.from(this);
+        View listView = li.inflate(R.layout.listview_games, null);
+        ListView gamesList = listView.findViewById(R.id.games_list_view);
         View listHeader = li.inflate(R.layout.listview_header, null);
         ImageView delete = listHeader.findViewById(R.id.icon_delete);
-        delete.setOnClickListener((view) -> createDeleteGameListDialog().show());
+        delete.setOnClickListener(view -> createDeleteGameListDialog().show());
         gamesList.addHeaderView(listHeader, null, false);
-        tVlossCount = listHeader.findViewById(R.id.games_list_statistic_losses);
-        tVwinCount = listHeader.findViewById(R.id.games_list_statistic_winnings);
+        lossCountLabel = listHeader.findViewById(R.id.games_list_statistic_losses);
+        winCountLabel = listHeader.findViewById(R.id.games_list_statistic_winnings);
 
         List<Game> games;
         try {
             games = Helper.getGameList(this);
         } catch (JsonProcessingException jsonProcessingException) {
             TextView headerLabel = listHeader.findViewById(R.id.games_list_header);
-            headerLabel.setText("Error parsing data");
+            String errorLabel = "Error parsing data";
+            headerLabel.setText(errorLabel);
             gamesList.addHeaderView(listHeader, null, false);
             gamesAdapter = new GamesAdapter(getApplicationContext(), new ArrayList<>());
             gamesList.setAdapter(gamesAdapter);
@@ -246,24 +222,36 @@ public class LobbyActivity extends AppCompatActivity implements DefaultLifecycle
 
         gamesAdapter = new GamesAdapter(getApplicationContext(), games);
         gamesList.setAdapter(gamesAdapter);
-        gamesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Game game = (Game) adapterView.getAdapter().getItem(i);
-                Context baseContext = getBaseContext();
-                Helper.setGameId(baseContext, game.getGameId());
-                Helper.setPlayerColour(baseContext, game.getPieceColour());
-                enterGame(game.getGameId());
-            }
+
+        gamesList.setOnItemClickListener((adapterView, view, i, l) -> {
+            Game game = (Game) adapterView.getAdapter().getItem(i);
+            Context baseContext = getBaseContext();
+            Helper.setGameId(baseContext, game.getGameId());
+            Helper.setPlayerColour(baseContext, game.getPieceColour());
+            enterGame(game.getGameId());
         });
-        gamesList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                createDeleteSingleGameDialog(i).show();
-                return true;
-            }
+
+        gamesList.setOnItemLongClickListener((adapterView, view, i, l) -> {
+            createDeleteSingleGameDialog(i).show();
+            return true;
         });
+
         navigationView.addView(listView);
+    }
+
+    @SuppressLint("CheckResult")
+    private void initLifeCycleObserver() {
+        lifeCycleObserver = new LifeCycleObserver(getBaseContext());
+        lifeCycleObserver.onClientReconnect().subscribe(client ->
+                // the websockets client has reconnected, restart this activity to guarantee correct functionality
+                runOnUiThread(() -> {
+                    finish();
+                    overridePendingTransition(0, 0);
+                    startActivity(getIntent());
+                    overridePendingTransition(0, 0);
+                })
+        );
+        getLifecycle().addObserver(lifeCycleObserver);
     }
 
     private void clearGames(int gameStatusFilter) throws JsonProcessingException {
@@ -352,8 +340,6 @@ public class LobbyActivity extends AppCompatActivity implements DefaultLifecycle
     }
 
     public void getToMainActivity() {
-        //Intent intentgetBack = new Intent(this, MainActivity.class);
-        //startActivity(intentgetBack);
         onBackPressed();
     }
 
@@ -371,18 +357,18 @@ public class LobbyActivity extends AppCompatActivity implements DefaultLifecycle
 
     private void enableJoinGame() {
         runOnUiThread(() -> {
-            JoinGame.setEnabled(true);
-            JoinGame.setBackground(AppCompatResources.getDrawable(this, R.drawable.custom_button_lobby_join_success));
-            JoinGame.setTextColor(Color.BLACK);
+            joinGame.setEnabled(true);
+            joinGame.setBackground(AppCompatResources.getDrawable(this, R.drawable.custom_button_lobby_join_success));
+            joinGame.setTextColor(Color.BLACK);
         });
         triedToJoinAGame = true;
     }
 
     private void disableJoinGame() {
         runOnUiThread(() -> {
-            JoinGame.setEnabled(false);
-            JoinGame.setBackground(AppCompatResources.getDrawable(this, R.drawable.custom_button_lobby_join_error));
-            JoinGame.setTextColor(Color.WHITE);
+            joinGame.setEnabled(false);
+            joinGame.setBackground(AppCompatResources.getDrawable(this, R.drawable.custom_button_lobby_join_error));
+            joinGame.setTextColor(Color.WHITE);
         });
     }
 
@@ -409,7 +395,7 @@ public class LobbyActivity extends AppCompatActivity implements DefaultLifecycle
     }
 
     private void enableStartGame() {
-        setInvisible(CreateGame);
+        setInvisible(createGame);
         setVisible(viewGameID);
         setVisible(viewGameIdLabel);
         setVisible(btnStartGame);
@@ -418,8 +404,6 @@ public class LobbyActivity extends AppCompatActivity implements DefaultLifecycle
 
     private void showNetworkError() {
         showToast("Network error");
-//            WebSocketClient.reconnectWithPlayerName(Helper.getUniquePlayerName(getBaseContext()));
-//            webSocketClient = WebSocketClient.getInstance(Helper.getUniquePlayerName(getBaseContext()));
     }
 
     @Override
@@ -430,22 +414,22 @@ public class LobbyActivity extends AppCompatActivity implements DefaultLifecycle
 
         // --> update Soundsymbol
         if (Helper.getBackgroundSound(this)) {
-            SoundLobby.setImageResource(R.drawable.volume_on_white);
+            soundLobby.setImageResource(R.drawable.volume_on_white);
         } else {
-            SoundLobby.setImageResource(R.drawable.volume_off_white);
+            soundLobby.setImageResource(R.drawable.volume_off_white);
         }
 
         // --> Update Color Scheme
         if (Helper.getDarkmode(this)) {
-            Wallpaper.setImageResource(R.drawable.wallpaper1_material_min);
-            CreateGame.setBackground(getDrawable(R.drawable.custom_button1));
-            btnStartGame.setBackground(getDrawable(R.drawable.custom_button1));
-            JoinGame.setBackground(getDrawable(R.drawable.custom_button1));
+            wallpaper.setImageResource(R.drawable.wallpaper1_material_min);
+            createGame.setBackground(AppCompatResources.getDrawable(this, R.drawable.custom_button1));
+            btnStartGame.setBackground(AppCompatResources.getDrawable(this, R.drawable.custom_button1));
+            joinGame.setBackground(AppCompatResources.getDrawable(this, R.drawable.custom_button1));
         } else {
-            Wallpaper.setImageResource(R.drawable.wallpaper1_material_min_dark);
-            CreateGame.setBackground(getDrawable(R.drawable.custom_button2));
-            btnStartGame.setBackground(getDrawable(R.drawable.custom_button2));
-            JoinGame.setBackground(getDrawable(R.drawable.custom_button2));
+            wallpaper.setImageResource(R.drawable.wallpaper1_material_min_dark);
+            createGame.setBackground(AppCompatResources.getDrawable(this, R.drawable.custom_button2));
+            btnStartGame.setBackground(AppCompatResources.getDrawable(this, R.drawable.custom_button2));
+            joinGame.setBackground(AppCompatResources.getDrawable(this, R.drawable.custom_button2));
         }
 
         int orientation = getResources().getConfiguration().orientation;
@@ -460,14 +444,14 @@ public class LobbyActivity extends AppCompatActivity implements DefaultLifecycle
 
     }
 
-    private void updateGamesList(List<Game> updatedList) throws JsonProcessingException {
+    private void updateGamesList(List<Game> updatedList) {
         if (gamesAdapter == null)
             return;
         gamesAdapter.updateAdapter(updatedList);
         String winCount = "Won: " + Helper.getWinCount(this);
         String lossCount = "Lost: " + Helper.getLossCount(this);
-        tVlossCount.setText(lossCount);
-        tVwinCount.setText(winCount);
+        lossCountLabel.setText(lossCount);
+        winCountLabel.setText(winCount);
     }
 
     private Dialog createDeleteGameListDialog() {
@@ -477,12 +461,7 @@ public class LobbyActivity extends AppCompatActivity implements DefaultLifecycle
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         final boolean[] selected = new boolean[2];
 
-        builder.setMultiChoiceItems(gameStatusArray, selected, new DialogInterface.OnMultiChoiceClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i, boolean b) {
-                selected[i] = b;
-            }
-        });
+        builder.setMultiChoiceItems(gameStatusArray, selected, (dialogInterface, i, b) -> selected[i] = b);
         builder.setTitle("Which games do you want to delete?");
         builder.setPositiveButton("Delete", (dialog, id) -> {
             for (int i = 0; i < selected.length; i++) {
@@ -525,16 +504,17 @@ public class LobbyActivity extends AppCompatActivity implements DefaultLifecycle
         return builder.create();
     }
 
-    private Dialog createFinishGameDialog(String gameId) {
+    private void showFinishGameDialog(String gameId) {
+        if (gameId == null) {
+            return;
+        }
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Do you want to resume your last game?");
-        builder.setPositiveButton("Ok", (dialog, id) -> {
-            enterGame(gameId);
-        });
+        builder.setPositiveButton("Ok", (dialog, id) -> enterGame(gameId));
         builder.setNegativeButton("Cancel", (dialog, id) -> {
             // User cancelled the dialog
         });
-        return builder.create();
+        builder.create().show();
     }
 
     private void enterGame(String gameId) {

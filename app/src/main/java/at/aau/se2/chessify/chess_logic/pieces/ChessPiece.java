@@ -8,7 +8,7 @@ import at.aau.se2.chessify.chess_logic.board.Location;
 
 import java.util.ArrayList;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = King.class, name = "King"),
         @JsonSubTypes.Type(value = Bishop.class, name = "Bishop"),

@@ -1,6 +1,6 @@
 package at.aau.se2.chessify.chess_logic.board;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class Location {
 
@@ -30,7 +30,7 @@ public class Location {
         this.column = column;
     }
 
-    public boolean checkIfLocationIsPartOfList(ArrayList<Location> locations){
+    public boolean checkIfLocationIsPartOfList(List<Location> locations){
         for(Location loc : locations){
             if (loc.compareLocation(this)){
                 return true;

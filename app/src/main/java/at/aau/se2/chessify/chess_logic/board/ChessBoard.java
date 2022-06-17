@@ -139,10 +139,6 @@ public class ChessBoard {
         return destroyedLocations;
     }
 
-    public ArrayList<Location> getLegalMovesForPiece(Location location){
-        return getPieceAtLocation(location).getLegalMoves(this);
-    }
-
     public Location getLocationOf(ChessPiece piece){
         for(int i=0; i<gameBoard.length; i++){
             for(int j=0; j< gameBoard[i].length; j++){

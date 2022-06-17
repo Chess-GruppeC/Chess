@@ -7,7 +7,9 @@ import java.util.ArrayList;
 
 public class Queen extends ChessPiece implements ChessMoveInterface{
 
-    public Queen() {}
+    public Queen() {
+        // empty constructor needed for JSON parsing
+    }
 
     public Queen(PieceColour colour) {
         this.colour=colour;

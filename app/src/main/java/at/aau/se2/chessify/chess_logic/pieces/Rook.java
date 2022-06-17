@@ -7,7 +7,9 @@ import java.util.ArrayList;
 
 public class Rook extends ChessPiece implements ChessMoveInterface{
 
-    public Rook() {}
+    public Rook() {
+        // empty constructor needed for JSON parsing
+    }
 
     public Rook(PieceColour colour) {
         this.pieceValue=5;

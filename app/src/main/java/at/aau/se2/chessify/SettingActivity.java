@@ -2,17 +2,13 @@ package at.aau.se2.chessify;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,8 +22,12 @@ public class SettingActivity extends AppCompatActivity {
     Button darkmode;
     ImageView back;
     EditText setName;
-    TextView TextViewBack;
-    ImageView Wallpaper;
+    TextView textViewBack;
+    ImageView wallpaper;
+
+    String soundOff = "Sound off";
+    String darkModeOn = "Darkmode on";
+    String darkModeOff = "Darkmode off";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +40,8 @@ public class SettingActivity extends AppCompatActivity {
         darkmode = findViewById(R.id.btn_darkmode);
         back = findViewById(R.id.ArrowBack);
         setName = findViewById(R.id.PlaintextEnterGameID);
-        TextViewBack = findViewById(R.id.textView);
-        Wallpaper = (ImageView) findViewById(R.id.imageView2);
+        textViewBack = findViewById(R.id.textView);
+        wallpaper = (ImageView) findViewById(R.id.imageView2);
 
 
         // Set Player Name
@@ -63,10 +63,10 @@ public class SettingActivity extends AppCompatActivity {
         // --> toogle Sound
         sound.setOnClickListener(view -> {
             if (Helper.getBackgroundSound(this)) {
-                sound.setText("Sound off");
-                Toast.makeText(this, "Sound off", Toast.LENGTH_SHORT).show();
+                sound.setText(soundOff);
+                Toast.makeText(this, soundOff, Toast.LENGTH_SHORT).show();
                 Helper.setBackgroundSound(this, false);
-                Helper.stopMusicBackground(this);
+                Helper.stopMusicBackground();
             } else {
                 Helper.playMusicBackground(this);
                 sound.setText("Sound on");
@@ -95,39 +95,27 @@ public class SettingActivity extends AppCompatActivity {
                 darkmode.setBackground(getDrawable(R.drawable.custom_button2));
                 vibrations.setBackground(getDrawable(R.drawable.custom_button2));
                 sound.setBackground(getDrawable(R.drawable.custom_button2));
-                darkmode.setText("Darkmode on");
-                Wallpaper.setImageResource(R.drawable.chesssettingsbackground_min_dark);
-                Toast.makeText(this, "Darkmode on", Toast.LENGTH_SHORT).show();
+                darkmode.setText(darkModeOn);
+                wallpaper.setImageResource(R.drawable.chesssettingsbackground_min_dark);
+                Toast.makeText(this, darkModeOn, Toast.LENGTH_SHORT).show();
                 Helper.setDarkmode(this, false);
             } else {
                 darkmode.setBackground(getDrawable(R.drawable.custom_button1));
                 vibrations.setBackground(getDrawable(R.drawable.custom_button1));
                 sound.setBackground(getDrawable(R.drawable.custom_button1));
-                darkmode.setText("Darkmode off");
-                Wallpaper.setImageResource(R.drawable.chesssettingsbackground_min);
-                Toast.makeText(this, "Darkmode off", Toast.LENGTH_SHORT).show();
+                darkmode.setText(darkModeOff);
+                wallpaper.setImageResource(R.drawable.chesssettingsbackground_min);
+                Toast.makeText(this, darkModeOff, Toast.LENGTH_SHORT).show();
                 Helper.setDarkmode(this, true);
             }
         });
 
-        back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getBack();
-            }
-        });
+        back.setOnClickListener(view -> getBack());
 
-        TextViewBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getBack();
-            }
-        });
+        textViewBack.setOnClickListener(view -> getBack());
     }
 
     public void getBack() {
-        //Intent intentgetBack = new Intent(this, MainActivity.class);
-        //startActivity(intentgetBack);
         onBackPressed();
     }
 
@@ -139,20 +127,20 @@ public class SettingActivity extends AppCompatActivity {
         if (Helper.getBackgroundSound(this)) {
             sound.setText("Sound on");
         } else {
-            sound.setText("Sound off");
+            sound.setText(soundOff);
         }
 
         // --> Update Color Scheme
         if (Helper.getDarkmode(this)){
-            Wallpaper.setImageResource(R.drawable.chessmainbackground_min);
-            darkmode.setText("Darkmode off");
+            wallpaper.setImageResource(R.drawable.chessmainbackground_min);
+            darkmode.setText(darkModeOff);
             darkmode.setBackground(getDrawable(R.drawable.custom_button1));
             vibrations.setBackground(getDrawable(R.drawable.custom_button1));
             sound.setBackground(getDrawable(R.drawable.custom_button1));
-            darkmode.setText("Darkmode off");
+            darkmode.setText(darkModeOff);
         }else{
-            Wallpaper.setImageResource(R.drawable.chessmainbackground_min_dark);
-            darkmode.setText("Darkmode on");
+            wallpaper.setImageResource(R.drawable.chessmainbackground_min_dark);
+            darkmode.setText(darkModeOn);
             darkmode.setBackground(getDrawable(R.drawable.custom_button2));
             vibrations.setBackground(getDrawable(R.drawable.custom_button2));
             sound.setBackground(getDrawable(R.drawable.custom_button2));

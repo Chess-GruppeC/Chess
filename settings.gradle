@@ -1,6 +1,4 @@
 include ':app'
 rootProject.name = "Chessify"
-include ':core'
-include 'core'
 
 

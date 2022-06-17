@@ -81,7 +81,7 @@ public class ShakeSensor implements SensorListener {
                         try {
                             shakeListener.onShake();
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            // unhandled
                         }
                     }
                 }

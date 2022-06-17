@@ -7,7 +7,9 @@ import java.util.ArrayList;
 
 public class King extends ChessPiece implements ChessMoveInterface{
 
-    public King() {}
+    public King() {
+        // empty constructor needed for JSON parsing
+    }
 
     public King(PieceColour colour) {
         this.pieceValue=1000;

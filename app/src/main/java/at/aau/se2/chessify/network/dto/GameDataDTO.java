@@ -10,7 +10,9 @@ public class GameDataDTO<T> {
     private T data;
     private List<Location> destroyedLocationsByAtomicMove;
 
-    public GameDataDTO() {}
+    public GameDataDTO() {
+        // empty constructor needed for JSON parsing
+    }
 
     public GameDataDTO(T data) {
         this.data = data;
