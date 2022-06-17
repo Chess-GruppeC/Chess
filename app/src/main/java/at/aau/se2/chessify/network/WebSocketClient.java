@@ -1,7 +1,5 @@
 package at.aau.se2.chessify.network;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,22 +27,22 @@ public class WebSocketClient {
     public static final String SERVER = "se2-demo.aau.at";
     public static final Integer PORT = 53207;
 
-    private static WebSocketClient INSTANCE;
+    private static WebSocketClient instance;
     private static String playerName;
 
     private static boolean error = false;
 
-    private WebSocketClient(String name) {
-        playerName = name;
+    private WebSocketClient() {
         establishConnection();
         initSubscriptions();
     }
 
-    public static WebSocketClient getInstance(String playerName) {
-        if (INSTANCE == null || error) {
-            INSTANCE = new WebSocketClient(playerName);
+    public static WebSocketClient getInstance(String name) {
+        if (instance == null || error) {
+            playerName = name;
+            instance = new WebSocketClient();
         }
-        return INSTANCE;
+        return instance;
     }
 
     private void establishConnection() {
@@ -54,13 +52,11 @@ public class WebSocketClient {
         mStompClient.connect(headers);
 
         compositeDisposable.add(mStompClient.lifecycle().subscribe(lifecycleEvent -> {
-            switch (lifecycleEvent.getType()) {
-                case OPENED:
-                    error = false;
-                    break;
-                case ERROR:
-                    error = true;
-                    break;
+            LifecycleEvent.Type type = lifecycleEvent.getType();
+            if (type.equals(LifecycleEvent.Type.OPENED)) {
+                error = false;
+            } else if (type.equals(LifecycleEvent.Type.ERROR)) {
+                error = true;
             }
         }));
     }
@@ -161,7 +157,7 @@ public class WebSocketClient {
         if (mStompClient != null) {
             compositeDisposable.clear();
             mStompClient = null;
-            INSTANCE = null;
+            instance = null;
             getInstance(newPlayerName);
         }
     }

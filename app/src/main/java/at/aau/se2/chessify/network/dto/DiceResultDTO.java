@@ -7,7 +7,9 @@ public class DiceResultDTO {
     private List<PlayerDTO> players;
     private PlayerDTO winner;
 
-    public DiceResultDTO() {}
+    public DiceResultDTO() {
+        // empty constructor needed for JSON parsing
+    }
 
     public List<PlayerDTO> getPlayers() {
         return players;
