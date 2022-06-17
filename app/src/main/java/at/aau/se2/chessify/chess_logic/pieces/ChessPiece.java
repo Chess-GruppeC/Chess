@@ -1,10 +1,10 @@
-package at.aau.se2.chessify.chessLogic.pieces;
+package at.aau.se2.chessify.chess_logic.pieces;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import at.aau.se2.chessify.chessLogic.board.ChessBoard;
-import at.aau.se2.chessify.chessLogic.board.Location;
+import at.aau.se2.chessify.chess_logic.board.ChessBoard;
+import at.aau.se2.chessify.chess_logic.board.Location;
 
 import java.util.ArrayList;
 
@@ -22,9 +22,7 @@ public abstract class ChessPiece {
     boolean moved=false;
     PieceColour colour;
 
-    protected ChessPiece() {
-        // empty constructor needed for JSON parsing
-    }
+    public ChessPiece() {}
 
     abstract public ArrayList<Location> getLegalMoves(ChessBoard board);
 

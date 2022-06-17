@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import at.aau.se2.chessify.AndroidGameUI.BoardView;
 import at.aau.se2.chessify.LobbyActivity;
 import at.aau.se2.chessify.R;
-import at.aau.se2.chessify.chessLogic.pieces.PieceColour;
+import at.aau.se2.chessify.chess_logic.pieces.PieceColour;
 import at.aau.se2.chessify.network.WebSocketClient;
 import at.aau.se2.chessify.network.dto.DiceResultDTO;
 import at.aau.se2.chessify.network.dto.PlayerDTO;
@@ -35,7 +35,7 @@ public class DiceActivity extends AppCompatActivity {
     private Button creatBoard;
     Button abort;
     private int diceNumber;
-    ImageView Wallpaper;
+    ImageView wallpaper;
 
     private WebSocketClient webSocketClient;
     private DiceResultDTO diceResultDTO;
@@ -52,7 +52,7 @@ public class DiceActivity extends AppCompatActivity {
         dice = findViewById(R.id.image_dice);
         creatBoard = findViewById(R.id.createBoard);
         abort = findViewById(R.id.btn_abort);
-        Wallpaper = findViewById(R.id.imageView3);
+        wallpaper = findViewById(R.id.imageView3);
 
         baseContext = getBaseContext();
         webSocketClient = WebSocketClient.getInstance(Helper.getPlayerName(this));
@@ -206,12 +206,12 @@ public class DiceActivity extends AppCompatActivity {
 
         // --> Update Color Scheme
         if (Helper.getDarkmode(this)) {
-            Wallpaper.setImageResource(R.drawable.wallpaper1_material_min);
+            wallpaper.setImageResource(R.drawable.wallpaper1_material_min);
             creatBoard.setBackground(getDrawable(R.drawable.custom_button1));
             abort.setBackground(getDrawable(R.drawable.custom_button1));
 
         } else {
-            Wallpaper.setImageResource(R.drawable.wallpaper1_material_min_dark);
+            wallpaper.setImageResource(R.drawable.wallpaper1_material_min_dark);
             creatBoard.setBackground(getDrawable(R.drawable.custom_button2));
             abort.setBackground(getDrawable(R.drawable.custom_button2));
         }

@@ -1,4 +1,4 @@
-package at.aau.se2.chessify.chessLogic.board;
+package at.aau.se2.chessify.chess_logic.board;
 
 public class Move {
 
