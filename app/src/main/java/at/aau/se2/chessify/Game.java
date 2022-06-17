@@ -1,6 +1,6 @@
 package at.aau.se2.chessify;
 
-import at.aau.se2.chessify.chessLogic.pieces.PieceColour;
+import at.aau.se2.chessify.chess_logic.pieces.PieceColour;
 import at.aau.se2.chessify.network.dto.PlayerDTO;
 
 public class Game {

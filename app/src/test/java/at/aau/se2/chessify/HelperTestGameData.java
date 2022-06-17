@@ -21,9 +21,8 @@ import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-import at.aau.se2.chessify.chessLogic.pieces.PieceColour;
+import at.aau.se2.chessify.chess_logic.pieces.PieceColour;
 import at.aau.se2.chessify.network.dto.PlayerDTO;
 import at.aau.se2.chessify.util.Helper;
 

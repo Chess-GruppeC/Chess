@@ -5,16 +5,16 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import at.aau.se2.chessify.chessLogic.board.ChessBoard;
-import at.aau.se2.chessify.chessLogic.board.Location;
-import at.aau.se2.chessify.chessLogic.board.Move;
-import at.aau.se2.chessify.chessLogic.pieces.Bishop;
-import at.aau.se2.chessify.chessLogic.pieces.ChessPiece;
-import at.aau.se2.chessify.chessLogic.pieces.Knight;
-import at.aau.se2.chessify.chessLogic.pieces.Pawn;
-import at.aau.se2.chessify.chessLogic.pieces.PieceColour;
-import at.aau.se2.chessify.chessLogic.pieces.Queen;
-import at.aau.se2.chessify.chessLogic.pieces.Rook;
+import at.aau.se2.chessify.chess_logic.board.ChessBoard;
+import at.aau.se2.chessify.chess_logic.board.Location;
+import at.aau.se2.chessify.chess_logic.board.Move;
+import at.aau.se2.chessify.chess_logic.pieces.Bishop;
+import at.aau.se2.chessify.chess_logic.pieces.ChessPiece;
+import at.aau.se2.chessify.chess_logic.pieces.Knight;
+import at.aau.se2.chessify.chess_logic.pieces.Pawn;
+import at.aau.se2.chessify.chess_logic.pieces.PieceColour;
+import at.aau.se2.chessify.chess_logic.pieces.Queen;
+import at.aau.se2.chessify.chess_logic.pieces.Rook;
 
 public class PerformMoveOnBoardTest {
     ChessBoard chessBoard;
@@ -118,7 +118,7 @@ public class PerformMoveOnBoardTest {
     @Test
     public void testGetPieceAtLocation() {
         chessBoard = new ChessBoard();
-        assertTrue(chessBoard.getPieceAtLocation(new Location(1, 1)) instanceof at.aau.se2.chessify.chessLogic.pieces.Pawn);
+        assertTrue(chessBoard.getPieceAtLocation(new Location(1, 1)) instanceof at.aau.se2.chessify.chess_logic.pieces.Pawn);
     }
 
     @Test

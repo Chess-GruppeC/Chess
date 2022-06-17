@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import at.aau.se2.chessify.chessLogic.board.*;
-import at.aau.se2.chessify.chessLogic.pieces.*;
+import at.aau.se2.chessify.chess_logic.board.*;
+import at.aau.se2.chessify.chess_logic.pieces.*;
 
 import org.junit.Before;
 import org.junit.Test;

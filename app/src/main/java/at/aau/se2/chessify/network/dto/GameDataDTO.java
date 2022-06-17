@@ -2,7 +2,7 @@ package at.aau.se2.chessify.network.dto;
 
 import java.util.List;
 
-import at.aau.se2.chessify.chessLogic.board.Location;
+import at.aau.se2.chessify.chess_logic.board.Location;
 
 public class GameDataDTO<T> {
 

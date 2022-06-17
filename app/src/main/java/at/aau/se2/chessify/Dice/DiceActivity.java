@@ -21,7 +21,7 @@ import at.aau.se2.chessify.AndroidGameUI.BoardView;
 import at.aau.se2.chessify.LobbyActivity;
 import at.aau.se2.chessify.Player;
 import at.aau.se2.chessify.R;
-import at.aau.se2.chessify.chessLogic.pieces.PieceColour;
+import at.aau.se2.chessify.chess_logic.pieces.PieceColour;
 import at.aau.se2.chessify.network.WebSocketClient;
 import at.aau.se2.chessify.network.dto.DiceResultDTO;
 import at.aau.se2.chessify.network.dto.PlayerDTO;
