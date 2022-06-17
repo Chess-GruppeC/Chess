@@ -30,6 +30,7 @@ import java.util.List;
 
 import at.aau.se2.chessify.Game;
 import at.aau.se2.chessify.R;
+import at.aau.se2.chessify.SpecialMoveBarMethod;
 import at.aau.se2.chessify.chessLogic.board.ChessBoard;
 import at.aau.se2.chessify.chessLogic.board.Location;
 import at.aau.se2.chessify.chessLogic.board.Move;
@@ -168,7 +169,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         //Helper.playGameSound(this);
         //Helper.setGameSound(this, true);
 
-        SpecialMoveBar();
+        //SpecialMoveBar();
         SMBCount.setText(currentProgress + " | " + specialMoveBar.getMax());
 
         Soundbutton.setOnClickListener(view -> {
@@ -765,21 +766,6 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     //TODO: set color at allowed position
     //TODO: is King in danger
 
-    // --> SpecialMoveBar
-    public void SpecialMoveBar() {
-        MediaPlayer SMB = MediaPlayer.create(this, R.raw.smb_activate);
-        specialMoveBar = findViewById(R.id.special_move_bar);
-        specialMoveBar.setProgress(currentProgress);
-        specialMoveBar.setMax(5);
-        SMBCount.setText(currentProgress + " | " + specialMoveBar.getMax());
-
-        if (currentProgress >= specialMoveBar.getMax()) {
-            Buffer = currentProgress - specialMoveBar.getMax();
-            Helper.playSMB_BarSound(this);
-            SMB.start();
-            ExecuteSMB.setVisibility(View.VISIBLE);
-        }
-    }
 
     public void resetColour() {
         for (int i = 0; i < 8; i++) {
@@ -910,7 +896,18 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
             if (destroyedPieceValue > 0) {
                 PieceCaptured.start();
                 currentProgress = currentProgress + destroyedPieceValue;
-                runOnUiThread(this::SpecialMoveBar);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        int mBuffer= SpecialMoveBarMethod.SpecialMoveBar(BoardView.this,specialMoveBar,SMBCount,ExecuteSMB,currentProgress);
+                        if(mBuffer!=-1)
+                        {
+                            Buffer=mBuffer;
+                        }
+                    }
+                });
+                //  runOnUiThread(this::SpecialMoveBar);
             } else {
                 PieceMoved.start();
             }
