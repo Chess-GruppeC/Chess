@@ -6,6 +6,7 @@ import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.media.MediaPlayer;
@@ -169,7 +170,14 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         //Helper.playGameSound(this);
         //Helper.setGameSound(this, true);
 
-        //SpecialMoveBar();
+        // SpecialMoveBar();
+        specialMoveBar = findViewById(R.id.special_move_bar);
+        int mBuffer=SpecialMoveBarMethod.SpecialMoveBar(BoardView.this,specialMoveBar,SMBCount,ExecuteSMB,currentProgress);
+        if(mBuffer!=-1)
+        {
+            Buffer=mBuffer;
+        }
+
         SMBCount.setText(currentProgress + " | " + specialMoveBar.getMax());
 
         Soundbutton.setOnClickListener(view -> {
