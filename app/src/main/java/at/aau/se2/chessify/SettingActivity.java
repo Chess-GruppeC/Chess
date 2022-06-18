@@ -62,57 +62,69 @@ public class SettingActivity extends AppCompatActivity {
 
         // --> toogle Sound
         sound.setOnClickListener(view -> {
-            if (Helper.getBackgroundSound(this)) {
-                sound.setText(soundOff);
-                Toast.makeText(this, soundOff, Toast.LENGTH_SHORT).show();
-                Helper.setBackgroundSound(this, false);
-                Helper.stopMusicBackground();
-            } else {
-                Helper.playMusicBackground(this);
-                sound.setText("Sound on");
-                sound.setTextColor(Color.WHITE);
-                Toast.makeText(this, "Sound on", Toast.LENGTH_SHORT).show();
-                Helper.setBackgroundSound(this, true);
-            }
+            controlSound();
         });
 
         // --> toogle vibrations
         vibrations.setOnClickListener(view -> {
-            if (Helper.getVibration(this)) {
-                vibrations.setText("Vibrations off");
-                Toast.makeText(this, "Vibration off", Toast.LENGTH_SHORT).show();
-                Helper.setVibration(this, false);
-            } else {
-                vibrations.setText("Vibrations on");
-                Toast.makeText(this, "Vibration on", Toast.LENGTH_SHORT).show();
-                Helper.setVibration(this, true);
-            }
+            controlVibrations();
         });
 
         // --> toogle color scheme
         darkmode.setOnClickListener(view -> {
-            if (Helper.getDarkmode(this)) {
-                darkmode.setBackground(getDrawable(R.drawable.custom_button2));
-                vibrations.setBackground(getDrawable(R.drawable.custom_button2));
-                sound.setBackground(getDrawable(R.drawable.custom_button2));
-                darkmode.setText(darkModeOn);
-                wallpaper.setImageResource(R.drawable.chesssettingsbackground_min_dark);
-                Toast.makeText(this, darkModeOn, Toast.LENGTH_SHORT).show();
-                Helper.setDarkmode(this, false);
-            } else {
-                darkmode.setBackground(getDrawable(R.drawable.custom_button1));
-                vibrations.setBackground(getDrawable(R.drawable.custom_button1));
-                sound.setBackground(getDrawable(R.drawable.custom_button1));
-                darkmode.setText(darkModeOff);
-                wallpaper.setImageResource(R.drawable.chesssettingsbackground_min);
-                Toast.makeText(this, darkModeOff, Toast.LENGTH_SHORT).show();
-                Helper.setDarkmode(this, true);
-            }
+            controlDarkmode();
         });
 
         back.setOnClickListener(view -> getBack());
 
         textViewBack.setOnClickListener(view -> getBack());
+    }
+
+    public void controlSound() {
+        if (Helper.getBackgroundSound(this)) {
+            sound.setText(soundOff);
+            Toast.makeText(this, soundOff, Toast.LENGTH_SHORT).show();
+            Helper.setBackgroundSound(this, false);
+            Helper.stopMusicBackground();
+        } else {
+            Helper.playMusicBackground(this);
+            sound.setText("Sound on");
+            sound.setTextColor(Color.WHITE);
+            Toast.makeText(this, "Sound on", Toast.LENGTH_SHORT).show();
+            Helper.setBackgroundSound(this, true);
+        }
+    }
+
+    public void controlDarkmode() {
+        if (Helper.getDarkmode(this)) {
+            darkmode.setBackground(getDrawable(R.drawable.custom_button2));
+            vibrations.setBackground(getDrawable(R.drawable.custom_button2));
+            sound.setBackground(getDrawable(R.drawable.custom_button2));
+            darkmode.setText(darkModeOn);
+            wallpaper.setImageResource(R.drawable.chesssettingsbackground_min_dark);
+            Toast.makeText(this, darkModeOn, Toast.LENGTH_SHORT).show();
+            Helper.setDarkmode(this, false);
+        } else {
+            darkmode.setBackground(getDrawable(R.drawable.custom_button1));
+            vibrations.setBackground(getDrawable(R.drawable.custom_button1));
+            sound.setBackground(getDrawable(R.drawable.custom_button1));
+            darkmode.setText(darkModeOff);
+            wallpaper.setImageResource(R.drawable.chesssettingsbackground_min);
+            Toast.makeText(this, darkModeOff, Toast.LENGTH_SHORT).show();
+            Helper.setDarkmode(this, true);
+        }
+    }
+
+    public void controlVibrations() {
+        if (Helper.getVibration(this)) {
+            vibrations.setText("Vibrations off");
+            Toast.makeText(this, "Vibration off", Toast.LENGTH_SHORT).show();
+            Helper.setVibration(this, false);
+        } else {
+            vibrations.setText("Vibrations on");
+            Toast.makeText(this, "Vibration on", Toast.LENGTH_SHORT).show();
+            Helper.setVibration(this, true);
+        }
     }
 
     public void getBack() {
@@ -131,21 +143,20 @@ public class SettingActivity extends AppCompatActivity {
         }
 
         // --> Update Color Scheme
-        if (Helper.getDarkmode(this)){
+        if (Helper.getDarkmode(this)) {
             wallpaper.setImageResource(R.drawable.chessmainbackground_min);
             darkmode.setText(darkModeOff);
             darkmode.setBackground(getDrawable(R.drawable.custom_button1));
             vibrations.setBackground(getDrawable(R.drawable.custom_button1));
             sound.setBackground(getDrawable(R.drawable.custom_button1));
             darkmode.setText(darkModeOff);
-        }else{
+        } else {
             wallpaper.setImageResource(R.drawable.chessmainbackground_min_dark);
             darkmode.setText(darkModeOn);
             darkmode.setBackground(getDrawable(R.drawable.custom_button2));
             vibrations.setBackground(getDrawable(R.drawable.custom_button2));
             sound.setBackground(getDrawable(R.drawable.custom_button2));
         }
-
 
 
     }
