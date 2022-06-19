@@ -156,7 +156,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         gameUpdateDisposable = client.receiveGameUpdates(gameId)
                 .subscribe(update -> {
                     parseChessBoardAndRefresh(update.getPayload());
-                    refreshSpecialMoveBar();
+                    SpecialMoveBarMethod.refreshSpecialMoveBar(BoardView.this);
                     if (!getGameStateDisposable.isDisposed())
                         getGameStateDisposable.dispose();
                 }, throwable -> runOnUiThread(() -> Toast.makeText(baseContext, "An error occurred", Toast.LENGTH_SHORT).show()));
@@ -898,30 +898,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         currentPlayerInfo.setText(currentPlayerInfoStr);
     }
 
-    private void refreshSpecialMoveBar() {
-        if (!nextPlayer.getName().equals(playerName)) {
-            // --> update SpecialMoveBar Progress
-            if (destroyedPieceValue > 0) {
-                PieceCaptured.start();
-                currentProgress = currentProgress + destroyedPieceValue;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
 
-                        int mBuffer= SpecialMoveBarMethod.SpecialMoveBar(BoardView.this,specialMoveBar,SMBCount,ExecuteSMB,currentProgress);
-                        if(mBuffer!=-1)
-                        {
-                            Buffer=mBuffer;
-                        }
-                    }
-                });
-                //  runOnUiThread(this::SpecialMoveBar);
-            } else {
-                PieceMoved.start();
-            }
-            destroyedPieceValue = 0;
-        }
-    }
 
     @Override
     public void onResume() {
