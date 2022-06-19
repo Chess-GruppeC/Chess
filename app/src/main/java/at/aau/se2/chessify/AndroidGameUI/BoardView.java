@@ -28,6 +28,7 @@ import java.util.List;
 
 import at.aau.se2.chessify.Game;
 import at.aau.se2.chessify.R;
+import at.aau.se2.chessify.SpecialMoveBarMethod;
 import at.aau.se2.chessify.chess_logic.board.ChessBoard;
 import at.aau.se2.chessify.chess_logic.board.Location;
 import at.aau.se2.chessify.chess_logic.board.Move;
@@ -48,12 +49,12 @@ import io.reactivex.disposables.Disposable;
 
 public class BoardView extends AppCompatActivity implements View.OnClickListener {
 
-    private int currentProgress = 0;
-    private int buffer;
-    ProgressBar specialMoveBar;
-    TextView smbCount;
+    public int currentProgress = 0;
+    public int buffer;
+    public ProgressBar specialMoveBar;
+    public TextView smbCount;
     ImageView soundButton;
-    Button executeSMB;
+    public Button executeSMB;
     private TextView currentPlayerInfo;
 
     private final TextView[][] boardView = new TextView[8][8];
@@ -73,14 +74,14 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
 
     private String gameId;
 
-    private int destroyedPieceValue = 0;
+    public int destroyedPieceValue = 0;
 
-    private String playerName;
+    public String playerName;
 
-    private PlayerDTO nextPlayer;
+    public PlayerDTO nextPlayer;
 
-    private MediaPlayer pieceCaptured;
-    private MediaPlayer pieceMoved;
+    public MediaPlayer pieceCaptured;
+    public MediaPlayer pieceMoved;
 
     private PieceColour colour;
 
@@ -142,7 +143,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         gameUpdateDisposable = client.receiveGameUpdates(gameId)
                 .subscribe(update -> {
                     parseChessBoardAndRefresh(update.getPayload());
-                    refreshSpecialMoveBar();
+                    SpecialMoveBarMethod.refreshSpecialMoveBar(BoardView.this);
                     if (!getGameStateDisposable.isDisposed())
                         getGameStateDisposable.dispose();
                 }, throwable -> runOnUiThread(() -> Toast.makeText(baseContext, "An error occurred", Toast.LENGTH_SHORT).show()));
@@ -154,7 +155,12 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         Helper.setBackgroundSound(this, false);
         Helper.stopMusicBackground();
 
-        SpecialMoveBar();
+        specialMoveBar = findViewById(R.id.special_move_bar);
+        int mBuffer=SpecialMoveBarMethod.SpecialMoveBar(BoardView.this,specialMoveBar,smbCount,executeSMB,currentProgress);
+        if(mBuffer!=-1)
+        {
+            buffer=mBuffer;
+        }
         smbCount.setText(currentProgress + " | " + specialMoveBar.getMax());
 
         soundButton.setOnClickListener(view -> {
@@ -726,21 +732,6 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         isPieceSelected = false;
     }
 
-    // --> SpecialMoveBar
-    public void SpecialMoveBar() {
-        MediaPlayer smb = MediaPlayer.create(this, R.raw.smb_activate);
-        specialMoveBar = findViewById(R.id.special_move_bar);
-        specialMoveBar.setProgress(currentProgress);
-        specialMoveBar.setMax(5);
-        smbCount.setText(currentProgress + " | " + specialMoveBar.getMax());
-
-        if (currentProgress >= specialMoveBar.getMax()) {
-            buffer = currentProgress - specialMoveBar.getMax();
-            Helper.playSmbBarSound(this);
-            smb.start();
-            executeSMB.setVisibility(View.VISIBLE);
-        }
-    }
 
     public void resetColour() {
         for (int i = 0; i < 8; i++) {
@@ -847,19 +838,6 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         currentPlayerInfo.setText(currentPlayerInfoStr);
     }
 
-    private void refreshSpecialMoveBar() {
-        if (!nextPlayer.getName().equals(playerName)) {
-            // --> update SpecialMoveBar Progress
-            if (destroyedPieceValue > 0) {
-                pieceCaptured.start();
-                currentProgress = currentProgress + destroyedPieceValue;
-                runOnUiThread(this::SpecialMoveBar);
-            } else {
-                pieceMoved.start();
-            }
-            destroyedPieceValue = 0;
-        }
-    }
 
     @Override
     public void onResume() {
