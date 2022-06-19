@@ -53,12 +53,12 @@ import io.reactivex.disposables.Disposable;
 
 public class BoardView extends AppCompatActivity implements View.OnClickListener {
 
-    private int currentProgress = 0;
-    private int Buffer;
-    ProgressBar specialMoveBar;
-    TextView SMBCount;
+    public int currentProgress = 0;
+    public int Buffer;
+    public ProgressBar specialMoveBar;
+    public TextView SMBCount;
     ImageView Soundbutton;
-    Button ExecuteSMB;
+    public Button ExecuteSMB;
     private TextView currentPlayerInfo;
 
 
@@ -84,14 +84,14 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
 
     private String gameId;
 
-    private int destroyedPieceValue = 0;
+    public int destroyedPieceValue = 0;
 
-    private String playerName;
+    public String playerName;
 
-    private PlayerDTO nextPlayer;
+    public PlayerDTO nextPlayer;
 
-    private MediaPlayer PieceCaptured;
-    private MediaPlayer PieceMoved;
+    public MediaPlayer PieceCaptured;
+    public MediaPlayer PieceMoved;
 
     private PieceColour colour;
 
