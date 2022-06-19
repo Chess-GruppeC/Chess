@@ -336,42 +336,8 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                 ChessPiece chessPiece = chessBoard.getPieceAtLocation(new Location(i, j));
 
                 if (chessPiece != null) {
-                    if (chessPiece.getClass() == Pawn.class && chessPiece.getColour() == PieceColour.BLACK) {
-                        boardView[i][j].setBackgroundResource(R.drawable.black_pawn);
-                    }
-                    if (chessPiece.getClass() == Pawn.class && chessPiece.getColour() == PieceColour.WHITE) {
-                        boardView[i][j].setBackgroundResource(R.drawable.white_pawn);
-                    }
-                    if (chessPiece.getClass() == Rook.class && chessPiece.getColour() == PieceColour.BLACK) {
-                        boardView[i][j].setBackgroundResource(R.drawable.black_rook);
-                    }
-                    if (chessPiece.getClass() == Rook.class && chessPiece.getColour() == PieceColour.WHITE) {
-                        boardView[i][j].setBackgroundResource(R.drawable.white_rook);
-                    }
-                    if (chessPiece.getClass() == Bishop.class && chessPiece.getColour() == PieceColour.BLACK) {
-                        boardView[i][j].setBackgroundResource(R.drawable.black_bishop);
-                    }
-                    if (chessPiece.getClass() == Bishop.class && chessPiece.getColour() == PieceColour.WHITE) {
-                        boardView[i][j].setBackgroundResource(R.drawable.white_bishop);
-                    }
-                    if (chessPiece.getClass() == Knight.class && chessPiece.getColour() == PieceColour.BLACK) {
-                        boardView[i][j].setBackgroundResource(R.drawable.black_knight);
-                    }
-                    if (chessPiece.getClass() == Knight.class && chessPiece.getColour() == PieceColour.WHITE) {
-                        boardView[i][j].setBackgroundResource(R.drawable.white_knight);
-                    }
-                    if (chessPiece.getClass() == King.class && chessPiece.getColour() == PieceColour.BLACK) {
-                        boardView[i][j].setBackgroundResource(R.drawable.black_king);
-                    }
-                    if (chessPiece.getClass() == King.class && chessPiece.getColour() == PieceColour.WHITE) {
-                        boardView[i][j].setBackgroundResource(R.drawable.white_king);
-                    }
-                    if (chessPiece.getClass() == Queen.class && chessPiece.getColour() == PieceColour.BLACK) {
-                        boardView[i][j].setBackgroundResource(R.drawable.black_queen);
-                    }
-                    if (chessPiece.getClass() == Queen.class && chessPiece.getColour() == PieceColour.WHITE) {
-                        boardView[i][j].setBackgroundResource(R.drawable.white_queen);
-                    }
+                   initializeWhitePieces(i,j);
+                   initializeBlackPieces(i,j);
                 } else {
                     boardView[i][j].setBackgroundResource(android.R.color.transparent);
                 }
@@ -379,8 +345,56 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         }
 
     }
+    private void initializeWhitePieces(int i, int j) {
+        ChessPiece chessPiece = chessBoard.getPieceAtLocation(new Location(i, j));
 
-    @Override
+
+        if (chessPiece.getClass() == Pawn.class && chessPiece.getColour() == PieceColour.WHITE) {
+            boardView[i][j].setBackgroundResource(R.drawable.white_pawn);
+        }
+        if (chessPiece.getClass() == Rook.class && chessPiece.getColour() == PieceColour.WHITE) {
+            boardView[i][j].setBackgroundResource(R.drawable.white_rook);
+        }
+        if (chessPiece.getClass() == Bishop.class && chessPiece.getColour() == PieceColour.WHITE) {
+            boardView[i][j].setBackgroundResource(R.drawable.white_bishop);
+        }
+        if (chessPiece.getClass() == Knight.class && chessPiece.getColour() == PieceColour.WHITE) {
+            boardView[i][j].setBackgroundResource(R.drawable.white_knight);
+        }
+        if (chessPiece.getClass() == King.class && chessPiece.getColour() == PieceColour.WHITE) {
+            boardView[i][j].setBackgroundResource(R.drawable.white_king);
+        }
+        if (chessPiece.getClass() == Queen.class && chessPiece.getColour() == PieceColour.WHITE) {
+            boardView[i][j].setBackgroundResource(R.drawable.white_queen);
+        }
+    }
+
+
+    private void initializeBlackPieces(int i, int j) {
+        ChessPiece chessPiece = chessBoard.getPieceAtLocation(new Location(i, j));
+
+        if (chessPiece.getClass() == Pawn.class && chessPiece.getColour() == PieceColour.BLACK) {
+            boardView[i][j].setBackgroundResource(R.drawable.black_pawn);
+        }
+        if (chessPiece.getClass() == Rook.class && chessPiece.getColour() == PieceColour.BLACK) {
+            boardView[i][j].setBackgroundResource(R.drawable.black_rook);
+        }
+        if (chessPiece.getClass() == Bishop.class && chessPiece.getColour() == PieceColour.BLACK) {
+            boardView[i][j].setBackgroundResource(R.drawable.black_bishop);
+        }
+        if (chessPiece.getClass() == Knight.class && chessPiece.getColour() == PieceColour.BLACK) {
+            boardView[i][j].setBackgroundResource(R.drawable.black_knight);
+        }
+        if (chessPiece.getClass() == King.class && chessPiece.getColour() == PieceColour.BLACK) {
+            boardView[i][j].setBackgroundResource(R.drawable.black_king);
+        }
+        if (chessPiece.getClass() == Queen.class && chessPiece.getColour() == PieceColour.BLACK) {
+            boardView[i][j].setBackgroundResource(R.drawable.black_queen);
+        }
+    }
+
+
+        @Override
     public void onClick(View view) {
         pieceCaptured = MediaPlayer.create(this, R.raw.piece_captured);
         pieceMoved = MediaPlayer.create(this, R.raw.piece_move_two);
