@@ -28,7 +28,7 @@ import java.util.List;
 
 import at.aau.se2.chessify.Game;
 import at.aau.se2.chessify.R;
-import at.aau.se2.chessify.SpecialMoveBarMethod;
+import at.aau.se2.chessify.SpecialMoveBarCalculation;
 import at.aau.se2.chessify.chess_logic.board.ChessBoard;
 import at.aau.se2.chessify.chess_logic.board.Location;
 import at.aau.se2.chessify.chess_logic.board.Move;
@@ -49,9 +49,9 @@ import io.reactivex.disposables.Disposable;
 
 public class BoardView extends AppCompatActivity implements View.OnClickListener {
 
-    public int currentProgress = 0;
-    public int buffer;
-    public ProgressBar specialMoveBar;
+    public static int currentProgress = 0;
+    public static int buffer = 0;
+    public static ProgressBar specialMoveBar;
     public TextView smbCount;
     ImageView soundButton;
     public Button executeSMB;
@@ -74,7 +74,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
 
     private String gameId;
 
-    public int destroyedPieceValue = 0;
+    public static int destroyedPieceValue = 0;
 
     public String playerName;
 
@@ -143,7 +143,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         gameUpdateDisposable = client.receiveGameUpdates(gameId)
                 .subscribe(update -> {
                     parseChessBoardAndRefresh(update.getPayload());
-                    SpecialMoveBarMethod.refreshSpecialMoveBar(BoardView.this);
+                    refreshSpecialMoveBar();
                     if (!getGameStateDisposable.isDisposed())
                         getGameStateDisposable.dispose();
                 }, throwable -> runOnUiThread(() -> Toast.makeText(baseContext, "An error occurred", Toast.LENGTH_SHORT).show()));
@@ -156,12 +156,8 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         Helper.stopMusicBackground();
 
         specialMoveBar = findViewById(R.id.special_move_bar);
-        int mBuffer=SpecialMoveBarMethod.SpecialMoveBar(BoardView.this,specialMoveBar,smbCount,executeSMB,currentProgress);
-        if(mBuffer!=-1)
-        {
-            buffer=mBuffer;
-        }
-        smbCount.setText(currentProgress + " | " + specialMoveBar.getMax());
+        SpecialMoveBar();
+        smbCount.setText(SpecialMoveBarCalculation.calculateProgress() + " | " + specialMoveBar.getMax());
 
         soundButton.setOnClickListener(view -> {
             if (Helper.getGameSound(this)) {
@@ -184,12 +180,14 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
             specialMoveActivated = true;
             currentProgress = 0;
             specialMoveBar.setProgress(currentProgress);
+            //executeSMB.setVisibility(View.INVISIBLE);
             smbCount.setText(buffer + " | " + specialMoveBar.getMax());
             currentProgress = buffer;
             specialMoveBar.setProgress(currentProgress);
             executeSMB.setText("ACTIVE");
+            executeSMB.setClickable(false);
             executeSMB.setBackgroundResource(R.drawable.custom_button_lobby_join_success);
-            buffer = 0;
+            buffer = SpecialMoveBarCalculation.calculateBuffer();
         });
 
     }
@@ -342,8 +340,8 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                 ChessPiece chessPiece = chessBoard.getPieceAtLocation(new Location(i, j));
 
                 if (chessPiece != null) {
-                   initializeWhitePieces(i,j);
-                   initializeBlackPieces(i,j);
+                    initializeWhitePieces(i, j);
+                    initializeBlackPieces(i, j);
                 } else {
                     boardView[i][j].setBackgroundResource(android.R.color.transparent);
                 }
@@ -351,6 +349,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         }
 
     }
+
     private void initializeWhitePieces(int i, int j) {
         ChessPiece chessPiece = chessBoard.getPieceAtLocation(new Location(i, j));
 
@@ -400,7 +399,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     }
 
 
-        @Override
+    @Override
     public void onClick(View view) {
         pieceCaptured = MediaPlayer.create(this, R.raw.piece_captured);
         pieceMoved = MediaPlayer.create(this, R.raw.piece_move_two);
@@ -732,6 +731,22 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         isPieceSelected = false;
     }
 
+    // --> SpecialMoveBar
+    public void SpecialMoveBar() {
+        MediaPlayer SMB = MediaPlayer.create(this, R.raw.smb_activate);
+        specialMoveBar = findViewById(R.id.special_move_bar);
+        specialMoveBar.setProgress(currentProgress);
+        specialMoveBar.setMax(5);
+        smbCount.setText(currentProgress + " | " + specialMoveBar.getMax());
+
+        if (currentProgress >= specialMoveBar.getMax()) {
+            SpecialMoveBarCalculation.calculateBuffer();
+            Helper.playSmbBarSound(this);
+            SMB.start();
+            executeSMB.setVisibility(View.VISIBLE);
+            executeSMB.setClickable(true);
+        }
+    }
 
     public void resetColour() {
         for (int i = 0; i < 8; i++) {
@@ -836,6 +851,20 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
             currentPlayerInfoStr = "Friend's move";
         }
         currentPlayerInfo.setText(currentPlayerInfoStr);
+    }
+
+    private void refreshSpecialMoveBar() {
+        if (!nextPlayer.getName().equals(playerName)) {
+            // --> update SpecialMoveBar Progress
+            if (destroyedPieceValue > 0) {
+                pieceCaptured.start();
+                SpecialMoveBarCalculation.calculateProgress();
+                runOnUiThread(this::SpecialMoveBar);
+            } else {
+                pieceMoved.start();
+            }
+            destroyedPieceValue = 0;
+        }
     }
 
 
