@@ -36,6 +36,10 @@ def setupAndroidReporting() {
                 description = "Generate Jacoco coverage reports on the ${sourceName.capitalize()} build."
 
                 def fileFilter = [
+                        // UI
+                        '**/se2/chessify/Dice/*',
+                        '**/se2/chessify/AndroidGameUI/*',
+                        '**/se2/chessify/*Activity*',
                         // data binding
                         'android/databinding/**/*.class',
                         '**/android/databinding/*Binding.class',
