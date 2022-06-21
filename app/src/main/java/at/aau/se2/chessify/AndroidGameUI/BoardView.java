@@ -1,6 +1,5 @@
 package at.aau.se2.chessify.AndroidGameUI;
 
-
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
@@ -10,7 +9,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -30,17 +28,18 @@ import java.util.List;
 
 import at.aau.se2.chessify.Game;
 import at.aau.se2.chessify.R;
-import at.aau.se2.chessify.chessLogic.board.ChessBoard;
-import at.aau.se2.chessify.chessLogic.board.Location;
-import at.aau.se2.chessify.chessLogic.board.Move;
-import at.aau.se2.chessify.chessLogic.pieces.Bishop;
-import at.aau.se2.chessify.chessLogic.pieces.ChessPiece;
-import at.aau.se2.chessify.chessLogic.pieces.King;
-import at.aau.se2.chessify.chessLogic.pieces.Knight;
-import at.aau.se2.chessify.chessLogic.pieces.Pawn;
-import at.aau.se2.chessify.chessLogic.pieces.PieceColour;
-import at.aau.se2.chessify.chessLogic.pieces.Queen;
-import at.aau.se2.chessify.chessLogic.pieces.Rook;
+import at.aau.se2.chessify.SpecialMoveBarCalculation;
+import at.aau.se2.chessify.chess_logic.board.ChessBoard;
+import at.aau.se2.chessify.chess_logic.board.Location;
+import at.aau.se2.chessify.chess_logic.board.Move;
+import at.aau.se2.chessify.chess_logic.pieces.Bishop;
+import at.aau.se2.chessify.chess_logic.pieces.ChessPiece;
+import at.aau.se2.chessify.chess_logic.pieces.King;
+import at.aau.se2.chessify.chess_logic.pieces.Knight;
+import at.aau.se2.chessify.chess_logic.pieces.Pawn;
+import at.aau.se2.chessify.chess_logic.pieces.PieceColour;
+import at.aau.se2.chessify.chess_logic.pieces.Queen;
+import at.aau.se2.chessify.chess_logic.pieces.Rook;
 import at.aau.se2.chessify.network.LifeCycleObserver;
 import at.aau.se2.chessify.network.WebSocketClient;
 import at.aau.se2.chessify.network.dto.GameDataDTO;
@@ -48,29 +47,24 @@ import at.aau.se2.chessify.network.dto.PlayerDTO;
 import at.aau.se2.chessify.util.Helper;
 import io.reactivex.disposables.Disposable;
 
-
 public class BoardView extends AppCompatActivity implements View.OnClickListener {
 
-    private int currentProgress = 0;
-    private int Buffer;
-    ProgressBar specialMoveBar;
-    TextView SMBCount;
-    ImageView Soundbutton;
-    Button ExecuteSMB;
+    public static int currentProgress = 0;
+    public static int buffer = 0;
+    public static ProgressBar specialMoveBar;
+    public TextView smbCount;
+    ImageView soundButton;
+    public Button executeSMB;
     private TextView currentPlayerInfo;
 
+    private final TextView[][] boardView = new TextView[8][8];
+    private final TextView[][] boardViewBackground = new TextView[8][8];
 
-    public TextView[][] BoardView = new TextView[8][8];
-    public TextView[][] BoardViewBackground = new TextView[8][8];
-
-    public Location onClickedPosition = new Location(0, 0);
-    public ChessPiece selectedPiece;
-    public boolean isPieceSelected = false;
+    private Location onClickedPosition = new Location(0, 0);
+    private ChessPiece selectedPiece;
+    private boolean isPieceSelected = false;
     ChessBoard chessBoard = new ChessBoard();
     ArrayList<Location> legalMoveList = new ArrayList<>();
-    ChessBoard savedChessBoard = new ChessBoard();
-    ArrayList<Location[][]> LastMove = new ArrayList<Location[][]>();
-    public int countMoves;
 
     private boolean specialMoveActivated = false;
     private WebSocketClient client;
@@ -78,18 +72,16 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     private Disposable gameUpdateDisposable, getGameStateDisposable;
     private ObjectMapper objectMapper;
 
-    private TextView textView_gameId;
-
     private String gameId;
 
-    private int destroyedPieceValue = 0;
+    public static int destroyedPieceValue = 0;
 
-    private String playerName;
+    public String playerName;
 
-    private PlayerDTO nextPlayer;
+    public PlayerDTO nextPlayer;
 
-    private MediaPlayer PieceCaptured;
-    private MediaPlayer PieceMoved;
+    public MediaPlayer pieceCaptured;
+    public MediaPlayer pieceMoved;
 
     private PieceColour colour;
 
@@ -104,7 +96,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_board);
 
-        textView_gameId = findViewById(R.id.tV_game_id);
+        TextView textViewGameId = findViewById(R.id.tV_game_id);
         currentPlayerInfo = findViewById(R.id.current_player_info);
 
         baseContext = getBaseContext();
@@ -118,20 +110,17 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
 
         client = WebSocketClient.getInstance(Helper.getUniquePlayerName(this));
 
-        LifeCycleObserver lifeCycleObserver = new LifeCycleObserver(getBaseContext());
-        lifeCycleObserver.onClientReconnect().subscribe(c -> {
-            c.joinGame(gameId).subscribe(message -> {
-                if (message.getPayload().equals("1")) {
-                    runOnUiThread(() -> {
-                        finish();
-                        overridePendingTransition(0, 0);
-                        startActivity(getIntent());
-                        overridePendingTransition(0, 0);
-                    });
-                }
-            });
-
-        });
+        LifeCycleObserver lifeCycleObserver = new LifeCycleObserver(this);
+        lifeCycleObserver.onClientReconnect().subscribe(c -> c.joinGame(gameId).subscribe(message -> {
+            if (message.getPayload().equals("1")) {
+                runOnUiThread(() -> {
+                    finish();
+                    overridePendingTransition(0, 0);
+                    startActivity(getIntent());
+                    overridePendingTransition(0, 0);
+                });
+            }
+        }));
         getLifecycle().addObserver(lifeCycleObserver);
 
         gameId = Helper.getGameId(this);
@@ -144,12 +133,12 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         }
 
         if (gameId != null) {
-            textView_gameId.setText("#".concat(gameId));
+            textViewGameId.setText("#".concat(gameId));
         }
 
         getGameStateDisposable = client.fetchGameState(gameId)
                 .subscribe(lastState -> parseChessBoardAndRefresh(lastState.getPayload()),
-                        throwable -> runOnUiThread(() -> Toast.makeText(baseContext, "An error occurred", Toast.LENGTH_SHORT).show()));
+                        throwable -> runOnUiThread(() -> Toast.makeText(baseContext, "An error occurred while fetching the last state", Toast.LENGTH_SHORT).show()));
 
         gameUpdateDisposable = client.receiveGameUpdates(gameId)
                 .subscribe(update -> {
@@ -159,51 +148,46 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                         getGameStateDisposable.dispose();
                 }, throwable -> runOnUiThread(() -> Toast.makeText(baseContext, "An error occurred", Toast.LENGTH_SHORT).show()));
 
-        SMBCount = findViewById(R.id.textViewSMBCount);
-        Soundbutton = findViewById(R.id.btn_sound_BoardView);
-        ExecuteSMB = findViewById(R.id.btn_execute_SMB);
-        ExecuteSMB.setVisibility(View.INVISIBLE);
+        smbCount = findViewById(R.id.textViewSMBCount);
+        soundButton = findViewById(R.id.btn_sound_BoardView);
+        executeSMB = findViewById(R.id.btn_execute_SMB);
+        executeSMB.setVisibility(View.INVISIBLE);
         Helper.setBackgroundSound(this, false);
-        Helper.stopMusicBackground(this);
-        //Helper.playGameSound(this);
-        //Helper.setGameSound(this, true);
+        Helper.stopMusicBackground();
 
+        specialMoveBar = findViewById(R.id.special_move_bar);
         SpecialMoveBar();
-        SMBCount.setText(currentProgress + " | " + specialMoveBar.getMax());
+        smbCount.setText(SpecialMoveBarCalculation.calculateProgress() + " | " + specialMoveBar.getMax());
 
-        Soundbutton.setOnClickListener(view -> {
+        soundButton.setOnClickListener(view -> {
             if (Helper.getGameSound(this)) {
-                Soundbutton.setImageResource(R.drawable.volume_off_white);
+                soundButton.setImageResource(R.drawable.volume_off_white);
                 Helper.setGameSound(this, false);
-                Helper.stopGameSound(this);
+                Helper.stopGameSound();
 
             } else {
                 Helper.playGameSound(this);
-                Soundbutton.setImageResource(R.drawable.volume_on_white);
+                soundButton.setImageResource(R.drawable.volume_on_white);
                 Helper.setGameSound(this, true);
-                Soundbutton.setSoundEffectsEnabled(true);
+                soundButton.setSoundEffectsEnabled(true);
 
             }
         });
 
-        ExecuteSMB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        executeSMB.setOnClickListener(v -> {
 
-                // ToDO perform SpecialMove --> Atomic Move
-
-                // --> Executes SMB Bar - sets progress to remaining buffer
-                specialMoveActivated = true;
-                currentProgress = 0;
-                specialMoveBar.setProgress(currentProgress);
-//                ExecuteSMB.setVisibility(View.INVISIBLE);
-                SMBCount.setText(Buffer + " | " + specialMoveBar.getMax());
-                currentProgress = Buffer;
-                specialMoveBar.setProgress(currentProgress);
-                ExecuteSMB.setText("ACTIVE");
-                ExecuteSMB.setBackgroundResource(R.drawable.custom_button_lobby_join_success);
-                Buffer = 0;
-            }
+            // --> Executes SMB Bar - sets progress to remaining buffer
+            specialMoveActivated = true;
+            currentProgress = 0;
+            specialMoveBar.setProgress(currentProgress);
+            //executeSMB.setVisibility(View.INVISIBLE);
+            smbCount.setText(buffer + " | " + specialMoveBar.getMax());
+            currentProgress = buffer;
+            specialMoveBar.setProgress(currentProgress);
+            executeSMB.setText("ACTIVE");
+            executeSMB.setClickable(false);
+            executeSMB.setBackgroundResource(R.drawable.custom_button_lobby_join_success);
+            buffer = SpecialMoveBarCalculation.calculateBuffer();
         });
 
     }
@@ -211,144 +195,143 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
 
     private void initializeBoard() {
 
-        BoardView[0][0] = (TextView) findViewById(R.id.R00);
-        BoardViewBackground[0][0] = (TextView) findViewById(R.id.R000);
-        BoardView[1][0] = (TextView) findViewById(R.id.R10);
-        BoardViewBackground[1][0] = (TextView) findViewById(R.id.R010);
-        BoardView[2][0] = (TextView) findViewById(R.id.R20);
-        BoardViewBackground[2][0] = (TextView) findViewById(R.id.R020);
-        BoardView[3][0] = (TextView) findViewById(R.id.R30);
-        BoardViewBackground[3][0] = (TextView) findViewById(R.id.R030);
-        BoardView[4][0] = (TextView) findViewById(R.id.R40);
-        BoardViewBackground[4][0] = (TextView) findViewById(R.id.R040);
-        BoardView[5][0] = (TextView) findViewById(R.id.R50);
-        BoardViewBackground[5][0] = (TextView) findViewById(R.id.R050);
-        BoardView[6][0] = (TextView) findViewById(R.id.R60);
-        BoardViewBackground[6][0] = (TextView) findViewById(R.id.R060);
-        BoardView[7][0] = (TextView) findViewById(R.id.R70);
-        BoardViewBackground[7][0] = (TextView) findViewById(R.id.R070);
+        boardView[0][0] = (TextView) findViewById(R.id.R00);
+        boardViewBackground[0][0] = (TextView) findViewById(R.id.R000);
+        boardView[1][0] = (TextView) findViewById(R.id.R10);
+        boardViewBackground[1][0] = (TextView) findViewById(R.id.R010);
+        boardView[2][0] = (TextView) findViewById(R.id.R20);
+        boardViewBackground[2][0] = (TextView) findViewById(R.id.R020);
+        boardView[3][0] = (TextView) findViewById(R.id.R30);
+        boardViewBackground[3][0] = (TextView) findViewById(R.id.R030);
+        boardView[4][0] = (TextView) findViewById(R.id.R40);
+        boardViewBackground[4][0] = (TextView) findViewById(R.id.R040);
+        boardView[5][0] = (TextView) findViewById(R.id.R50);
+        boardViewBackground[5][0] = (TextView) findViewById(R.id.R050);
+        boardView[6][0] = (TextView) findViewById(R.id.R60);
+        boardViewBackground[6][0] = (TextView) findViewById(R.id.R060);
+        boardView[7][0] = (TextView) findViewById(R.id.R70);
+        boardViewBackground[7][0] = (TextView) findViewById(R.id.R070);
 
-        BoardView[0][1] = (TextView) findViewById(R.id.R01);
-        BoardViewBackground[0][1] = (TextView) findViewById(R.id.R001);
-        BoardView[1][1] = (TextView) findViewById(R.id.R11);
-        BoardViewBackground[1][1] = (TextView) findViewById(R.id.R011);
-        BoardView[2][1] = (TextView) findViewById(R.id.R21);
-        BoardViewBackground[2][1] = (TextView) findViewById(R.id.R021);
-        BoardView[3][1] = (TextView) findViewById(R.id.R31);
-        BoardViewBackground[3][1] = (TextView) findViewById(R.id.R031);
-        BoardView[4][1] = (TextView) findViewById(R.id.R41);
-        BoardViewBackground[4][1] = (TextView) findViewById(R.id.R041);
-        BoardView[5][1] = (TextView) findViewById(R.id.R51);
-        BoardViewBackground[5][1] = (TextView) findViewById(R.id.R051);
-        BoardView[6][1] = (TextView) findViewById(R.id.R61);
-        BoardViewBackground[6][1] = (TextView) findViewById(R.id.R061);
-        BoardView[7][1] = (TextView) findViewById(R.id.R71);
-        BoardViewBackground[7][1] = (TextView) findViewById(R.id.R071);
+        boardView[0][1] = (TextView) findViewById(R.id.R01);
+        boardViewBackground[0][1] = (TextView) findViewById(R.id.R001);
+        boardView[1][1] = (TextView) findViewById(R.id.R11);
+        boardViewBackground[1][1] = (TextView) findViewById(R.id.R011);
+        boardView[2][1] = (TextView) findViewById(R.id.R21);
+        boardViewBackground[2][1] = (TextView) findViewById(R.id.R021);
+        boardView[3][1] = (TextView) findViewById(R.id.R31);
+        boardViewBackground[3][1] = (TextView) findViewById(R.id.R031);
+        boardView[4][1] = (TextView) findViewById(R.id.R41);
+        boardViewBackground[4][1] = (TextView) findViewById(R.id.R041);
+        boardView[5][1] = (TextView) findViewById(R.id.R51);
+        boardViewBackground[5][1] = (TextView) findViewById(R.id.R051);
+        boardView[6][1] = (TextView) findViewById(R.id.R61);
+        boardViewBackground[6][1] = (TextView) findViewById(R.id.R061);
+        boardView[7][1] = (TextView) findViewById(R.id.R71);
+        boardViewBackground[7][1] = (TextView) findViewById(R.id.R071);
 
-        BoardView[0][2] = (TextView) findViewById(R.id.R02);
-        BoardViewBackground[0][2] = (TextView) findViewById(R.id.R002);
-        BoardView[1][2] = (TextView) findViewById(R.id.R12);
-        BoardViewBackground[1][2] = (TextView) findViewById(R.id.R012);
-        BoardView[2][2] = (TextView) findViewById(R.id.R22);
-        BoardViewBackground[2][2] = (TextView) findViewById(R.id.R022);
-        BoardView[3][2] = (TextView) findViewById(R.id.R32);
-        BoardViewBackground[3][2] = (TextView) findViewById(R.id.R032);
-        BoardView[4][2] = (TextView) findViewById(R.id.R42);
-        BoardViewBackground[4][2] = (TextView) findViewById(R.id.R042);
-        BoardView[5][2] = (TextView) findViewById(R.id.R52);
-        BoardViewBackground[5][2] = (TextView) findViewById(R.id.R052);
-        BoardView[6][2] = (TextView) findViewById(R.id.R62);
-        BoardViewBackground[6][2] = (TextView) findViewById(R.id.R062);
-        BoardView[7][2] = (TextView) findViewById(R.id.R72);
-        BoardViewBackground[7][2] = (TextView) findViewById(R.id.R072);
+        boardView[0][2] = (TextView) findViewById(R.id.R02);
+        boardViewBackground[0][2] = (TextView) findViewById(R.id.R002);
+        boardView[1][2] = (TextView) findViewById(R.id.R12);
+        boardViewBackground[1][2] = (TextView) findViewById(R.id.R012);
+        boardView[2][2] = (TextView) findViewById(R.id.R22);
+        boardViewBackground[2][2] = (TextView) findViewById(R.id.R022);
+        boardView[3][2] = (TextView) findViewById(R.id.R32);
+        boardViewBackground[3][2] = (TextView) findViewById(R.id.R032);
+        boardView[4][2] = (TextView) findViewById(R.id.R42);
+        boardViewBackground[4][2] = (TextView) findViewById(R.id.R042);
+        boardView[5][2] = (TextView) findViewById(R.id.R52);
+        boardViewBackground[5][2] = (TextView) findViewById(R.id.R052);
+        boardView[6][2] = (TextView) findViewById(R.id.R62);
+        boardViewBackground[6][2] = (TextView) findViewById(R.id.R062);
+        boardView[7][2] = (TextView) findViewById(R.id.R72);
+        boardViewBackground[7][2] = (TextView) findViewById(R.id.R072);
 
-        BoardView[0][3] = (TextView) findViewById(R.id.R03);
-        BoardViewBackground[0][3] = (TextView) findViewById(R.id.R003);
-        BoardView[1][3] = (TextView) findViewById(R.id.R13);
-        BoardViewBackground[1][3] = (TextView) findViewById(R.id.R013);
-        BoardView[2][3] = (TextView) findViewById(R.id.R23);
-        BoardViewBackground[2][3] = (TextView) findViewById(R.id.R023);
-        BoardView[3][3] = (TextView) findViewById(R.id.R33);
-        BoardViewBackground[3][3] = (TextView) findViewById(R.id.R033);
-        BoardView[4][3] = (TextView) findViewById(R.id.R43);
-        BoardViewBackground[4][3] = (TextView) findViewById(R.id.R043);
-        BoardView[5][3] = (TextView) findViewById(R.id.R53);
-        BoardViewBackground[5][3] = (TextView) findViewById(R.id.R053);
-        BoardView[6][3] = (TextView) findViewById(R.id.R63);
-        BoardViewBackground[6][3] = (TextView) findViewById(R.id.R063);
-        BoardView[7][3] = (TextView) findViewById(R.id.R73);
-        BoardViewBackground[7][3] = (TextView) findViewById(R.id.R073);
+        boardView[0][3] = (TextView) findViewById(R.id.R03);
+        boardViewBackground[0][3] = (TextView) findViewById(R.id.R003);
+        boardView[1][3] = (TextView) findViewById(R.id.R13);
+        boardViewBackground[1][3] = (TextView) findViewById(R.id.R013);
+        boardView[2][3] = (TextView) findViewById(R.id.R23);
+        boardViewBackground[2][3] = (TextView) findViewById(R.id.R023);
+        boardView[3][3] = (TextView) findViewById(R.id.R33);
+        boardViewBackground[3][3] = (TextView) findViewById(R.id.R033);
+        boardView[4][3] = (TextView) findViewById(R.id.R43);
+        boardViewBackground[4][3] = (TextView) findViewById(R.id.R043);
+        boardView[5][3] = (TextView) findViewById(R.id.R53);
+        boardViewBackground[5][3] = (TextView) findViewById(R.id.R053);
+        boardView[6][3] = (TextView) findViewById(R.id.R63);
+        boardViewBackground[6][3] = (TextView) findViewById(R.id.R063);
+        boardView[7][3] = (TextView) findViewById(R.id.R73);
+        boardViewBackground[7][3] = (TextView) findViewById(R.id.R073);
 
-        BoardView[0][4] = (TextView) findViewById(R.id.R04);
-        BoardViewBackground[0][4] = (TextView) findViewById(R.id.R004);
-        BoardView[1][4] = (TextView) findViewById(R.id.R14);
-        BoardViewBackground[1][4] = (TextView) findViewById(R.id.R014);
-        BoardView[2][4] = (TextView) findViewById(R.id.R24);
-        BoardViewBackground[2][4] = (TextView) findViewById(R.id.R024);
-        BoardView[3][4] = (TextView) findViewById(R.id.R34);
-        BoardViewBackground[3][4] = (TextView) findViewById(R.id.R034);
-        BoardView[4][4] = (TextView) findViewById(R.id.R44);
-        BoardViewBackground[4][4] = (TextView) findViewById(R.id.R044);
-        BoardView[5][4] = (TextView) findViewById(R.id.R54);
-        BoardViewBackground[5][4] = (TextView) findViewById(R.id.R054);
-        BoardView[6][4] = (TextView) findViewById(R.id.R64);
-        BoardViewBackground[6][4] = (TextView) findViewById(R.id.R064);
-        BoardView[7][4] = (TextView) findViewById(R.id.R74);
-        BoardViewBackground[7][4] = (TextView) findViewById(R.id.R074);
+        boardView[0][4] = (TextView) findViewById(R.id.R04);
+        boardViewBackground[0][4] = (TextView) findViewById(R.id.R004);
+        boardView[1][4] = (TextView) findViewById(R.id.R14);
+        boardViewBackground[1][4] = (TextView) findViewById(R.id.R014);
+        boardView[2][4] = (TextView) findViewById(R.id.R24);
+        boardViewBackground[2][4] = (TextView) findViewById(R.id.R024);
+        boardView[3][4] = (TextView) findViewById(R.id.R34);
+        boardViewBackground[3][4] = (TextView) findViewById(R.id.R034);
+        boardView[4][4] = (TextView) findViewById(R.id.R44);
+        boardViewBackground[4][4] = (TextView) findViewById(R.id.R044);
+        boardView[5][4] = (TextView) findViewById(R.id.R54);
+        boardViewBackground[5][4] = (TextView) findViewById(R.id.R054);
+        boardView[6][4] = (TextView) findViewById(R.id.R64);
+        boardViewBackground[6][4] = (TextView) findViewById(R.id.R064);
+        boardView[7][4] = (TextView) findViewById(R.id.R74);
+        boardViewBackground[7][4] = (TextView) findViewById(R.id.R074);
 
-        BoardView[0][5] = (TextView) findViewById(R.id.R05);
-        BoardViewBackground[0][5] = (TextView) findViewById(R.id.R005);
-        BoardView[1][5] = (TextView) findViewById(R.id.R15);
-        BoardViewBackground[1][5] = (TextView) findViewById(R.id.R015);
-        BoardView[2][5] = (TextView) findViewById(R.id.R25);
-        BoardViewBackground[2][5] = (TextView) findViewById(R.id.R025);
-        BoardView[3][5] = (TextView) findViewById(R.id.R35);
-        BoardViewBackground[3][5] = (TextView) findViewById(R.id.R035);
-        BoardView[4][5] = (TextView) findViewById(R.id.R45);
-        BoardViewBackground[4][5] = (TextView) findViewById(R.id.R045);
-        BoardView[5][5] = (TextView) findViewById(R.id.R55);
-        BoardViewBackground[5][5] = (TextView) findViewById(R.id.R055);
-        BoardView[6][5] = (TextView) findViewById(R.id.R65);
-        BoardViewBackground[6][5] = (TextView) findViewById(R.id.R065);
-        BoardView[7][5] = (TextView) findViewById(R.id.R75);
-        BoardViewBackground[7][5] = (TextView) findViewById(R.id.R075);
+        boardView[0][5] = (TextView) findViewById(R.id.R05);
+        boardViewBackground[0][5] = (TextView) findViewById(R.id.R005);
+        boardView[1][5] = (TextView) findViewById(R.id.R15);
+        boardViewBackground[1][5] = (TextView) findViewById(R.id.R015);
+        boardView[2][5] = (TextView) findViewById(R.id.R25);
+        boardViewBackground[2][5] = (TextView) findViewById(R.id.R025);
+        boardView[3][5] = (TextView) findViewById(R.id.R35);
+        boardViewBackground[3][5] = (TextView) findViewById(R.id.R035);
+        boardView[4][5] = (TextView) findViewById(R.id.R45);
+        boardViewBackground[4][5] = (TextView) findViewById(R.id.R045);
+        boardView[5][5] = (TextView) findViewById(R.id.R55);
+        boardViewBackground[5][5] = (TextView) findViewById(R.id.R055);
+        boardView[6][5] = (TextView) findViewById(R.id.R65);
+        boardViewBackground[6][5] = (TextView) findViewById(R.id.R065);
+        boardView[7][5] = (TextView) findViewById(R.id.R75);
+        boardViewBackground[7][5] = (TextView) findViewById(R.id.R075);
 
-        BoardView[0][6] = (TextView) findViewById(R.id.R06);
-        BoardViewBackground[0][6] = (TextView) findViewById(R.id.R006);
-        BoardView[1][6] = (TextView) findViewById(R.id.R16);
-        BoardViewBackground[1][6] = (TextView) findViewById(R.id.R016);
-        BoardView[2][6] = (TextView) findViewById(R.id.R26);
-        BoardViewBackground[2][6] = (TextView) findViewById(R.id.R026);
-        BoardView[3][6] = (TextView) findViewById(R.id.R36);
-        BoardViewBackground[3][6] = (TextView) findViewById(R.id.R036);
-        BoardView[4][6] = (TextView) findViewById(R.id.R46);
-        BoardViewBackground[4][6] = (TextView) findViewById(R.id.R046);
-        BoardView[5][6] = (TextView) findViewById(R.id.R56);
-        BoardViewBackground[5][6] = (TextView) findViewById(R.id.R056);
-        BoardView[6][6] = (TextView) findViewById(R.id.R66);
-        BoardViewBackground[6][6] = (TextView) findViewById(R.id.R066);
-        BoardView[7][6] = (TextView) findViewById(R.id.R76);
-        BoardViewBackground[7][6] = (TextView) findViewById(R.id.R076);
+        boardView[0][6] = (TextView) findViewById(R.id.R06);
+        boardViewBackground[0][6] = (TextView) findViewById(R.id.R006);
+        boardView[1][6] = (TextView) findViewById(R.id.R16);
+        boardViewBackground[1][6] = (TextView) findViewById(R.id.R016);
+        boardView[2][6] = (TextView) findViewById(R.id.R26);
+        boardViewBackground[2][6] = (TextView) findViewById(R.id.R026);
+        boardView[3][6] = (TextView) findViewById(R.id.R36);
+        boardViewBackground[3][6] = (TextView) findViewById(R.id.R036);
+        boardView[4][6] = (TextView) findViewById(R.id.R46);
+        boardViewBackground[4][6] = (TextView) findViewById(R.id.R046);
+        boardView[5][6] = (TextView) findViewById(R.id.R56);
+        boardViewBackground[5][6] = (TextView) findViewById(R.id.R056);
+        boardView[6][6] = (TextView) findViewById(R.id.R66);
+        boardViewBackground[6][6] = (TextView) findViewById(R.id.R066);
+        boardView[7][6] = (TextView) findViewById(R.id.R76);
+        boardViewBackground[7][6] = (TextView) findViewById(R.id.R076);
 
-        BoardView[0][7] = (TextView) findViewById(R.id.R07);
-        BoardViewBackground[0][7] = (TextView) findViewById(R.id.R007);
-        BoardView[1][7] = (TextView) findViewById(R.id.R17);
-        BoardViewBackground[1][7] = (TextView) findViewById(R.id.R017);
-        BoardView[2][7] = (TextView) findViewById(R.id.R27);
-        BoardViewBackground[2][7] = (TextView) findViewById(R.id.R027);
-        BoardView[3][7] = (TextView) findViewById(R.id.R37);
-        BoardViewBackground[3][7] = (TextView) findViewById(R.id.R037);
-        BoardView[4][7] = (TextView) findViewById(R.id.R47);
-        BoardViewBackground[4][7] = (TextView) findViewById(R.id.R047);
-        BoardView[5][7] = (TextView) findViewById(R.id.R57);
-        BoardViewBackground[5][7] = (TextView) findViewById(R.id.R057);
-        BoardView[6][7] = (TextView) findViewById(R.id.R67);
-        BoardViewBackground[6][7] = (TextView) findViewById(R.id.R067);
-        BoardView[7][7] = (TextView) findViewById(R.id.R77);
-        BoardViewBackground[7][7] = (TextView) findViewById(R.id.R077);
+        boardView[0][7] = (TextView) findViewById(R.id.R07);
+        boardViewBackground[0][7] = (TextView) findViewById(R.id.R007);
+        boardView[1][7] = (TextView) findViewById(R.id.R17);
+        boardViewBackground[1][7] = (TextView) findViewById(R.id.R017);
+        boardView[2][7] = (TextView) findViewById(R.id.R27);
+        boardViewBackground[2][7] = (TextView) findViewById(R.id.R027);
+        boardView[3][7] = (TextView) findViewById(R.id.R37);
+        boardViewBackground[3][7] = (TextView) findViewById(R.id.R037);
+        boardView[4][7] = (TextView) findViewById(R.id.R47);
+        boardViewBackground[4][7] = (TextView) findViewById(R.id.R047);
+        boardView[5][7] = (TextView) findViewById(R.id.R57);
+        boardViewBackground[5][7] = (TextView) findViewById(R.id.R057);
+        boardView[6][7] = (TextView) findViewById(R.id.R67);
+        boardViewBackground[6][7] = (TextView) findViewById(R.id.R067);
+        boardView[7][7] = (TextView) findViewById(R.id.R77);
+        boardViewBackground[7][7] = (TextView) findViewById(R.id.R077);
 
         initializePieces();
-        // setAltBoard();
     }
 
     private void initializePieces() {
@@ -357,65 +340,69 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                 ChessPiece chessPiece = chessBoard.getPieceAtLocation(new Location(i, j));
 
                 if (chessPiece != null) {
-                    if (chessPiece.getClass() == Pawn.class && chessPiece.getColour() == PieceColour.BLACK) {
-                        BoardView[i][j].setBackgroundResource(R.drawable.black_pawn);
-                    }
-                    if (chessPiece.getClass() == Pawn.class && chessPiece.getColour() == PieceColour.WHITE) {
-                        BoardView[i][j].setBackgroundResource(R.drawable.white_pawn);
-                    }
-                    if (chessPiece.getClass() == Rook.class && chessPiece.getColour() == PieceColour.BLACK) {
-                        BoardView[i][j].setBackgroundResource(R.drawable.black_rook);
-                    }
-                    if (chessPiece.getClass() == Rook.class && chessPiece.getColour() == PieceColour.WHITE) {
-                        BoardView[i][j].setBackgroundResource(R.drawable.white_rook);
-                    }
-                    if (chessPiece.getClass() == Bishop.class && chessPiece.getColour() == PieceColour.BLACK) {
-                        BoardView[i][j].setBackgroundResource(R.drawable.black_bishop);
-                    }
-                    if (chessPiece.getClass() == Bishop.class && chessPiece.getColour() == PieceColour.WHITE) {
-                        BoardView[i][j].setBackgroundResource(R.drawable.white_bishop);
-                    }
-                    if (chessPiece.getClass() == Knight.class && chessPiece.getColour() == PieceColour.BLACK) {
-                        BoardView[i][j].setBackgroundResource(R.drawable.black_knight);
-                    }
-                    if (chessPiece.getClass() == Knight.class && chessPiece.getColour() == PieceColour.WHITE) {
-                        BoardView[i][j].setBackgroundResource(R.drawable.white_knight);
-                    }
-                    if (chessPiece.getClass() == King.class && chessPiece.getColour() == PieceColour.BLACK) {
-                        BoardView[i][j].setBackgroundResource(R.drawable.black_king);
-                    }
-                    if (chessPiece.getClass() == King.class && chessPiece.getColour() == PieceColour.WHITE) {
-                        BoardView[i][j].setBackgroundResource(R.drawable.white_king);
-                    }
-                    if (chessPiece.getClass() == Queen.class && chessPiece.getColour() == PieceColour.BLACK) {
-                        BoardView[i][j].setBackgroundResource(R.drawable.black_queen);
-                    }
-                    if (chessPiece.getClass() == Queen.class && chessPiece.getColour() == PieceColour.WHITE) {
-                        BoardView[i][j].setBackgroundResource(R.drawable.white_queen);
-                    }
+                    initializeWhitePieces(i, j);
+                    initializeBlackPieces(i, j);
                 } else {
-                    BoardView[i][j].setBackgroundResource(android.R.color.transparent);
+                    boardView[i][j].setBackgroundResource(android.R.color.transparent);
                 }
             }
         }
 
     }
 
-    private void setAltBoard() {
+    private void initializeWhitePieces(int i, int j) {
+        ChessPiece chessPiece = chessBoard.getPieceAtLocation(new Location(i, j));
 
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
 
-            }
+        if (chessPiece.getClass() == Pawn.class && chessPiece.getColour() == PieceColour.WHITE) {
+            boardView[i][j].setBackgroundResource(R.drawable.white_pawn);
         }
-
-
+        if (chessPiece.getClass() == Rook.class && chessPiece.getColour() == PieceColour.WHITE) {
+            boardView[i][j].setBackgroundResource(R.drawable.white_rook);
+        }
+        if (chessPiece.getClass() == Bishop.class && chessPiece.getColour() == PieceColour.WHITE) {
+            boardView[i][j].setBackgroundResource(R.drawable.white_bishop);
+        }
+        if (chessPiece.getClass() == Knight.class && chessPiece.getColour() == PieceColour.WHITE) {
+            boardView[i][j].setBackgroundResource(R.drawable.white_knight);
+        }
+        if (chessPiece.getClass() == King.class && chessPiece.getColour() == PieceColour.WHITE) {
+            boardView[i][j].setBackgroundResource(R.drawable.white_king);
+        }
+        if (chessPiece.getClass() == Queen.class && chessPiece.getColour() == PieceColour.WHITE) {
+            boardView[i][j].setBackgroundResource(R.drawable.white_queen);
+        }
     }
+
+
+    private void initializeBlackPieces(int i, int j) {
+        ChessPiece chessPiece = chessBoard.getPieceAtLocation(new Location(i, j));
+
+        if (chessPiece.getClass() == Pawn.class && chessPiece.getColour() == PieceColour.BLACK) {
+            boardView[i][j].setBackgroundResource(R.drawable.black_pawn);
+        }
+        if (chessPiece.getClass() == Rook.class && chessPiece.getColour() == PieceColour.BLACK) {
+            boardView[i][j].setBackgroundResource(R.drawable.black_rook);
+        }
+        if (chessPiece.getClass() == Bishop.class && chessPiece.getColour() == PieceColour.BLACK) {
+            boardView[i][j].setBackgroundResource(R.drawable.black_bishop);
+        }
+        if (chessPiece.getClass() == Knight.class && chessPiece.getColour() == PieceColour.BLACK) {
+            boardView[i][j].setBackgroundResource(R.drawable.black_knight);
+        }
+        if (chessPiece.getClass() == King.class && chessPiece.getColour() == PieceColour.BLACK) {
+            boardView[i][j].setBackgroundResource(R.drawable.black_king);
+        }
+        if (chessPiece.getClass() == Queen.class && chessPiece.getColour() == PieceColour.BLACK) {
+            boardView[i][j].setBackgroundResource(R.drawable.black_queen);
+        }
+    }
+
 
     @Override
     public void onClick(View view) {
-        PieceCaptured = MediaPlayer.create(this, R.raw.piece_captured);
-        PieceMoved = MediaPlayer.create(this, R.raw.piece_move_two);
+        pieceCaptured = MediaPlayer.create(this, R.raw.piece_captured);
+        pieceMoved = MediaPlayer.create(this, R.raw.piece_move_two);
         //add clicked position
         // if selected ....
         switch (view.getId()) {
@@ -680,6 +667,9 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                 onClickedPosition.setRow(7);
                 onClickedPosition.setColumn(7);
                 break;
+            default:
+                // not implemented
+                break;
         }
 
         if (chessBoard.getPieceAtLocation(onClickedPosition) != null) {
@@ -693,23 +683,6 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
             return;
         }
 
-
-        /*
-        if (selectedPiece != null) {
-            isPieceSelected = true;
-        }
-
-            /*
-            if (!isPieceSelected) {
-                chessBoard.getPieceAtLocation(onClickedPosition);
-                BoardViewBackground[onClickedPosition.getRow()][onClickedPosition.getColumn()].setBackgroundResource(R.color.select);
-                isPieceSelected = true;
-            }else {
-                chessBoard.setLocationTo(chessBoard.getPieceAtLocation(onClickedPosition), onClickedPosition);
-                BoardView[onClickedPosition.getRow()][onClickedPosition.getColumn()].setBackgroundResource(R.drawable.white_queen);
-                isPieceSelected = false;
-            }
-             */
         if (isPieceSelected) {
             showLegalMoves();
         } else {
@@ -724,9 +697,9 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                             destroyedPieceValue = copyOfChessBoard.performMoveOnBoard(move);
                         } else {
                             destroyedLocations = copyOfChessBoard.performAtomicMove(move);
-                            ExecuteSMB.setVisibility(View.INVISIBLE);
-                            ExecuteSMB.setText("Execute");
-                            ExecuteSMB.setBackgroundResource(R.drawable.custom_button_smb);
+                            executeSMB.setVisibility(View.INVISIBLE);
+                            executeSMB.setText("Execute");
+                            executeSMB.setBackgroundResource(R.drawable.custom_button_smb);
                             specialMoveActivated = false;
                         }
                         GameDataDTO<ChessBoard> data = new GameDataDTO<>(copyOfChessBoard);
@@ -750,20 +723,13 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
     private void showLegalMoves() {
         resetColour();
         isAnyPieceSelected = true;
-        BoardViewBackground[onClickedPosition.getRow()][onClickedPosition.getColumn()].setBackgroundResource(R.color.select);
+        boardViewBackground[onClickedPosition.getRow()][onClickedPosition.getColumn()].setBackgroundResource(R.color.select);
         legalMoveList = selectedPiece.getLegalMoves(chessBoard);
         for (Location loc : legalMoveList) {
-            BoardViewBackground[loc.getRow()][loc.getColumn()].setBackgroundResource(R.color.highlight_moves);
+            boardViewBackground[loc.getRow()][loc.getColumn()].setBackgroundResource(R.color.highlight_moves);
         }
         isPieceSelected = false;
     }
-
-    //method:
-    //TODO: safe board
-    //TODO: undo
-    //TODO: choice
-    //TODO: set color at allowed position
-    //TODO: is King in danger
 
     // --> SpecialMoveBar
     public void SpecialMoveBar() {
@@ -771,13 +737,14 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         specialMoveBar = findViewById(R.id.special_move_bar);
         specialMoveBar.setProgress(currentProgress);
         specialMoveBar.setMax(5);
-        SMBCount.setText(currentProgress + " | " + specialMoveBar.getMax());
+        smbCount.setText(currentProgress + " | " + specialMoveBar.getMax());
 
         if (currentProgress >= specialMoveBar.getMax()) {
-            Buffer = currentProgress - specialMoveBar.getMax();
-            Helper.playSMB_BarSound(this);
+            SpecialMoveBarCalculation.calculateBuffer();
+            Helper.playSmbBarSound(this);
             SMB.start();
-            ExecuteSMB.setVisibility(View.VISIBLE);
+            executeSMB.setVisibility(View.VISIBLE);
+            executeSMB.setClickable(true);
         }
     }
 
@@ -785,9 +752,9 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 if ((i + j) % 2 == 0) {
-                    BoardViewBackground[i][j].setBackgroundResource(R.color.dark_square);
+                    boardViewBackground[i][j].setBackgroundResource(R.color.dark_square);
                 } else {
-                    BoardViewBackground[i][j].setBackgroundResource(R.color.light_square);
+                    boardViewBackground[i][j].setBackgroundResource(R.color.light_square);
                 }
             }
         }
@@ -800,7 +767,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         AnimatorSet animationSet = new AnimatorSet();
         List<Animator> animators = new ArrayList<>();
         for (Location destroyedLoc : destroyedLocations) {
-            View view = BoardViewBackground[destroyedLoc.getRow()][destroyedLoc.getColumn()];
+            View view = boardViewBackground[destroyedLoc.getRow()][destroyedLoc.getColumn()];
             int colorFrom = getColor(R.color.atomic_hit);
             int colorTo;
             if ((destroyedLoc.getRow() + destroyedLoc.getColumn()) % 2 == 0) {
@@ -809,14 +776,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                 colorTo = getColor(R.color.light_square);
             }
             ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
-            colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-
-                @Override
-                public void onAnimationUpdate(ValueAnimator animator) {
-                    view.setBackgroundColor((int) animator.getAnimatedValue());
-                }
-
-            });
+            colorAnimation.addUpdateListener(animator -> view.setBackgroundColor((int) animator.getAnimatedValue()));
             animators.add(colorAnimation);
 
         }
@@ -832,31 +792,20 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         }
         nextPlayer = gameData.getNextPlayer();
         List<Location> atomicHits = gameData.getDestroyedLocationsByAtomicMove();
-        /*runOnUiThread(() -> {
+        runOnUiThread(() -> {
             initializePieces();
             animateAtomicHits(atomicHits);
             showCurrentPlayerInfo(nextPlayer.getName());
-            if(chessBoard!=null) {
+            if (chessBoard != null) {
                 displayWinnerIfKingDied();
-            }
-        });*/
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                initializePieces();
-                animateAtomicHits(atomicHits);
-                showCurrentPlayerInfo(nextPlayer.getName());
-                if (chessBoard != null) {
-                    displayWinnerIfKingDied();
 
-                    if (isAnyPieceSelected) {
-                        ChessPiece piece = chessBoard.getPieceAtLocation(onClickedPosition);
-                        if (piece != null && piece.getColour().equals(colour)) {
-                            selectedPiece = piece;
-                            showLegalMoves();
-                        } else {
-                            resetColour();
-                        }
+                if (isAnyPieceSelected) {
+                    ChessPiece piece = chessBoard.getPieceAtLocation(onClickedPosition);
+                    if (piece != null && piece.getColour().equals(colour)) {
+                        selectedPiece = piece;
+                        showLegalMoves();
+                    } else {
+                        resetColour();
                     }
                 }
             }
@@ -871,8 +820,15 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
                 List<Game> games = Helper.getGameList(this);
                 for (Game g : games) {
                     if (g.getGameId().equals(Helper.getGameId(this))) {
-                        boolean winner = pieceColour.equals(colour);
-                        g.setWinner(winner);
+                        if (g.getStatus() != Game.STATUS_FINISHED) {
+                            if (pieceColour.equals(colour)) {
+                                g.setWinner(true);
+                                Helper.incrementWinCount(this);
+                            } else {
+                                g.setWinner(false);
+                                Helper.incrementLossCount(this);
+                            }
+                        }
                         g.setStatus(Game.STATUS_FINISHED);
                         break;
                     }
@@ -901,24 +857,25 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         if (!nextPlayer.getName().equals(playerName)) {
             // --> update SpecialMoveBar Progress
             if (destroyedPieceValue > 0) {
-                PieceCaptured.start();
-                currentProgress = currentProgress + destroyedPieceValue;
+                pieceCaptured.start();
+                SpecialMoveBarCalculation.calculateProgress();
                 runOnUiThread(this::SpecialMoveBar);
             } else {
-                PieceMoved.start();
+                pieceMoved.start();
             }
             destroyedPieceValue = 0;
         }
     }
+
 
     @Override
     public void onResume() {
         super.onResume();
         // --> update Soundsymbol
         if (Helper.getGameSound(this)) {
-            Soundbutton.setImageResource(R.drawable.volume_on_white);
+            soundButton.setImageResource(R.drawable.volume_on_white);
         } else {
-            Soundbutton.setImageResource(R.drawable.volume_off_white);
+            soundButton.setImageResource(R.drawable.volume_off_white);
         }
     }
 
@@ -934,7 +891,7 @@ public class BoardView extends AppCompatActivity implements View.OnClickListener
         gameUpdateDisposable.dispose();
         getGameStateDisposable.dispose();
         Helper.setGameSound(this, false);
-        Helper.stopGameSound(this);
+        Helper.stopGameSound();
     }
 
 

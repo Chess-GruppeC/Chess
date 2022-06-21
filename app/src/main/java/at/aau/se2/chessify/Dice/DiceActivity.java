@@ -19,9 +19,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import at.aau.se2.chessify.AndroidGameUI.BoardView;
 import at.aau.se2.chessify.LobbyActivity;
-import at.aau.se2.chessify.Player;
 import at.aau.se2.chessify.R;
-import at.aau.se2.chessify.chessLogic.pieces.PieceColour;
+import at.aau.se2.chessify.chess_logic.pieces.PieceColour;
 import at.aau.se2.chessify.network.WebSocketClient;
 import at.aau.se2.chessify.network.dto.DiceResultDTO;
 import at.aau.se2.chessify.network.dto.PlayerDTO;
@@ -31,21 +30,16 @@ public class DiceActivity extends AppCompatActivity {
     private ImageView dice;
     private TextView player1Color;
     private TextView player2Color;
-    private TextView player1Num;
-    private TextView player2Num;
     private TextView reroll;
-    private int number;
     private ShakeSensor mShaker;
     private Button creatBoard;
     Button abort;
-    private Player player;
     private int diceNumber;
-    ImageView Wallpaper;
+    ImageView wallpaper;
 
     private WebSocketClient webSocketClient;
     private DiceResultDTO diceResultDTO;
 
-    private ObjectMapper objectMapper;
     private PlayerDTO opponent;
 
     private Context baseContext;
@@ -58,7 +52,7 @@ public class DiceActivity extends AppCompatActivity {
         dice = findViewById(R.id.image_dice);
         creatBoard = findViewById(R.id.createBoard);
         abort = findViewById(R.id.btn_abort);
-        Wallpaper = findViewById(R.id.imageView3);
+        wallpaper = findViewById(R.id.imageView3);
 
         baseContext = getBaseContext();
         webSocketClient = WebSocketClient.getInstance(Helper.getPlayerName(this));
@@ -70,40 +64,19 @@ public class DiceActivity extends AppCompatActivity {
         reroll.setVisibility(View.INVISIBLE);
 
         webSocketClient = WebSocketClient.getInstance(Helper.getUniquePlayerName(this));
-        objectMapper = new ObjectMapper();
-        //creatBoard.setEnabled(false);
 
-       /* getDiceResultDisposable = webSocketClient.receiveStartingPlayer(Helper.getGameId(this))
-                .subscribe(stompMessage -> {
-            diceResultDTO = objectMapper.readValue(stompMessage.getPayload(),DiceResultDTO.class);
-            PlayerDTO winner = diceResultDTO.getWinner();
-        });*/
+        dice.setOnClickListener(view -> {
+            runShakeSensor();
 
-        dice.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                runShakeSensor();
-
-                if (mShaker.activCount != 0) {
-                    //getDiceWinner();
-                    getDiceNumber();
-                    //sendDiceValue();
-                }
+            if (mShaker.activCount != 0) {
+                getDiceNumber();
             }
         });
-        creatBoard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openGameView();
-            }
-        });
+        creatBoard.setOnClickListener(view -> openGameView());
 
-        abort.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                backToLobby();
-                // Close Server - build new connection
-            }
+        abort.setOnClickListener(view -> {
+            backToLobby();
+            // Close Server - build new connection
         });
     }
 
@@ -134,9 +107,6 @@ public class DiceActivity extends AppCompatActivity {
         }
         dice.setEnabled(false);
         reroll.setVisibility(View.INVISIBLE);
-        //player.setDiceNumber1(diceNumber);
-        //compareWhoStart();
-        //getDiceWinner();
     }
 
     private void runShakeSensor() {
@@ -144,26 +114,20 @@ public class DiceActivity extends AppCompatActivity {
         final Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
         mShaker = new ShakeSensor(this);
-        mShaker.setOnShakeListener(new ShakeSensor.OnShakeListener() {
-            public void onShake() {
-                mShaker.activCount = 1;
-                vibe.vibrate(500);
-                new AlertDialog.Builder(DiceActivity.this)
-                        .setPositiveButton(android.R.string.ok, null);
-                //  .setMessage("SHAKE!")
-                //   .show();
-                if (mShaker.activCount != 0) {
-                    getDiceNumber();
-                    onPause();
-                    // reroll.setVisibility(View.INVISIBLE);
-
-                }
+        mShaker.setOnShakeListener(() -> {
+            mShaker.activCount = 1;
+            vibe.vibrate(500);
+            new AlertDialog.Builder(DiceActivity.this)
+                    .setPositiveButton(android.R.string.ok, null);
+            if (mShaker.activCount != 0) {
+                getDiceNumber();
+                onPause();
             }
         });
     }
 
     private int getRandomNumber(int min, int max) {
-        number = (int) ((Math.random() * (max - min)) + min);
+        int number = (int) ((Math.random() * (max - min)) + min);
         return number;
     }
 
@@ -173,34 +137,13 @@ public class DiceActivity extends AppCompatActivity {
     }
     
 
-    private void compareWhoStart() {
-        player.setCurrentPlayer(player.getWhitePlayer());
-        if (player.getDiceNumber1() < player.getDiceNumber2()) {
-            player1Color.setId(R.id.player1_color);
-            player1Color.setText("BLACK " + player.getDiceNumber1());
-            player2Color.setId(R.id.player2_color);
-            player2Color.setText("WHITE " + player.getDiceNumber2());
-            player.changeCurrentPlayer();
-        } else {
-            player2Color.setId(R.id.player2_color);
-            player2Color.setText("BLACK " + player.getDiceNumber2());
-            player1Color.setId(R.id.player1_color);
-            player1Color.setText("WHITE " + player.getDiceNumber1());
-        }
-    }
-
     public void backToLobby() {
         Intent intent = new Intent(this, LobbyActivity.class);
         startActivity(intent);
-        // onBackPressed();
     }
 
     private void sendDiceValue() {
         webSocketClient.sendDiceValue(Helper.getGameId(this), diceNumber + "");
-    }
-
-    private void getDiceValue() {
-
     }
 
     @SuppressLint("CheckResult")
@@ -209,16 +152,13 @@ public class DiceActivity extends AppCompatActivity {
         webSocketClient.receiveStartingPlayer(Helper.getGameId(this)).subscribe(stompMessage -> {
             diceResultDTO = new ObjectMapper().readValue(stompMessage.getPayload(), DiceResultDTO.class);
             if (diceResultDTO.getWinner() == null) {
-                // dice.setEnabled(true);
                 // wiederholen
-                //  reroll.setVisibility(View.VISIBLE);
 
                 runOnUiThread(() -> {
                     dice.setEnabled(true);
                     reroll.setVisibility(View.VISIBLE);
 
                 });
-
 
             } else {
                 PlayerDTO winner = diceResultDTO.getWinner();
@@ -230,19 +170,11 @@ public class DiceActivity extends AppCompatActivity {
                         dice.setEnabled(true);
                         reroll.setVisibility(View.VISIBLE);
                     } else {
-
                         player1Color = findViewById(R.id.player1);
                         player1Color.setText(winner.getName());
-                        //     player1Num = findViewById(R.id.player1_color);
-                        //     player1Num.setText(winner.getDiceValue().toString());
 
                         player2Color = findViewById(R.id.player2);
                         player2Color.setText(loser.getName());
-                        //    player2Num = findViewById(R.id.player2_color);
-                        //     player2Num.setText(loser.getDiceValue().toString());
-
-
-                        creatBoard.setEnabled(true);
                     }
 
                     opponent = diceResultDTO.getPlayers()
@@ -262,31 +194,10 @@ public class DiceActivity extends AppCompatActivity {
                         Helper.setPlayerColour(baseContext, PieceColour.BLACK);
                     }
 
+                    creatBoard.setEnabled(true);
+
                 });
-
-                // show winner
-               /* Log.d("dicewinner", "aaaaaaaaaaaaaaaaaaaaaaaaaaa");
-
-                List<PlayerDTO> playerDTOList = diceResultDTO.getPlayers();
-                System.out.println(playerDTOList.get(0).getName());
-                for (PlayerDTO playerDTO : playerDTOList) {
-                    if (playerDTO.equals(diceResultDTO.getWinner())) {
-                        // text
-                        int num1 = playerDTOList.get(0).getDiceValue();
-                        String p1 = playerDTOList.get(0).getName();
-                        Log.d("dicewinner",p1);
-                        player1Color = findViewById(R.id.player1_color);
-                        player1Color.setText(diceNumber);
-
-*/
-               /* int num2 = playerDTOList.get(1).getDiceValue();
-                String p2 = playerDTOList.get(1).getName();
-                player1Color = findViewById(R.id.player1_color);
-                player2Color = findViewById(R.id.player2_color);
-                player1Color.setText(diceNumber);*/
             }
-
-
         });
     }
 
@@ -296,12 +207,12 @@ public class DiceActivity extends AppCompatActivity {
 
         // --> Update Color Scheme
         if (Helper.getDarkmode(this)) {
-            Wallpaper.setImageResource(R.drawable.wallpaper1_material_min);
+            wallpaper.setImageResource(R.drawable.wallpaper1_material_min);
             creatBoard.setBackground(getDrawable(R.drawable.custom_button1));
             abort.setBackground(getDrawable(R.drawable.custom_button1));
 
         } else {
-            Wallpaper.setImageResource(R.drawable.wallpaper1_material_min_dark);
+            wallpaper.setImageResource(R.drawable.wallpaper1_material_min_dark);
             creatBoard.setBackground(getDrawable(R.drawable.custom_button2));
             abort.setBackground(getDrawable(R.drawable.custom_button2));
         }
@@ -314,8 +225,4 @@ public class DiceActivity extends AppCompatActivity {
         super.onPause();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
 }

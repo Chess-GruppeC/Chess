@@ -226,7 +226,7 @@ public class WebSocketClientTest {
         try {
             waiter.await(1, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            // unhandled
         }
     }
 

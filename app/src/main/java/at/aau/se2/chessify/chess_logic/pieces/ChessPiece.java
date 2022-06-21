@@ -1,16 +1,14 @@
-package at.aau.se2.chessify.chessLogic.pieces;
+package at.aau.se2.chessify.chess_logic.pieces;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import at.aau.se2.chessify.chessLogic.board.ChessBoard;
-import at.aau.se2.chessify.chessLogic.board.Location;
-import at.aau.se2.chessify.chessLogic.board.Move;
+import at.aau.se2.chessify.chess_logic.board.ChessBoard;
+import at.aau.se2.chessify.chess_logic.board.Location;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = King.class, name = "King"),
         @JsonSubTypes.Type(value = Bishop.class, name = "Bishop"),

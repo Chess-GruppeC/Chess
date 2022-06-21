@@ -1,13 +1,15 @@
-package at.aau.se2.chessify.chessLogic.pieces;
+package at.aau.se2.chessify.chess_logic.pieces;
 
-import at.aau.se2.chessify.chessLogic.board.ChessBoard;
-import at.aau.se2.chessify.chessLogic.board.Location;
+import at.aau.se2.chessify.chess_logic.board.ChessBoard;
+import at.aau.se2.chessify.chess_logic.board.Location;
 
 import java.util.ArrayList;
 
 public class Queen extends ChessPiece implements ChessMoveInterface{
 
-    public Queen() {}
+    public Queen() {
+        // empty constructor needed for JSON parsing
+    }
 
     public Queen(PieceColour colour) {
         this.colour=colour;

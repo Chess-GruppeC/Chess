@@ -2,7 +2,7 @@ package at.aau.se2.chessify.network.dto;
 
 import java.util.List;
 
-import at.aau.se2.chessify.chessLogic.board.Location;
+import at.aau.se2.chessify.chess_logic.board.Location;
 
 public class GameDataDTO<T> {
 
@@ -10,7 +10,9 @@ public class GameDataDTO<T> {
     private T data;
     private List<Location> destroyedLocationsByAtomicMove;
 
-    public GameDataDTO() {}
+    public GameDataDTO() {
+        // empty constructor needed for JSON parsing
+    }
 
     public GameDataDTO(T data) {
         this.data = data;
