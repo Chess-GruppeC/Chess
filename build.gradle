@@ -25,7 +25,7 @@ sonarqube {
       property "sonar.projectKey", "Chess-GruppeC_Chess"
       property "sonar.organization", "chessgruppec"
       property "sonar.host.url", "https://sonarcloud.io"
-      property "sonar.exclusions", "**/se2/chessify/Dice/*", "**/se2/chessify/AndroidGameUI/*", "**/se2/chessify/*Activity*"
+      property "sonar.exclusions", "**/se2/chessify/Dice/*,**/se2/chessify/AndroidGameUI/*,**/se2/chessify/*Activity*"
   }
 }
 
