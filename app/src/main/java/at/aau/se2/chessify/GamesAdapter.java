@@ -44,7 +44,11 @@ public class GamesAdapter extends BaseAdapter {
         View view = v;
         TextView playerName = view.findViewById(R.id.player_name);
         Game game = games.get(i);
-        playerName.setText(game.getOpponent().getName());
+        try {
+            playerName.setText(game.getOpponent().getName());
+        } catch (NullPointerException e) {
+            // ignored
+        }
         TextView gameId = view.findViewById(R.id.game_id);
         String gameIdStr = "#" + game.getGameId();
         gameId.setText(gameIdStr);
